@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2020 PT. Simetri Sinergi Indonesia
+     Copyright 2020 OpenSynergy Indonesia
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<openerp>
+<data>
+
+<menuitem
+    id="employee_cash_advance_root_menu"
+    name="Cash Advance"
+    parent="hr.menu_hr_root"
+    />
+
+<menuitem
+    id="employee_cash_advance_configuration_menu"
+    name="Cash Advance"
+    parent="hr.menu_hr_configuration"
+    sequence="99"
+    />
+
+</data>
+</openerp>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2020 PT. Simetri Sinergi Indonesia
+     Copyright 2020 OpenSynergy Indonesia
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<openerp>
+<data>
+<!-- Cash Advance -->
+<record id="cash_advance_advance_usability_module_category" model="ir.module.category">
+    <field name="name">Employee Cash Advance Usability</field>
+</record>
+
+<record id="module_hr_cash_advance" model="ir.module.category">
+    <field name="name">Employee Cash Advance</field>
+</record>
+
+<record id="module_hr_cash_advance_viewer" model="ir.module.category">
+    <field name="name">Employee Cash Advance Viewer</field>
+</record>
+
+<!-- Cash Advance Settlement -->
+<record id="cash_advance_settlement_usability_module_category" model="ir.module.category">
+    <field name="name">Employee Cash Advance Settlement Usability</field>
+</record>
+
+<record id="module_hr_cash_advance_settlement" model="ir.module.category">
+    <field name="name">Employee Cash Advance Settlement</field>
+</record>
+
+<record id="module_hr_cash_advance_settlement_viewer" model="ir.module.category">
+    <field name="name">Employee Cash Advance Settlement Viewer</field>
+</record>
+
+</data>
+</openerp>
