@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2020 PT. Simetri Sinergi Indonesia
+     Copyright 2020 OpenSynergy Indonesia
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<openerp>
+<data>
+<record id="hr_cash_advance_type_view_search" model="ir.ui.view">
+    <field name="name">hr.cash_advance_type form</field>
+    <field name="model">hr.cash_advance_type</field>
+    <field name="arch" type="xml">
+        <search>
+            <field name="name"/>
+            <field name="code"/>
+        </search>
+    </field>
+</record>
+
+<record id="hr_cash_advance_type_view_tree" model="ir.ui.view">
+    <field name="name">hr.cash_advance_type tree</field>
+    <field name="model">hr.cash_advance_type</field>
+    <field name="arch" type="xml">
+        <tree>
+            <field name="name"/>
+            <field name="code"/>
+        </tree>
+    </field>
+</record>
+
+<record id="hr_cash_advance_type_view_form" model="ir.ui.view">
+    <field name="name">hr.cash_advance_type form</field>
+    <field name="model">hr.cash_advance_type</field>
+    <field name="arch" type="xml">
+        <form>
+            <header/>
+            <sheet>
+                <div class="oe_right oe_button_box" style="width: 300px;" name="buttons"/>
+                <group name="group_1" colspan="4" col="2">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="active"/>
+                </group>
+                <notebook>
+                    <page name="general" string="General Configuration">
+                        <group name="general_1" colspan="4" col="2" string="Cash Advance">
+                            <field name="sequence_id" domain="[('code','=','cash.advance')]"/>
+                        </group>
+                        <group name="general_2" colspan="4" col="2" string="Cash Advance Settlement">
+                            <field name="sequence_id" domain="[('code','=','cash.advance.settlement')]"/>
+                        </group>
+                    </page>
+                    <page name="product" string="Allowed Products">
+                        <group name="product_1" string="Allowed Product Categories" colspan="4" col="2">
+                            <field name="allowed_product_categ_ids" nolabel="1"/>
+                        </group>
+                        <group name="product_2" string="Allowed Products" colspan="4" col="2">
+                            <field name="allowed_product_ids" nolabel="1"/>
+                        </group>
+                    </page>
+                    <page name="accounting" string="Accounting">
+                        <group name="accounting_1" colspan="4" col="2" string="Cash Advance">
+                            <field name="journal_id"/>
+                            <field name="employee_advance_payable_account_id"/>
+                            <field name="employee_advance_account_id"/>
+                        </group>
+                        <group name="accounting_2" colspan="4" col="2" string="Cash Advance Settlement">
+                            <field name="cash_advance_settlement_journal_id"/>
+                        </group>
+                    </page>
+                    <page name="workflow_policy" string="Workflow Policy">
+                        <group name="workflow_policy_1" colspan="4" col="2" string="Cash Advance">
+                            <field name="cash_advance_confirm_grp_ids" widget="many2many_tags"/>
+                            <field name="cash_advance_restart_approval_grp_ids" widget="many2many_tags"/>
+                            <field name="cash_advance_cancel_grp_ids" widget="many2many_tags"/>
+                            <field name="cash_advance_terminate_grp_ids" widget="many2many_tags"/>
+                            <field name="cash_advance_restart_grp_ids" widget="many2many_tags"/>
+                        </group>
+                        <group name="workflow_policy_1" colspan="4" col="2" string="Cash Advance Settlement">
+                            <field name="cash_advance_settlement_confirm_grp_ids" widget="many2many_tags"/>
+                            <field name="cash_advance_settlement_restart_approval_grp_ids" widget="many2many_tags"/>
+                            <field name="cash_advance_settlement_cancel_grp_ids" widget="many2many_tags"/>
+                            <field name="cash_advance_settlement_terminate_grp_ids" widget="many2many_tags"/>
+                            <field name="cash_advance_settlement_restart_grp_ids" widget="many2many_tags"/>
+                        </group>
+                    </page>
+                    <page name="note" string="Note">
+                        <field name="note"/>
+                    </page>
+                </notebook>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+<record id="hr_cash_advance_type_action" model="ir.actions.act_window">
+    <field name="name">Cash Advance Types</field>
+    <field name="type">ir.actions.act_window</field>
+    <field name="res_model">hr.cash_advance_type</field>
+    <field name="view_type">form</field>
+    <field name="view_mode">tree,form</field>
+</record>
+
+<menuitem
+    id="hr_cash_advance_type_menu"
+    name="Types"
+    parent="employee_cash_advance_configuration_menu"
+    action="hr_cash_advance_type_action"
+    sequence="2"
+    />
+</data>
+</openerp>
