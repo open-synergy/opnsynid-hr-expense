@@ -8,6 +8,7 @@
     "version": "8.0.1.0.0",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
     "website": "https://simetri-sinergi.id",
+    "license": "AGPL-3",    
     "depends": [
         "base_sequence_configurator",
         "base_workflow_policy",
