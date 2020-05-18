@@ -5,8 +5,6 @@ access_hr_cash_advance_all,hr.cash_advance - all,model_hr_cash_advance,,1,0,0,0
 access_hr_cash_advance_employee,hr.cash_advance - employee,model_hr_cash_advance,base.group_user,1,1,1,1
 access_hr_cash_advance_line_all,hr.cash_advance_line - all,model_hr_cash_advance_line,,1,0,0,0
 access_hr_cash_advance_line_employee,hr.cash_advance_line - employee,model_hr_cash_advance_line,base.group_user,1,1,1,1
-access_hr_cash_advance_settlement_type_all,hr.cash_advance_settlement_type - all,model_hr_cash_advance_settlement_type,,1,0,0,0
-access_hr_cash_advance_settlement_type_employee,hr.cash_advance_settlement_type - employee,model_hr_cash_advance_settlement_type,base.group_user,1,1,1,1
 access_hr_cash_advance_settlement_all,hr.cash_advance_settlement - all,model_hr_cash_advance_settlement,,1,0,0,0
 access_hr_cash_advance_settlement_employee,hr.cash_advance_settlement - employee,model_hr_cash_advance_settlement,base.group_user,1,1,1,1
 access_hr_cash_advance_settlement_line_all,hr.cash_advance_settlement_line - all,model_hr_cash_advance_settlement_line,,1,0,0,0

@@ -140,6 +140,36 @@ class HrCashAdvance(models.Model):
             ],
         },
     )
+    department_id = fields.Many2one(
+        string="Department",
+        comodel_name="hr.department",
+        readonly=True,
+        states={
+            "draft": [
+                ("readonly", False),
+            ],
+        },
+    )
+    manager_id = fields.Many2one(
+        string="Manager",
+        comodel_name="hr.employee",
+        readonly=True,
+        states={
+            "draft": [
+                ("readonly", False),
+            ],
+        },
+    )
+    job_id = fields.Many2one(
+        string="Job Position",
+        comodel_name="hr.job",
+        readonly=True,
+        states={
+            "draft": [
+                ("readonly", False),
+            ],
+        },
+    )
     type_id = fields.Many2one(
         string="Type",
         comodel_name="hr.cash_advance_type",
@@ -373,6 +403,7 @@ class HrCashAdvance(models.Model):
     def action_confirm(self):
         for document in self:
             document.write(document._prepare_confirm_data())
+            document.request_validation()
 
     @api.multi
     def action_approve(self):
@@ -644,6 +675,30 @@ class HrCashAdvance(models.Model):
             result = self.type_id.employee_advance_account_id
 
         self.employee_advance_account_id = result
+
+    @api.onchange(
+        "employee_id",
+    )
+    def onchange_department_id(self):
+        self.department_id = False
+        if self.employee_id:
+            self.department_id = self.employee_id.department_id
+
+    @api.onchange(
+        "employee_id",
+    )
+    def onchange_manager_id(self):
+        self.manager_id = False
+        if self.employee_id:
+            self.manager_id = self.employee_id.parent_id
+
+    @api.onchange(
+        "employee_id",
+    )
+    def onchange_job_id(self):
+        self.job_id = False
+        if self.employee_id:
+            self.job_id = self.employee_id.job_id
 
     @api.multi
     def unlink(self):

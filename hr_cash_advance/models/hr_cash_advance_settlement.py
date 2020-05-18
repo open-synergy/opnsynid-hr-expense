@@ -283,6 +283,7 @@ class HrCashAdvanceSettlement(models.Model):
     def action_confirm(self):
         for document in self:
             document.write(document._prepare_confirm_data())
+            document.request_validation()
 
     @api.multi
     def action_approve(self):

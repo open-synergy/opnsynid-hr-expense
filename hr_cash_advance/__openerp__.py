@@ -5,10 +5,10 @@
 
 {
     "name": "Employee Cash Advance",
-    "version": "8.0.1.0.0",
+    "version": "8.0.1.1.0",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
     "website": "https://simetri-sinergi.id",
-    "license": "AGPL-3",    
+    "license": "AGPL-3",
     "depends": [
         "base_sequence_configurator",
         "base_workflow_policy",
@@ -40,7 +40,6 @@
         "wizards/hr_approve_cash_advance_settlement.xml",
         "views/hr_employee_views.xml",
         "views/hr_cash_advance_type_views.xml",
-        "views/hr_cash_advance_settlement_type_views.xml",
         "views/hr_cash_advance_views.xml",
         "views/hr_cash_advance_settlement_views.xml",
     ],
