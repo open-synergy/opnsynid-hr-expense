@@ -10,7 +10,6 @@ from . import (
     hr_cash_advance_type,
     hr_cash_advance,
     hr_cash_advance_line,
-    hr_cash_advance_settlement_type,
     hr_cash_advance_settlement,
     hr_cash_advance_settlement_line,
 )
