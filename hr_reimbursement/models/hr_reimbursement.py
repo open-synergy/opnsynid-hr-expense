@@ -129,6 +129,16 @@ class HrReimbursement(models.Model):
             ],
         },
     )
+    allowed_product_categ_ids = fields.Many2many(
+        string="Allowed Product Categories",
+        comodel_name="product.category",
+        related="type_id.allowed_product_categ_ids",
+    )
+    allowed_product_ids = fields.Many2many(
+        string="Allowed Products",
+        comodel_name="product.product",
+        related="type_id.allowed_product_ids",
+    )
     department_id = fields.Many2one(
         string="Department",
         comodel_name="hr.department",
