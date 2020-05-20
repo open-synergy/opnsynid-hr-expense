@@ -589,7 +589,7 @@ class HrCashAdvance(models.Model):
         return {
             "date": fields.Date.today(),
             "journal_id": self.journal_id.id,
-            "name": "/",
+            "name": self.name,
             "period_id": period.id,
         }
 
