@@ -163,7 +163,7 @@
                 <notebook colspan="4">
                     <page name="detail" string="Reimbursement Details">
                         <group name="detail_1" colspan="4" col="2">
-                            <button name="%(hr_approve_reimbursement_view_action)d" type="action" string="Change Approved Price Unit/Quantity" attrs="{'invisible':[('state', '!=', 'confirm')]}"/>
+                            <button name="%(hr_approve_reimbursement_view_action)d" type="action" string="Change Approved Price Unit/Quantity" attrs="{'invisible':['|',('state', '!=', 'confirm'),('change_detail_ok','=',False)]}"/>
                         </group>
                         <group name="detail_2" colspan="4" col="2">
                             <field name="line_ids" colspan="2" nolabel="1" context="{'default_employee_id':employee_id, 'default_type_id': type_id}">
@@ -216,6 +216,7 @@
                         <group name="policy_1" colspan="4" col="2">
                             <field name="confirm_ok"/>
                             <field name="restart_approval_ok"/>
+                            <field name="change_detail_ok"/>
                             <field name="cancel_ok"/>
                             <field name="terminate_ok"/>
                             <field name="restart_ok"/>

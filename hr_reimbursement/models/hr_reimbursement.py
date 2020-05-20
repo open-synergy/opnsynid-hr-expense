@@ -348,6 +348,10 @@ class HrReimbursement(models.Model):
         string="Can Cancel",
         compute="_compute_policy",
     )
+    change_detail_ok = fields.Boolean(
+        string="Can Change Detail",
+        compute="_compute_policy",
+    )
     restart_ok = fields.Boolean(
         string="Can Restart",
         compute="_compute_policy",

@@ -74,6 +74,13 @@ class HrReimbursementType(models.Model):
         column1="type_id",
         column2="group_id",
     )
+    reimbursement_change_detail_grp_ids = fields.Many2many(
+        string="Allow To Change Reimbursement Detail",
+        comodel_name="res.groups",
+        relation="rel_reimbursement_type_change_detail_reimbursement",
+        column1="type_id",
+        column2="group_id",
+    )
     reimbursement_cancel_grp_ids = fields.Many2many(
         string="Allow To Cancel Reimbursement",
         comodel_name="res.groups",
