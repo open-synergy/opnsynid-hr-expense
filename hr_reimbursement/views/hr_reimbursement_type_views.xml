@@ -64,6 +64,7 @@
                         <group name="workflow_policy_1" colspan="4" col="2">
                             <field name="reimbursement_confirm_grp_ids" widget="many2many_tags"/>
                             <field name="reimbursement_restart_approval_grp_ids" widget="many2many_tags"/>
+                            <field name="reimbursement_change_detail_grp_ids" widget="many2many_tags"/>
                             <field name="reimbursement_cancel_grp_ids" widget="many2many_tags"/>
                             <field name="reimbursement_terminate_grp_ids" widget="many2many_tags"/>
                             <field name="reimbursement_restart_grp_ids" widget="many2many_tags"/>
