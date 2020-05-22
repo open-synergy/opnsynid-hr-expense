@@ -172,6 +172,8 @@
                                     <field name="employee_id" invisible="1"/>
                                     <field name="type_id" invisible="1"/>
                                     <field name="product_id" domain="['|',('id','in',parent.allowed_product_ids[0][2]),('categ_id','in',parent.allowed_product_categ_ids[0][2])]"/>
+                                    <field name="note"/>
+                                    <field name="ref"/>
                                     <field name="account_id" groups="hr_reimbursement.employee_reimbursement_accounting_setting_group"/>
                                     <field name="analytic_account_id" groups="analytic.group_analytic_accounting"/>
                                     <field name="price_unit"/>

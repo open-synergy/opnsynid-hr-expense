@@ -56,6 +56,12 @@ class HrReimbursementLine(models.Model):
         comodel_name="product.product",
         required=True,
     )
+    note = fields.Text(
+        string="Note",
+    )
+    ref = fields.Char(
+        string="Reference",
+    )
     account_id = fields.Many2one(
         string="Account",
         comodel_name="account.account",

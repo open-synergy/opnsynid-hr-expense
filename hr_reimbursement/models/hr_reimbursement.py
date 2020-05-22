@@ -528,12 +528,12 @@ class HrReimbursement(models.Model):
     @api.multi
     def _prepare_account_move(self):
         self.ensure_one()
-        period = self.env["account.period"].find(self.date_expense)
+        period = self.env["account.period"].find(self.date_expense)[0]
         return {
             "date": self.date_expense,
             "journal_id": self.journal_id.id,
             "name": self.name,
-            "period": period.id,
+            "period_id": period.id,
         }
 
     @api.multi
