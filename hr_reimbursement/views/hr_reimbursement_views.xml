@@ -24,6 +24,9 @@
                 <filter name="dom_done" string="Done" domain="[('state','=','done')]"/>
                 <filter name="dom_cancel" string="Cancel" domain="[('state','=','cancel')]"/>
                 <filter name="dom_terminate" string="Terminate" domain="[('state','=','terminate')]"/>
+                <filter name="needs_review" string="Needs my Review"
+                        domain="[('reviewer_ids','in',uid), ('state', 'not in', ['done', 'cancel', 'terminate'])]"
+                        help="My Reimbursement to review"/>
             </group>
             <group name="group" string="Group By">
                 <filter name="grp_company" string="Company" context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
@@ -99,7 +102,7 @@
                  ('validated', '=', True), ('state', 'not in', ['confirm']),
                  ('rejected', '=', True), ('review_ids', '=', [])]}"
                  style="margin-bottom:0px;">
-                <p><i class="fa fa-info-circle"/>This Expense needs to be
+                <p><i class="fa fa-info-circle"/>This Reimbursement needs to be
                     validated.
                     <button name="validate_tier"
                         string="Validate"
@@ -206,6 +209,7 @@
                     <page string="Reviews" name="tier_validation">
                         <group name="tier_validation_1" colspan="4" col="2">
                             <field name="definition_id"/>
+                            <field name="reviewer_partner_ids" widget="many2many_tags"/>
                         </group>
                         <group name="tier_validation_2" colspan="4" col="2">
                             <field name="review_ids" readonly="1"/>
@@ -257,6 +261,7 @@
     <field name="res_model">hr.reimbursement</field>
     <field name="view_type">form</field>
     <field name="view_mode">tree,form</field>
+    <field name="domain">[('employee_id.user_id.id','=',uid)]</field>
     <field name="context">{'hide_employee': True, 'search_default_dom_draft':1, 'search_default_dom_confirm':1,'search_default_dom_approve':1,'readonly_by_pass': True}</field>
 </record>
 
