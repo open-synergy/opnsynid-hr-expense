@@ -39,7 +39,7 @@
                     <field name="name"/>
                     <field name="code"/>
                     <field name="active"/>
-                    <field name="sequence_id" domain="[('code','=',reimbursement)]"/>
+                    <field name="sequence_id" domain="[('code','=','reimbursement')]"/>
                 </group>
                 <notebook>
                     <page name="product" string="Allowed Products">
