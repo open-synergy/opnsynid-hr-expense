@@ -5,7 +5,7 @@
 
 {
     "name": "Employee Cash Advance",
-    "version": "8.0.1.1.1",
+    "version": "8.0.1.2.0",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
     "website": "https://simetri-sinergi.id",
     "license": "AGPL-3",
