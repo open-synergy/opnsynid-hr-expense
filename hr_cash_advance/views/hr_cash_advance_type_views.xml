@@ -46,7 +46,7 @@
                             <field name="sequence_id" domain="[('code','=','cash.advance')]"/>
                         </group>
                         <group name="general_2" colspan="4" col="2" string="Cash Advance Settlement">
-                            <field name="sequence_id" domain="[('code','=','cash.advance.settlement')]"/>
+                            <field name="cash_advance_sequence_id" domain="[('code','=','cash.advance.settlement')]"/>
                         </group>
                     </page>
                     <page name="product" string="Allowed Products">
