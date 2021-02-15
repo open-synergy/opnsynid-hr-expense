@@ -4,9 +4,9 @@
 # pylint: disable=locally-disabled, manifest-required-author
 {
     "name": "Employee Reimbursement",
-    "version": "8.0.1.6.0",
     "website": "https://simetri-sinergi.id",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
+    "version": "8.0.1.7.0",
     "license": "AGPL-3",
     "installable": True,
     "application": True,
