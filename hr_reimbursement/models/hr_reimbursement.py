@@ -414,8 +414,16 @@ class HrReimbursement(models.Model):
     @api.multi
     def _prepare_approve_data(self):
         self.ensure_one()
+        ctx = self.env.context.copy()
+        ctx.update(
+            {
+                "ir_sequence_date": self.date_expense,
+            }
+        )
+        sequence = self.with_context(ctx)._create_sequence()
         return {
             "state": "approve",
+            "name": sequence,
             "approve_date": fields.Datetime.now(),
             "approve_user_id": self.env.user.id,
             "done_date": False,
@@ -610,16 +618,6 @@ class HrReimbursement(models.Model):
 
         self.employee_reimbursement_payable_account_id = result
 
-    @api.model
-    def create(self, values):
-        _super = super(HrReimbursement, self)
-        result = _super.create(values)
-        sequence = result._create_sequence()
-        result.write({
-            "name": sequence,
-        })
-        return result
-
     @api.multi
     def unlink(self):
         strWarning = _("You can only delete data on draft state")
@@ -644,3 +642,14 @@ class HrReimbursement(models.Model):
         _super.restart_validation()
         for document in self:
             document.request_validation()
+
+    @api.multi
+    def name_get(self):
+        result = []
+        for record in self:
+            if record.name == "/":
+                name = "*" + str(record.id)
+            else:
+                name = record.name
+            result.append((record.id, name))
+        return result
