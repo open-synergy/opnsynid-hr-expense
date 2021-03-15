@@ -315,11 +315,20 @@ class HrCashAdvanceSettlement(models.Model):
     @api.multi
     def _prepare_approve_data(self):
         self.ensure_one()
-        return {
-            "state": "done",
-            "approve_date": fields.Datetime.now(),
-            "approve_user_id": self.env.user.id,
+        ctx = self.env.context.copy()
+        ctx.update(
+            {
+                "ir_sequence_date": self.date_expense,
+            }
+        )
+        sequence = self.with_context(ctx)._create_sequence()
+        data = {
+            "state": "approve",
+            "name": sequence,
+            "approved_date": fields.Datetime.now(),
+            "approved_user_id": self.env.user.id,
         }
+        return data
 
     @api.multi
     def _prepare_cancel_data(self):
@@ -508,16 +517,6 @@ class HrCashAdvanceSettlement(models.Model):
         _super = super(HrCashAdvanceSettlement, self)
         _super.unlink()
 
-    @api.model
-    def create(self, values):
-        _super = super(HrCashAdvanceSettlement, self)
-        result = _super.create(values)
-        sequence = result._create_sequence()
-        result.write({
-            "name": sequence,
-        })
-        return result
-
     @api.multi
     def validate_tier(self):
         _super = super(HrCashAdvanceSettlement, self)
@@ -525,3 +524,14 @@ class HrCashAdvanceSettlement(models.Model):
         for document in self:
             if document.validated:
                 document.action_approve()
+
+    @api.multi
+    def name_get(self):
+        result = []
+        for record in self:
+            if record.name == "/":
+                name = "*" + str(record.id)
+            else:
+                name = record.name
+            result.append((record.id, name))
+        return result
