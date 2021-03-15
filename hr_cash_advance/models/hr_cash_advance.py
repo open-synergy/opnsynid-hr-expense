@@ -447,11 +447,20 @@ class HrCashAdvance(models.Model):
     @api.multi
     def _prepare_approve_data(self):
         self.ensure_one()
-        return {
+        ctx = self.env.context.copy()
+        ctx.update(
+            {
+                "ir_sequence_date": self.date_request,
+            }
+        )
+        sequence = self.with_context(ctx)._create_sequence()
+        data = {
             "state": "approve",
-            "approve_date": fields.Datetime.now(),
-            "approve_user_id": self.env.user.id,
+            "name": sequence,
+            "approved_date": fields.Datetime.now(),
+            "approved_user_id": self.env.user.id,
         }
+        return data
 
     @api.multi
     def _prepare_done_data(self):
@@ -710,16 +719,6 @@ class HrCashAdvance(models.Model):
         _super = super(HrCashAdvance, self)
         _super.unlink()
 
-    @api.model
-    def create(self, values):
-        _super = super(HrCashAdvance, self)
-        result = _super.create(values)
-        sequence = result._create_sequence()
-        result.write({
-            "name": sequence,
-        })
-        return result
-
     @api.multi
     def validate_tier(self):
         _super = super(HrCashAdvance, self)
@@ -727,3 +726,14 @@ class HrCashAdvance(models.Model):
         for document in self:
             if document.validated:
                 document.action_approve()
+
+    @api.multi
+    def name_get(self):
+        result = []
+        for record in self:
+            if record.name == "/":
+                name = "*" + str(record.id)
+            else:
+                name = record.name
+            result.append((record.id, name))
+        return result
