@@ -65,6 +65,9 @@ class HrCashAdvanceSettlementLine(models.Model):
     account_id = fields.Many2one(
         string="Account",
         comodel_name="account.account",
+        domain=[
+            ("type", "=", "other"),
+        ],
         required=True,
     )
     price_unit = fields.Float(
