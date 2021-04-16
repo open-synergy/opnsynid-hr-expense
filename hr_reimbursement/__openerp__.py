@@ -6,7 +6,7 @@
     "name": "Employee Reimbursement",
     "website": "https://simetri-sinergi.id",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
-    "version": "8.0.1.8.1",
+    "version": "8.0.1.9.0",
     "license": "AGPL-3",
     "installable": True,
     "application": True,

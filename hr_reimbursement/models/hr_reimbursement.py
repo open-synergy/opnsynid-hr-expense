@@ -364,6 +364,21 @@ class HrReimbursement(models.Model):
         string="Can See Accounting Info",
         compute="_compute_policy",
     )
+    @api.depends(
+        "reviewer_ids",
+    )
+    @api.multi
+    def _compute_approve_ok(self):
+        user_id = self.env.user.id
+        for document in self:
+            document.approve_ok = False
+            if user_id in document.reviewer_ids.ids:
+                document.approve_ok = True
+
+    approve_ok = fields.Boolean(
+        string="Can Approved",
+        compute="_compute_approve_ok",
+    )
 
     @api.multi
     def action_confirm(self):

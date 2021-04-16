@@ -223,9 +223,10 @@
             <field name="rejected" invisible="1" />
             <div
                         class="alert alert-warning"
-                        attrs="{'invisible': ['|', '|', '|',
+                        attrs="{'invisible': ['|', '|', '|','|',
                  ('validated', '=', True), ('state', 'not in', ['confirm']),
-                 ('rejected', '=', True), ('review_ids', '=', [])]}"
+                 ('rejected', '=', True), ('review_ids', '=', []),
+                 ('approve_ok','=',False)]}"
                         style="margin-bottom:0px;"
                     >
                 <p><i class="fa fa-info-circle" />This Reimbursement needs to be
@@ -233,7 +234,8 @@
                     <button
                                 name="validate_tier"
                                 string="Validate"
-                                attrs="{'invisible': [('review_ids', '=', [])]}"
+                                attrs="{'invisible':[('review_ids', '=',[])
+                                ]}"
                                 type="object"
                                 class="oe_inline oe_button btn-success"
                                 icon="terp-check"
@@ -423,6 +425,7 @@
                     <page name="policy" string="Policies" groups="base.group_system">
                         <group name="policy_1" colspan="4" col="2">
                             <field name="confirm_ok" />
+                            <field name="approve_ok" />
                             <field name="restart_approval_ok" />
                             <field name="change_detail_ok" />
                             <field name="cancel_ok" />
