@@ -1,0 +1,1234 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* hr_cash_advance
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance,cash_advance_id:0
+#: field:hr.cash_advance_line,advance_id:0
+#: field:hr.cash_advance_settlement,cash_advance_id:0
+msgid "# Cash Advance"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance_settlement,settlement_id:0
+msgid "# Cash Advance Settlement"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,name:0
+#: field:hr.cash_advance_settlement,name:0
+msgid "# Document"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_settlement,move_id:0
+msgid "# Expense Move"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,move_id:0
+msgid "# Move"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_settlement_line,settlement_id:0
+msgid "# Settlement"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_settlement_line,account_id:0
+msgid "Account"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance_type:hr_cash_advance.hr_cash_advance_type_view_form
+msgid "Accounting"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+msgid "Accounting Entry"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Accounting Info"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_type,active:0
+msgid "Active"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,active_reviewer_ids:0
+#: field:hr.cash_advance_settlement,active_reviewer_ids:0
+msgid "Active Reviewers"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: field:hr.cash_advance,line_ids:0
+msgid "Advance Details"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance_line,line_id:0
+msgid "Advance Line"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance_settlement_line,line_id:0
+msgid "Advance Settlement Line"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_type,cash_advance_cancel_grp_ids:0
+msgid "Allow To Cancel Cash Advance"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_type,cash_advance_settlement_cancel_grp_ids:0
+msgid "Allow To Cancel Cash Advance Settlement"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_type,cash_advance_confirm_grp_ids:0
+msgid "Allow To Confirm Cash Advance"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_type,cash_advance_settlement_confirm_grp_ids:0
+msgid "Allow To Confirm Cash Advance Settlement"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_type,cash_advance_restart_grp_ids:0
+msgid "Allow To Restart Cash Advance"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_type,cash_advance_restart_approval_grp_ids:0
+msgid "Allow To Restart Cash Advance Approval"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_type,cash_advance_settlement_restart_grp_ids:0
+msgid "Allow To Restart Cash Advance Settlement"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_type,cash_advance_settlement_restart_approval_grp_ids:0
+msgid "Allow To Restart Cash Advance Settlement Approval"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_type,cash_advance_terminate_grp_ids:0
+msgid "Allow To Terminate Cash Advance"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_type,cash_advance_settlement_terminate_grp_ids:0
+msgid "Allow To Terminate Cash Advance Settlement"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_settlement,allowed_cash_advance_ids:0
+msgid "Allowed Cash Advance"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,allowed_product_categ_ids:0
+#: view:hr.cash_advance_type:hr_cash_advance.hr_cash_advance_type_view_form
+#: field:hr.cash_advance_type,allowed_product_categ_ids:0
+msgid "Allowed Product Categories"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,allowed_product_ids:0
+#: view:hr.cash_advance_type:hr_cash_advance.hr_cash_advance_type_view_form
+#: field:hr.cash_advance_type,allowed_product_ids:0
+msgid "Allowed Products"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_line,allowed_uom_ids:0
+#: field:hr.cash_advance_settlement_line,allowed_uom_ids:0
+msgid "Allowed UoM"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Approval"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,approve_user_id:0
+#: field:hr.cash_advance_settlement,approve_user_id:0
+msgid "Approve By"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,approve_date:0
+#: field:hr.cash_advance_settlement,approve_date:0
+msgid "Approve Date"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.model,name:hr_cash_advance.model_hr_approve_cash_advance_settlement
+msgid "Approved Cash Advance Settlement"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.model,name:hr_cash_advance.model_hr_approve_cash_advance_settlement_line
+msgid "Approved Cash Advance Settlement Line"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.model,name:hr_cash_advance.model_hr_approve_cash_advance
+msgid "Approved Cash Advance Wizard"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.model,name:hr_cash_advance.model_hr_approve_cash_advance_line
+msgid "Approved Cash Advance Wizard Line"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance_line,approve_price_unit:0
+#: field:hr.approve_cash_advance_settlement_line,approve_price_unit:0
+#: field:hr.cash_advance_line,approve_price_unit:0
+#: field:hr.cash_advance_settlement_line,approve_price_unit:0
+msgid "Approved Price Unit"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance_line,approve_quantity:0
+#: field:hr.approve_cash_advance_settlement_line,approve_quantity:0
+#: field:hr.cash_advance_line,approve_quantity:0
+#: field:hr.cash_advance_settlement_line,approve_quantity:0
+msgid "Approved Quantity"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_settlement_line,line_id:0
+msgid "CA Line"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,cancel_ok:0
+#: field:hr.cash_advance_settlement,cancel_ok:0
+msgid "Can Cancel"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,confirm_ok:0
+#: field:hr.cash_advance_settlement,confirm_ok:0
+msgid "Can Confirm"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,restart_ok:0
+#: field:hr.cash_advance_settlement,restart_ok:0
+msgid "Can Restart"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,restart_approval_ok:0
+#: field:hr.cash_advance_settlement,restart_approval_ok:0
+msgid "Can Restart Approval"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,terminate_ok:0
+#: field:hr.cash_advance_settlement,terminate_ok:0
+msgid "Can Terminate"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.approve_cash_advance:hr_cash_advance.hr_approve_cash_advance_view_form
+#: view:hr.approve_cash_advance_settlement:hr_cash_advance.hr_approve_cash_advance_settlement_view_form
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_vie w_search
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_search
+msgid "Cancel"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,cancel_date:0
+#: field:hr.cash_advance_settlement,cancel_date:0
+msgid "Cancel Date"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,cancel_reason_id:0
+#: field:hr.cash_advance_settlement,cancel_reason_id:0
+msgid "Cancel Reason"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Cancel cash advance settlement. Are you sure?"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+msgid "Cancel cash advance. Are you sure?"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Cancellation"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+msgid "Cancellation reason:"
+msgstr ""
+
+#. module: hr_cash_advance
+#: selection:hr.cash_advance,state:0
+#: selection:hr.cash_advance_settlement,state:0
+msgid "Cancelled"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,cancel_user_id:0
+#: field:hr.cash_advance_settlement,cancel_user_id:0
+msgid "Cancelled By"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:account.move.line,cash_advance_id:0
+#: view:hr.cash_advance_type:hr_cash_advance.hr_cash_advance_type_view_form
+#: model:ir.ui.menu,name:hr_cash_advance.employee_cash_advance_configuration_menu
+#: model:ir.ui.menu,name:hr_cash_advance.employee_cash_advance_root_menu
+msgid "Cash Advance"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.actions.server,name:hr_cash_advance.ir_action_server_02
+msgid "Cash Advance Done"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.actions.server,name:hr_cash_advance.ir_action_server_01
+msgid "Cash Advance Open"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:account.move.line,cash_advance_payable_id:0
+msgid "Cash Advance Payable"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.filters,name:hr_cash_advance.ir_filter_cash_advance_02
+msgid "Cash Advance Payable Reconcilled"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.filters,name:hr_cash_advance.ir_filter_cash_advance_01
+msgid "Cash Advance Payable Unreconcilled"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.filters,name:hr_cash_advance.ir_filter_cash_advance_04
+msgid "Cash Advance Reconcilled"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance_type:hr_cash_advance.hr_cash_advance_type_view_form
+msgid "Cash Advance Settlement"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_type,cash_advance_settlement_journal_id:0
+msgid "Cash Advance Settlement Journal"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.actions.act_window,name:hr_cash_advance.hr_cash_advance_settlement_action
+msgid "Cash Advance Settlements"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.actions.act_window,name:hr_cash_advance.hr_cash_advance_type_action
+msgid "Cash Advance Types"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.filters,name:hr_cash_advance.ir_filter_cash_advance_03
+msgid "Cash Advance Unreconcilled"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.actions.act_window,name:hr_cash_advance.hr_cash_advance_action
+#: model:ir.ui.menu,name:hr_cash_advance.hr_cash_advance_menu
+msgid "Cash Advances"
+msgstr ""
+
+#. module: hr_cash_advance
+#: code:addons/hr_cash_advance/models/hr_cash_advance.py:608
+#, python-format
+msgid "Cash advance %s"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+#: model:ir.actions.act_window,name:hr_cash_advance.hr_approve_cash_advance_settlement_view_action
+#: model:ir.actions.act_window,name:hr_cash_advance.hr_approve_cash_advance_view_action
+msgid "Change Approved Price Unit/Quantity"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_type,code:0
+msgid "Code"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,company_id:0
+#: field:hr.cash_advance_settlement,company_id:0
+#: model:res.groups,name:hr_cash_advance.group_hr_cash_advance_company
+#: model:res.groups,name:hr_cash_advance.group_hr_cash_advance_settlement_company
+#: model:res.groups,name:hr_cash_advance.group_hr_cash_advance_settlement_viewer_company
+#: model:res.groups,name:hr_cash_advance.group_hr_cash_advance_viewer_company
+msgid "Company"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.approve_cash_advance:hr_cash_advance.hr_approve_cash_advance_view_form
+#: view:hr.approve_cash_advance_settlement:hr_cash_advance.hr_approve_cash_advance_settlement_view_form
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Confirm"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,confirm_date:0
+#: field:hr.cash_advance_settlement,confirm_date:0
+msgid "Confirm Date"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+msgid "Confirm cash advance. Are you sure?"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Confirm employee advance settlement. Are you sure?"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Confirmation"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,confirm_user_id:0
+#: field:hr.cash_advance_settlement,confirm_user_id:0
+msgid "Confirmed By"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance,create_uid:0
+#: field:hr.approve_cash_advance_line,create_uid:0
+#: field:hr.approve_cash_advance_settlement,create_uid:0
+#: field:hr.approve_cash_advance_settlement_line,create_uid:0
+#: field:hr.cash_advance,create_uid:0
+#: field:hr.cash_advance_line,create_uid:0
+#: field:hr.cash_advance_settlement,create_uid:0
+#: field:hr.cash_advance_settlement_line,create_uid:0
+#: field:hr.cash_advance_type,create_uid:0
+msgid "Created by"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance,create_date:0
+#: field:hr.approve_cash_advance_line,create_date:0
+#: field:hr.approve_cash_advance_settlement,create_date:0
+#: field:hr.approve_cash_advance_settlement_line,create_date:0
+#: field:hr.cash_advance,create_date:0
+#: field:hr.cash_advance_line,create_date:0
+#: field:hr.cash_advance_settlement,create_date:0
+#: field:hr.cash_advance_settlement_line,create_date:0
+#: field:hr.cash_advance_type,create_date:0
+msgid "Created on"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance,currency_id:0
+#: field:hr.approve_cash_advance_settlement,currency_id:0
+#: field:hr.cash_advance,currency_id:0
+#: field:hr.cash_advance_settlement,currency_id:0
+msgid "Currency"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_settlement,date_expense:0
+msgid "Date Expense"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,date_request:0
+msgid "Date Request"
+msgstr ""
+
+#. module: hr_cash_advance
+#: help:hr.cash_advance,message_last_post:0
+#: help:hr.cash_advance_settlement,message_last_post:0
+msgid "Date of the last message posted on the record."
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,definition_id:0
+#: field:hr.cash_advance_settlement,definition_id:0
+msgid "Definition"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,department_id:0
+#: model:res.groups,name:hr_cash_advance.group_hr_cash_advance_department
+#: model:res.groups,name:hr_cash_advance.group_hr_cash_advance_settlement_department
+#: model:res.groups,name:hr_cash_advance.group_hr_cash_advance_settlement_viewer_department
+#: model:res.groups,name:hr_cash_advance.group_hr_cash_advance_viewer_department
+msgid "Department"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance,line_ids:0
+#: field:hr.approve_cash_advance_settlement,line_ids:0
+msgid "Details"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance,display_name:0
+#: field:hr.approve_cash_advance_line,display_name:0
+#: field:hr.approve_cash_advance_settlement,display_name:0
+#: field:hr.approve_cash_advance_settlement_line,display_name:0
+#: field:hr.cash_advance,display_name:0
+#: field:hr.cash_advance_line,display_name:0
+#: field:hr.cash_advance_settlement,display_name:0
+#: field:hr.cash_advance_settlement_line,display_name:0
+#: field:hr.cash_advance_type,display_name:0
+msgid "Display Name"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_vie w_search
+#: selection:hr.cash_advance,state:0
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_search
+#: selection:hr.cash_advance_settlement,state:0
+msgid "Done"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_vie w_search
+#: selection:hr.cash_advance,state:0
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_search
+#: selection:hr.cash_advance_settlement,state:0
+msgid "Draft"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,employee_id:0
+#: field:hr.cash_advance_line,employee_id:0
+#: field:hr.cash_advance_settlement,employee_id:0
+#: field:hr.cash_advance_settlement_line,employee_id:0
+#: model:ir.model,name:hr_cash_advance.model_hr_employee
+msgid "Employee"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.employee:hr_cash_advance.hr_employee_view_form
+msgid "Employee Advance"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,employee_advance_account_id:0
+#: field:hr.cash_advance_type,employee_advance_account_id:0
+#: field:hr.employee,employee_advance_account_id:0
+msgid "Employee Advance Account"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,employee_advance_move_line_id:0
+#: field:hr.cash_advance_settlement,employee_advance_move_line_id:0
+msgid "Employee Advance Move Line"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,employee_advance_payable_account_id:0
+#: field:hr.cash_advance_type,employee_advance_payable_account_id:0
+#: field:hr.employee,employee_advance_payable_account_id:0
+msgid "Employee Advance Payable Account"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,employee_advance_payable_move_line_id:0
+msgid "Employee Advance Payable Move Line"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.model,name:hr_cash_advance.model_hr_cash_advance
+msgid "Employee Advance Request"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.module.category,name:hr_cash_advance.module_hr_cash_advance
+msgid "Employee Cash Advance"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.model,name:hr_cash_advance.model_hr_cash_advance_line
+msgid "Employee Cash Advance Request Line"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.model,name:hr_cash_advance.model_hr_cash_advance_settlement
+#: model:ir.module.category,name:hr_cash_advance.module_hr_cash_advance_settlement
+msgid "Employee Cash Advance Settlement"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.model,name:hr_cash_advance.model_hr_cash_advance_settlement_line
+msgid "Employee Cash Advance Settlement Line"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.module.category,name:hr_cash_advance.cash_advance_settlement_usability_module_category
+msgid "Employee Cash Advance Settlement Usability"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.module.category,name:hr_cash_advance.module_hr_cash_advance_settlement_viewer
+msgid "Employee Cash Advance Settlement Viewer"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_type,name:0
+#: model:ir.model,name:hr_cash_advance.model_hr_cash_advance_type
+msgid "Employee Cash Advance Type"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.module.category,name:hr_cash_advance.cash_advance_advance_usability_module_category
+msgid "Employee Cash Advance Usability"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.module.category,name:hr_cash_advance.module_hr_cash_advance_viewer
+msgid "Employee Cash Advance Viewer"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+msgid "Finish"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,done_date:0
+#: field:hr.cash_advance_settlement,done_date:0
+msgid "Finish Date"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,done_user_id:0
+#: field:hr.cash_advance_settlement,done_user_id:0
+msgid "Finished By"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,message_follower_ids:0
+#: field:hr.cash_advance_settlement,message_follower_ids:0
+msgid "Followers"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance_type:hr_cash_advance.hr_cash_advance_type_view_form
+msgid "General Configuration"
+msgstr ""
+
+#. module: hr_cash_advance
+#: help:hr.cash_advance,message_summary:0
+#: help:hr.cash_advance_settlement,message_summary:0
+msgid "Holds the Chatter summary (number of messages, ...). This summary is directly in html format in order to be inserted in kanban views."
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance,id:0
+#: field:hr.approve_cash_advance_line,id:0
+#: field:hr.approve_cash_advance_settlement,id:0
+#: field:hr.approve_cash_advance_settlement_line,id:0
+#: field:hr.cash_advance,id:0
+#: field:hr.cash_advance_line,id:0
+#: field:hr.cash_advance_settlement,id:0
+#: field:hr.cash_advance_settlement_line,id:0
+#: field:hr.cash_advance_type,id:0
+msgid "ID"
+msgstr ""
+
+#. module: hr_cash_advance
+#: help:hr.cash_advance,message_unread:0
+#: help:hr.cash_advance_settlement,message_unread:0
+msgid "If checked new messages require your attention."
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,message_is_follower:0
+#: field:hr.cash_advance_settlement,message_is_follower:0
+msgid "Is a Follower"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,job_id:0
+msgid "Job Position"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,journal_id:0
+#: field:hr.cash_advance_settlement,journal_id:0
+#: field:hr.cash_advance_type,journal_id:0
+msgid "Journal"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.model,name:hr_cash_advance.model_account_move_line
+msgid "Journal Items"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,message_last_post:0
+#: field:hr.cash_advance_settlement,message_last_post:0
+msgid "Last Message Date"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance,__last_update:0
+#: field:hr.approve_cash_advance_line,__last_update:0
+#: field:hr.approve_cash_advance_settlement,__last_update:0
+#: field:hr.approve_cash_advance_settlement_line,__last_update:0
+#: field:hr.cash_advance,__last_update:0
+#: field:hr.cash_advance_line,__last_update:0
+#: field:hr.cash_advance_settlement,__last_update:0
+#: field:hr.cash_advance_settlement_line,__last_update:0
+#: field:hr.cash_advance_type,__last_update:0
+msgid "Last Modified on"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance,write_uid:0
+#: field:hr.approve_cash_advance_line,write_uid:0
+#: field:hr.approve_cash_advance_settlement,write_uid:0
+#: field:hr.approve_cash_advance_settlement_line,write_uid:0
+#: field:hr.cash_advance,write_uid:0
+#: field:hr.cash_advance_line,write_uid:0
+#: field:hr.cash_advance_settlement,write_uid:0
+#: field:hr.cash_advance_settlement_line,write_uid:0
+#: field:hr.cash_advance_type,write_uid:0
+msgid "Last Updated by"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance,write_date:0
+#: field:hr.approve_cash_advance_line,write_date:0
+#: field:hr.approve_cash_advance_settlement,write_date:0
+#: field:hr.approve_cash_advance_settlement_line,write_date:0
+#: field:hr.cash_advance,write_date:0
+#: field:hr.cash_advance_line,write_date:0
+#: field:hr.cash_advance_settlement,write_date:0
+#: field:hr.cash_advance_settlement_line,write_date:0
+#: field:hr.cash_advance_type,write_date:0
+msgid "Last Updated on"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Logs"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,manager_id:0
+msgid "Manager"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,message_ids:0
+#: field:hr.cash_advance_settlement,message_ids:0
+msgid "Messages"
+msgstr ""
+
+#. module: hr_cash_advance
+#: help:hr.cash_advance,message_ids:0
+#: help:hr.cash_advance_settlement,message_ids:0
+msgid "Messages and communication history"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.actions.act_window,name:hr_cash_advance.hr_my_advance_settlement_action
+msgid "My Cash Advance Settlements"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.actions.act_window,name:hr_cash_advance.hr_my_cash_advance_action
+#: model:ir.ui.menu,name:hr_cash_advance.hr_my_cash_advance_menu
+msgid "My Cash Advances"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.ui.menu,name:hr_cash_advance.hr_my_advance_settlement_menu
+msgid "My Settlements"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,need_validation:0
+#: field:hr.cash_advance_settlement,need_validation:0
+msgid "Need Validation"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,next_reviewer_ids:0
+#: field:hr.cash_advance_settlement,next_reviewer_ids:0
+msgid "Next Reviewers"
+msgstr ""
+
+#. module: hr_cash_advance
+#: code:addons/hr_cash_advance/models/hr_cash_advance.py:648
+#: code:addons/hr_cash_advance/models/hr_cash_advance_settlement.py:450
+#, python-format
+msgid "No home address defined for employee"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,note:0
+#: view:hr.cash_advance_type:hr_cash_advance.hr_cash_advance_type_view_form
+#: field:hr.cash_advance_type,note:0
+msgid "Note"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+msgid "Notes"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+msgid "Open"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,open_user_id:0
+msgid "Open By"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,open_date:0
+msgid "Open Date"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Operation has been"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Policies"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Print"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance_line,product_id:0
+#: field:hr.approve_cash_advance_settlement_line,product_id:0
+#: field:hr.cash_advance_line,product_id:0
+#: field:hr.cash_advance_settlement_line,product_id:0
+msgid "Product"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_line,quantity:0
+#: field:hr.cash_advance_settlement_line,quantity:0
+msgid "Qty"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance_line,quantity:0
+#: field:hr.approve_cash_advance_settlement_line,quantity:0
+msgid "Quantity"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+#: field:hr.cash_advance_settlement,line_ids:0
+msgid "Realization Details"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Reject"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,rejected:0
+#: field:hr.cash_advance_settlement,rejected:0
+msgid "Rejected"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Request Validation"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Restart"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Restart Validation"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+msgid "Restart approval process for this cash advance. Are you sure?"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Restart approval process for this employee advance settlement. Are you sure?"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+msgid "Restart cash advance. Are you sure?"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Restart employee advance settlement. Are you sure?"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,reviewer_partner_ids:0
+#: field:hr.cash_advance_settlement,reviewer_partner_ids:0
+msgid "Review Partners"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,reviewer_ids:0
+#: field:hr.cash_advance_settlement,reviewer_ids:0
+msgid "Reviewers"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Reviews"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_line,sequence:0
+#: field:hr.cash_advance_settlement_line,sequence:0
+#: field:hr.cash_advance_type,cash_advance_sequence_id:0
+#: field:hr.cash_advance_type,sequence_id:0
+msgid "Sequence"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+msgid "Settings"
+msgstr ""
+
+#. module: hr_cash_advance
+#: code:addons/hr_cash_advance/models/hr_cash_advance_settlement_line.py:119
+#, python-format
+msgid "Settlement %s with %s"
+msgstr ""
+
+#. module: hr_cash_advance
+#: code:addons/hr_cash_advance/models/hr_cash_advance_settlement.py:461
+#, python-format
+msgid "Settlement with %s"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.ui.menu,name:hr_cash_advance.hr_cash_advance_settlement_menu
+msgid "Settlements"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:res.groups,name:hr_cash_advance.cash_advance_accounting_setting_group
+#: model:res.groups,name:hr_cash_advance.cash_advance_settlement_accounting_setting_group
+msgid "Show Accounting Setting"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:res.groups,name:hr_cash_advance.cash_advance_settlement_show_log_group
+#: model:res.groups,name:hr_cash_advance.cash_advance_show_log_group
+msgid "Show Logs"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:res.groups,name:hr_cash_advance.cash_advance_settlement_show_tier_definition
+#: model:res.groups,name:hr_cash_advance.cash_advance_show_tier_definition
+msgid "Show Tier Definition"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+msgid "Start approval process for this cash advance. Are you sure?"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Start approval process for this employee advance settlement. Are you sure?"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_vie w_search
+#: field:hr.cash_advance,state:0
+#: field:hr.cash_advance_line,advance_state:0
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_search
+#: field:hr.cash_advance_settlement,state:0
+msgid "State"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_line,price_subtotal:0
+#: field:hr.cash_advance_settlement_line,price_subtotal:0
+msgid "Subtotal"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,message_summary:0
+#: field:hr.cash_advance_settlement,message_summary:0
+msgid "Summary"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:res.groups,name:hr_cash_advance.group_hr_cash_advance_settlement_supervisor
+#: model:res.groups,name:hr_cash_advance.group_hr_cash_advance_settlement_viewer_supervisor
+#: model:res.groups,name:hr_cash_advance.group_hr_cash_advance_supervisor
+#: model:res.groups,name:hr_cash_advance.group_hr_cash_advance_viewer_supervisor
+msgid "Supervisor"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Terminate"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_settlement,terminate_date:0
+msgid "Terminate Date"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,terminate_reason_id:0
+#: field:hr.cash_advance_settlement,terminate_reason_id:0
+msgid "Terminate Reason"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Terminate cash advance settlement. Are you sure?"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+msgid "Terminate cash advance. Are you sure?"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_settlement,terminate_user_id:0
+msgid "Terminated By"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+msgid "Termination reason:"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "This Expense needs to be\n"
+"                    validated."
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,amount_total:0
+#: field:hr.cash_advance_settlement,amount_total:0
+msgid "Total"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_tree
+#: field:hr.cash_advance,amount_due:0
+msgid "Total Due"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,amount_realized:0
+msgid "Total Payment"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_tree
+#: field:hr.cash_advance,amount_settled:0
+msgid "Total Realized"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_tree
+msgid "Total Request"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_tree
+#: field:hr.cash_advance,amount_residual:0
+msgid "Total Residual"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_tree
+msgid "Total Settlement"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,type_id:0
+#: field:hr.cash_advance_line,type_id:0
+#: field:hr.cash_advance_settlement,type_id:0
+msgid "Type"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:ir.ui.menu,name:hr_cash_advance.hr_cash_advance_type_menu
+msgid "Types"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance_line,price_unit:0
+#: field:hr.approve_cash_advance_settlement_line,price_unit:0
+#: field:hr.cash_advance_line,price_unit:0
+#: field:hr.cash_advance_settlement_line,price_unit:0
+msgid "Unit Price"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,message_unread:0
+#: field:hr.cash_advance_settlement,message_unread:0
+msgid "Unread Messages"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance_line,uom_id:0
+#: field:hr.cash_advance_settlement_line,uom_id:0
+msgid "UoM"
+msgstr ""
+
+#. module: hr_cash_advance
+#: model:res.groups,name:hr_cash_advance.group_hr_cash_advance_settlement_user
+#: model:res.groups,name:hr_cash_advance.group_hr_cash_advance_user
+msgid "User"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "Validate"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,validated:0
+#: field:hr.cash_advance_settlement,validated:0
+msgid "Validated"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.cash_advance,review_ids:0
+#: field:hr.cash_advance_settlement,review_ids:0
+msgid "Validations"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_vie w_search
+#: selection:hr.cash_advance,state:0
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_search
+#: selection:hr.cash_advance_settlement,state:0
+msgid "Waiting for Approval"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_vie w_search
+#: selection:hr.cash_advance,state:0
+msgid "Waiting for Realization"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_vie w_search
+#: selection:hr.cash_advance,state:0
+msgid "Waiting for Settlement"
+msgstr ""
+
+#. module: hr_cash_advance
+#: field:hr.approve_cash_advance_line,wizard_id:0
+#: field:hr.approve_cash_advance_settlement_line,wizard_id:0
+msgid "Wizard"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance_type:hr_cash_advance.hr_cash_advance_type_view_form
+msgid "Workflow Policy"
+msgstr ""
+
+#. module: hr_cash_advance
+#: code:addons/hr_cash_advance/models/hr_cash_advance.py:714
+#: code:addons/hr_cash_advance/models/hr_cash_advance_settlement.py:512
+#, python-format
+msgid "You can only delete data on draft state"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "rejected"
+msgstr ""
+
+#. module: hr_cash_advance
+#: view:hr.cash_advance:hr_cash_advance.hr_cash_advance_view_form
+#: view:hr.cash_advance_settlement:hr_cash_advance.hr_cash_advance_settlement_view_form
+msgid "validated"
+msgstr ""
+
