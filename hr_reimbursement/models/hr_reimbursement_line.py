@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from openerp import models, fields, api, _
+from openerp import _, api, fields, models
 
 
 class HrReimbursementLine(models.Model):
@@ -16,8 +15,9 @@ class HrReimbursementLine(models.Model):
     @api.multi
     def _compute_price_subtotal(self):
         for document in self:
-            document.price_subtotal = document.approve_quantity * \
-                document.approve_price_unit
+            document.price_subtotal = (
+                document.approve_quantity * document.approve_price_unit
+            )
 
     @api.depends(
         "product_id",
@@ -164,8 +164,7 @@ class HrReimbursementLine(models.Model):
     def _create_expense_move_line(self):
         self.ensure_one()
         obj_line = self.env["account.move.line"]
-        obj_line.create(
-            self._prepare_expense_move_lines())
+        obj_line.create(self._prepare_expense_move_lines())
 
     @api.multi
     def _prepare_expense_move_lines(self):
@@ -174,8 +173,9 @@ class HrReimbursementLine(models.Model):
         currency = reimbusement._get_currency()
         debit, credit, amount_currency = self._get_expense_amount()
         move_name = _(
-            "Employee reimbursement %s: %s" %
-            (reimbusement.name, self.product_id.name))
+            "Employee reimbursement %s: %s - %s"
+            % (reimbusement.name, self.product_id.name, self.note)
+        )
         aa = self.analytic_account_id
         return {
             "name": move_name,
