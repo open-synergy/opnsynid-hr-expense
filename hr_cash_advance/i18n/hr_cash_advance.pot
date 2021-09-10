@@ -383,7 +383,7 @@ msgid "Cash Advances"
 msgstr ""
 
 #. module: hr_cash_advance
-#: code:addons/hr_cash_advance/models/hr_cash_advance.py:608
+#: code:addons/hr_cash_advance/models/hr_cash_advance.py:604
 #, python-format
 msgid "Cash advance %s"
 msgstr ""
@@ -811,8 +811,8 @@ msgid "Next Reviewers"
 msgstr ""
 
 #. module: hr_cash_advance
-#: code:addons/hr_cash_advance/models/hr_cash_advance.py:648
-#: code:addons/hr_cash_advance/models/hr_cash_advance_settlement.py:450
+#: code:addons/hr_cash_advance/models/hr_cash_advance.py:644
+#: code:addons/hr_cash_advance/models/hr_cash_advance_settlement.py:451
 #, python-format
 msgid "No home address defined for employee"
 msgstr ""
@@ -970,15 +970,15 @@ msgid "Settings"
 msgstr ""
 
 #. module: hr_cash_advance
-#: code:addons/hr_cash_advance/models/hr_cash_advance_settlement_line.py:119
-#, python-format
-msgid "Settlement %s with %s"
-msgstr ""
-
-#. module: hr_cash_advance
 #: code:addons/hr_cash_advance/models/hr_cash_advance_settlement.py:461
 #, python-format
 msgid "Settlement with %s"
+msgstr ""
+
+#. module: hr_cash_advance
+#: code:addons/hr_cash_advance/models/hr_cash_advance_settlement_line.py:119
+#, python-format
+msgid "Settlement {} with {}"
 msgstr ""
 
 #. module: hr_cash_advance
@@ -1214,8 +1214,8 @@ msgid "Workflow Policy"
 msgstr ""
 
 #. module: hr_cash_advance
-#: code:addons/hr_cash_advance/models/hr_cash_advance.py:714
-#: code:addons/hr_cash_advance/models/hr_cash_advance_settlement.py:512
+#: code:addons/hr_cash_advance/models/hr_cash_advance.py:710
+#: code:addons/hr_cash_advance/models/hr_cash_advance_settlement.py:518
 #, python-format
 msgid "You can only delete data on draft state"
 msgstr ""
