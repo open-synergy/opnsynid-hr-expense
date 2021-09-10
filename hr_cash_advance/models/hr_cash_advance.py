@@ -3,7 +3,7 @@
 # Copyright 2020 OpenSynergy Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from openerp import models, fields, api, _
+from openerp import _, api, fields, models
 from openerp.exceptions import Warning as UserError
 
 
@@ -525,19 +525,15 @@ class HrCashAdvance(models.Model):
     def _create_payable_advance_move_line(self):
         self.ensure_one()
         obj_line = self.env["account.move.line"]
-        line = obj_line.create(
-            self._prepare_payable_advance_move_lines())
-        self.write({
-            "employee_advance_payable_move_line_id": line.id})
+        line = obj_line.create(self._prepare_payable_advance_move_lines())
+        self.write({"employee_advance_payable_move_line_id": line.id})
 
     @api.multi
     def _create_advance_move_line(self):
         self.ensure_one()
         obj_line = self.env["account.move.line"]
-        line = obj_line.create(
-            self._prepare_advance_move_lines())
-        self.write({
-            "employee_advance_move_line_id": line.id})
+        line = obj_line.create(self._prepare_advance_move_lines())
+        self.write({"employee_advance_move_line_id": line.id})
 
     @api.multi
     def _get_currency(self):

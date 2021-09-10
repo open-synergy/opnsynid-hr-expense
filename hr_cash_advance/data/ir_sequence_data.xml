@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- Copyright 2020 OpenSynergy Indonesia
      Copyright 2020 PT. Simetri Sinergi Indonesia
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl-3.0) -->
@@ -23,8 +23,8 @@
     <field name="code">cash.advance</field>
     <field name="padding">6</field>
     <field name="prefix">CA/%(year)s/</field>
-    <field eval="1" name="number_next"/>
-    <field eval="1" name="number_increment"/>
+    <field eval="1" name="number_next" />
+    <field eval="1" name="number_increment" />
 </record>
 
 <record id="sequence_cash_advance_settlement" model="ir.sequence">
@@ -32,8 +32,8 @@
     <field name="code">ca.settlement</field>
     <field name="padding">6</field>
     <field name="prefix">SET/%(year)s/</field>
-    <field eval="1" name="number_next"/>
-    <field eval="1" name="number_increment"/>
+    <field eval="1" name="number_next" />
+    <field eval="1" name="number_increment" />
 </record>
 </data>
 </openerp>

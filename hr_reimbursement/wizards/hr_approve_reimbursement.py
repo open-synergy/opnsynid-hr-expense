@@ -3,7 +3,7 @@
 # Copyright 2020 OpenSynergy Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from openerp import models, fields, api
+from openerp import api, fields, models
 
 
 class HrApproveReimbursement(models.TransientModel):
@@ -38,11 +38,17 @@ class HrApproveReimbursement(models.TransientModel):
         result = []
         if self.reimbursement_id:
             for line in self.reimbursement_id.line_ids:
-                result.append((0, 0, {
-                    "line_id": line.id,
-                    "approve_price_unit": line.approve_price_unit,
-                    "approve_quantity": line.approve_quantity,
-                }))
+                result.append(
+                    (
+                        0,
+                        0,
+                        {
+                            "line_id": line.id,
+                            "approve_price_unit": line.approve_price_unit,
+                            "approve_quantity": line.approve_quantity,
+                        },
+                    )
+                )
             self.update({"line_ids": result})
 
     @api.multi
@@ -55,10 +61,12 @@ class HrApproveReimbursement(models.TransientModel):
         self.ensure_one()
         self.reimbursement_id.restart_validation()
         for line in self.line_ids:
-            line.line_id.write({
-                "approve_price_unit": line.approve_price_unit,
-                "approve_quantity": line.approve_quantity,
-            })
+            line.line_id.write(
+                {
+                    "approve_price_unit": line.approve_price_unit,
+                    "approve_quantity": line.approve_quantity,
+                }
+            )
 
 
 class HrApproveAdvanceDetailLine(models.TransientModel):

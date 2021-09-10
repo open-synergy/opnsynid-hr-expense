@@ -2,7 +2,7 @@
 # Copyright 2020 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from openerp import models, fields, api, _
+from openerp import _, api, fields, models
 from openerp.exceptions import Warning as UserError
 
 
@@ -61,8 +61,7 @@ class HrReimbursement(models.Model):
             residual = document.amount_total
             currency = document._get_currency()
             if document.employee_reimbursement_payable_move_line_id:
-                move_line = document.\
-                    employee_reimbursement_payable_move_line_id
+                move_line = document.employee_reimbursement_payable_move_line_id
                 if not currency:
                     residual = move_line.amount_residual
                 else:
@@ -497,10 +496,8 @@ class HrReimbursement(models.Model):
     def _create_payable_reimbursement_move_line(self):
         self.ensure_one()
         obj_line = self.env["account.move.line"]
-        line = obj_line.create(
-            self._prepare_payable_reimbursement_move_lines())
-        self.write({
-            "employee_reimbursement_payable_move_line_id": line.id})
+        line = obj_line.create(self._prepare_payable_reimbursement_move_lines())
+        self.write({"employee_reimbursement_payable_move_line_id": line.id})
 
     @api.multi
     def _get_currency(self):
@@ -548,8 +545,7 @@ class HrReimbursement(models.Model):
     def _prepare_payable_reimbursement_move_lines(self):
         self.ensure_one()
         currency = self._get_currency()
-        debit, credit, amount_currency = \
-            self._get_reimbursement_payable_amount()
+        debit, credit, amount_currency = self._get_reimbursement_payable_amount()
         move_name = _("Employee reimbursement %s" % (self.name))
         return {
             "name": move_name,
