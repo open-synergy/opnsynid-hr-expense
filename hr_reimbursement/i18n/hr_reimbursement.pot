@@ -484,7 +484,7 @@ msgid "Employee Reimbursements"
 msgstr ""
 
 #. module: hr_reimbursement
-#: code:addons/hr_reimbursement/models/hr_reimbursement.py:553
+#: code:addons/hr_reimbursement/models/hr_reimbursement.py:549
 #, python-format
 msgid "Employee reimbursement %s"
 msgstr ""
@@ -656,7 +656,7 @@ msgid "Next Reviewers"
 msgstr ""
 
 #. module: hr_reimbursement
-#: code:addons/hr_reimbursement/models/hr_reimbursement.py:571
+#: code:addons/hr_reimbursement/models/hr_reimbursement.py:567
 #, python-format
 msgid "No home address defined for employee"
 msgstr ""
@@ -1029,7 +1029,7 @@ msgid "Workflow Policy"
 msgstr ""
 
 #. module: hr_reimbursement
-#: code:addons/hr_reimbursement/models/hr_reimbursement.py:623
+#: code:addons/hr_reimbursement/models/hr_reimbursement.py:619
 #, python-format
 msgid "You can only delete data on draft state"
 msgstr ""
