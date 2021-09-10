@@ -3,7 +3,7 @@
 # Copyright 2020 OpenSynergy Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from openerp import models, fields, api, _
+from openerp import _, api, fields, models
 from openerp.exceptions import Warning as UserError
 
 
@@ -364,8 +364,10 @@ class HrCashAdvanceSettlement(models.Model):
     @api.multi
     def _reconcile_advance(self):
         self.ensure_one()
-        lines = self.employee_advance_move_line_id + \
-            self.cash_advance_id.employee_advance_move_line_id
+        lines = (
+            self.employee_advance_move_line_id
+            + self.cash_advance_id.employee_advance_move_line_id
+        )
 
         lines.reconcile_partial()
 
@@ -379,8 +381,7 @@ class HrCashAdvanceSettlement(models.Model):
         self.ensure_one()
         move = self.move_id
         obj_ml = self.env["account.move.line"]
-        obj_ml._remove_move_reconcile(
-            move_ids=[self.employee_advance_move_line_id.id])
+        obj_ml._remove_move_reconcile(move_ids=[self.employee_advance_move_line_id.id])
         self.write({"move_id": False})
         move.unlink()
 
@@ -406,8 +407,7 @@ class HrCashAdvanceSettlement(models.Model):
     def _get_currency(self):
         self.ensure_one()
         result = False
-        if self.company_id.currency_id != \
-                self.currency_id:
+        if self.company_id.currency_id != self.currency_id:
             result = self.currency_id
         return result
 
@@ -437,11 +437,12 @@ class HrCashAdvanceSettlement(models.Model):
     def _create_advance_move_line(self):
         self.ensure_one()
         obj_line = self.env["account.move.line"]
-        line = obj_line.create(
-            self._prepare_advance_move_lines())
-        self.write({
-            "employee_advance_move_line_id": line.id,
-        })
+        line = obj_line.create(self._prepare_advance_move_lines())
+        self.write(
+            {
+                "employee_advance_move_line_id": line.id,
+            }
+        )
 
     @api.multi
     def _get_partner(self):
@@ -455,8 +456,7 @@ class HrCashAdvanceSettlement(models.Model):
     def _prepare_advance_move_lines(self):
         self.ensure_one()
         debit, credit, amount_currency = self._get_advance_amount()
-        employee_advance_account = \
-            self.cash_advance_id.employee_advance_account_id
+        employee_advance_account = self.cash_advance_id.employee_advance_account_id
         currency = self._get_currency()
         name = _("Settlement with %s" % (self.cash_advance_id.name))
         return {
@@ -493,13 +493,19 @@ class HrCashAdvanceSettlement(models.Model):
         if self.cash_advance_id:
             result = []
             for line in self.cash_advance_id.line_ids:
-                result.append((0, 0, {
-                    "sequence": line.sequence,
-                    "line_id": line.id,
-                    "quantity": line.quantity,
-                    "price_unit": line.price_unit,
-                    "uom_id": line.uom_id.id,
-                }))
+                result.append(
+                    (
+                        0,
+                        0,
+                        {
+                            "sequence": line.sequence,
+                            "line_id": line.id,
+                            "quantity": line.quantity,
+                            "price_unit": line.price_unit,
+                            "uom_id": line.uom_id.id,
+                        },
+                    )
+                )
             self.update({"line_ids": result})
 
             for line in self.line_ids:

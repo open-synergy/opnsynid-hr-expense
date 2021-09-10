@@ -3,7 +3,7 @@
 # Copyright 2020 OpenSynergy Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from openerp import models, fields, api, _
+from openerp import _, api, fields, models
 
 
 class HrCashAdvanceSettlementLine(models.Model):
@@ -17,8 +17,9 @@ class HrCashAdvanceSettlementLine(models.Model):
     @api.multi
     def _compute_price_subtotal(self):
         for document in self:
-            document.price_subtotal = document.approve_quantity * \
-                document.approve_price_unit
+            document.price_subtotal = (
+                document.approve_quantity * document.approve_price_unit
+            )
 
     @api.depends(
         "product_id",
@@ -115,8 +116,7 @@ class HrCashAdvanceSettlementLine(models.Model):
         settlement = self.settlement_id
         debit, credit, amount_currency = self._get_expense_amount()
         currency = settlement._get_currency()
-        name = _("Settlement %s with %s" %
-                 (settlement.name, self.product_id.name))
+        name = _("Settlement {} with {}".format(settlement.name, self.product_id.name))
         return {
             "name": name,
             "move_id": settlement.move_id.id,
@@ -155,8 +155,7 @@ class HrCashAdvanceSettlementLine(models.Model):
     def _create_expense_move_line(self):
         self.ensure_one()
         obj_line = self.env["account.move.line"]
-        obj_line.create(
-            self._prepare_expense_move_lines())
+        obj_line.create(self._prepare_expense_move_lines())
 
     @api.onchange(
         "product_id",
@@ -174,8 +173,7 @@ class HrCashAdvanceSettlementLine(models.Model):
         if self.product_id:
             result = self.product_id.property_account_expense
 
-        if not result and \
-                self.product_id:
+        if not result and self.product_id:
             result = self.product_id.categ_id.property_account_expense_categ
 
         self.account_id = result
