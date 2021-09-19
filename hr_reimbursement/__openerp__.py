@@ -42,4 +42,10 @@
         "views/hr_reimbursement_views.xml",
         "reports/hr_reimbursement_analysis.xml",
     ],
+    "demo": [
+        "demo/account_journal_demo.xml",
+        "demo/account_account_demo.xml",
+        "demo/hr_reimbursement_type_demo.xml",
+        "demo/tier_definition_demo.xml",
+    ],
 }
