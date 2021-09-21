@@ -39,6 +39,8 @@ class TestWorkflow(TransactionCase):
                 "reimbursement_id": reimbursement.id,
                 "product_id": self.env.ref("product.product_product_4").id,
                 "price_unit": 800.00,
+                "company_id": self.env["hr.reimbursement"]._default_company_id(),
+                "currency_id": self.env["hr.reimbursement"]._default_currency_id(),
             }
         )
         detail_cache.onchange_uom_id()
