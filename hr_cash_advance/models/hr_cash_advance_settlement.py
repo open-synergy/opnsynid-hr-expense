@@ -323,10 +323,10 @@ class HrCashAdvanceSettlement(models.Model):
         )
         sequence = self.with_context(ctx)._create_sequence()
         data = {
-            "state": "approve",
+            "state": "done",
             "name": sequence,
-            "approved_date": fields.Datetime.now(),
-            "approved_user_id": self.env.user.id,
+            "done_date": fields.Datetime.now(),
+            "done_user_id": self.env.user.id,
         }
         return data
 
