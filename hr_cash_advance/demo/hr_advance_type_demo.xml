@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!-- Copyright 2020 PT. Simetri Sinergi Indonesia
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
-<odoo>
-<record id="example_advance_type" model="hr.advance_type">
-    <field name="name">Example</field>
-    <field name="code">E01</field>
+<openerp>
+<data>
+<record id="demo_cash_advance_type1" model="hr.cash_advance_type">
+    <field name="name">Employee Equipment - (test)</field>
+    <field name="code">T01</field>
     <field
-            name="allowed_product_categ_ids"
-            eval="[(4, ref('hr_advance.employee_advance_product_category'))]"
-        />
-    <field name="journal_id" ref="hr_advance.employe_advance_journal" />
+                name="allowed_product_categ_ids"
+                eval="[(6,0,[ref('product.imac'), ref('product.ipad'), ref('product.ipod')])]"
+            />
     <field
-            name="employee_advance_payable_account_id"
-            ref="hr_advance.employe_advance_payable_account"
-        />
-    <field
-            name="employee_advance_account_id"
-            ref="hr_advance.employe_advance_account"
-        />
+                name="allowed_product_ids"
+                eval="[(6,0,[ref('product.product_product_32'),ref('product.product_product_33')])]"
+            />
+    <field name="journal_id" ref="demo_journal1" />
+    <field name="employee_advance_payable_account_id" ref="demo_account2" />
+    <field name="employee_advance_account_id" ref="demo_account1" />
+    <field name="cash_advance_settlement_journal_id" ref="demo_journal2" />
+
+
+
 </record>
-</odoo>
+</data>
+</openerp>
