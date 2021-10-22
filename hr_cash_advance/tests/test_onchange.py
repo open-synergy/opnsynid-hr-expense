@@ -19,6 +19,7 @@ class TestOnchange(BaseCase):
         }
         ca_settlement = self.obj_ca_settlement.new(values)
         ca_settlement.onchange_journal_id()
+
         self.assertEqual(ca_settlement.journal_id, self.advance_journal)
 
     def test_hr_cash_advance_settlement_onchange_cash_advance_id(self):
