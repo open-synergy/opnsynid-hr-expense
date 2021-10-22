@@ -5,7 +5,7 @@
 
 {
     "name": "Employee Cash Advance",
-    "version": "8.0.1.3.2",
+    "version": "8.0.1.3.3",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
     "website": "https://simetri-sinergi.id",
     "license": "AGPL-3",
@@ -44,9 +44,11 @@
         "views/hr_cash_advance_settlement_views.xml",
     ],
     "demo": [
-        "demo/account_journal_demo.xml",
-        "demo/account_account_demo.xml",
-        "demo/hr_advance_type_demo.xml",
+        # "demo/product_category_demo.xml",
+        # "demo/account_journal_demo.xml",
+        # "demo/account_account_demo.xml",
+        # "demo/hr_advance_type_demo.xml",
+        # "demo/hr_advance_settlement_type_demo.xml",
     ],
     "installable": True,
     "application": True,

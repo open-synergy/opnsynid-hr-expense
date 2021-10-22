@@ -5,22 +5,14 @@
 <openerp>
 <data>
 
-<record id="example_advance_type" model="hr.advance_type">
+<record id="example_advance_settlement_type" model="hr.advance_settlement_type">
     <field name="name">Example</field>
     <field name="code">E01</field>
     <field
             name="allowed_product_categ_ids"
             eval="[(4, ref('hr_advance.employee_advance_product_category'))]"
         />
-    <field name="journal_id" ref="hr_advance.employe_advance_journal" />
-    <field
-            name="employee_advance_payable_account_id"
-            ref="hr_advance.employe_advance_payable_account"
-        />
-    <field
-            name="employee_advance_account_id"
-            ref="hr_advance.employe_advance_account"
-        />
+    <field name="journal_id" ref="hr_advance.employe_advance_settlement_journal" />
 </record>
 
 </data>

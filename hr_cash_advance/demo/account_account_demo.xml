@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!-- Copyright 2020 PT. Simetri Sinergi Indonesia
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
 <openerp>
 <data>
-<record id="demo_account1" model="account.account">
-    <field name="name">Employee Advance - (test)</field>
-    <field name="user_type" ref="account.data_account_type_receivable" />
-    <field name="code">TEA01</field>
+
+<record id="employe_advance_account" model="account.account">
+    <field name="name">Employee Advance</field>
+    <field name="user_type_id" ref="account.data_account_type_current_assets" />
+    <field name="code">EA01</field>
     <field name="reconcile" eval="True" />
-    <field name="type">other</field>
-    <field name="parent_id" ref="account.nca" />
 </record>
 
-<record id="demo_account2" model="account.account">
-    <field name="name">Employee Advance Payable - (test)</field>
-    <field name="user_type" ref="account.data_account_type_payable" />
-    <field name="code">TEA02</field>
+<record id="employe_advance_payable_account" model="account.account">
+    <field name="name">Employee Advance Payable</field>
+    <field name="user_type_id" ref="account.data_account_type_current_liabilities" />
+    <field name="code">EA02</field>
     <field name="reconcile" eval="True" />
-    <field name="type">other</field>
-    <field name="parent_id" ref="account.cli" />
 </record>
+
 </data>
 </openerp>
