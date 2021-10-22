@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!-- Copyright 2020 PT. Simetri Sinergi Indonesia
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
-
 <openerp>
 <data>
 
@@ -9,9 +8,9 @@
     <field name="name">Example</field>
     <field name="code">E01</field>
     <field
-            name="allowed_product_categ_ids"
-            eval="[(4, ref('hr_advance.employee_advance_product_category'))]"
-        />
+                name="allowed_product_categ_ids"
+                eval="[(4, ref('hr_advance.employee_advance_product_category'))]"
+            />
     <field name="journal_id" ref="hr_advance.employe_advance_settlement_journal" />
 </record>
 
