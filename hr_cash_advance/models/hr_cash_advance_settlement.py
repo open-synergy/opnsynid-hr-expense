@@ -294,8 +294,10 @@ class HrCashAdvanceSettlement(models.Model):
     @api.multi
     def action_cancel(self):
         for document in self:
+            move = document.move_id
             document.write(document._prepare_cancel_data())
-            document._unlink_accounting_entry()
+            if move:
+                document._unlink_accounting_entry()
 
     @api.multi
     def action_restart(self):
