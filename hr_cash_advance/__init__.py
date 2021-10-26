@@ -6,4 +6,5 @@
 from . import (
     models,
     wizards,
+    tests,
 )
