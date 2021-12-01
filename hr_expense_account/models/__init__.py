@@ -5,4 +5,5 @@
 from . import (
     hr_expense_account_type,
     hr_expense_account,
+    tier_definition,
 )
