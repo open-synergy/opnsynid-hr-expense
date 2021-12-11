@@ -261,34 +261,178 @@ class HrExpenseAccount(models.Model):
     @api.multi
     def action_confirm(self):
         for document in self:
+            document._run_pre_confirm_check()
             document.write(document._prepare_confirm_data())
             document.request_validation()
+            document._run_post_confirm_check()
+
+    @api.multi
+    def _run_pre_confirm_check(self):
+        self.ensure_one()
+        method_names = [
+            method_name
+            for method_name in dir(self)
+            if method_name.startswith("_pre_confirm_check")
+        ]
+        for method_name in method_names:
+            getattr(self, method_name)()
+
+    @api.multi
+    def _run_post_confirm_check(self):
+        self.ensure_one()
+        method_names = [
+            method_name
+            for method_name in dir(self)
+            if method_name.startswith("_post_confirm_check")
+        ]
+        for method_name in method_names:
+            getattr(self, method_name)()
 
     @api.multi
     def action_approve(self):
         for document in self:
+            document._run_pre_approve_check()
             document.write(document._prepare_approve_data())
+            document._run_post_approve_check()
+
+    @api.multi
+    def _run_pre_approve_check(self):
+        self.ensure_one()
+        method_names = [
+            method_name
+            for method_name in dir(self)
+            if method_name.startswith("_pre_approve_check")
+        ]
+        for method_name in method_names:
+            getattr(self, method_name)()
+
+    @api.multi
+    def _run_post_approve_check(self):
+        self.ensure_one()
+        method_names = [
+            method_name
+            for method_name in dir(self)
+            if method_name.startswith("_post_approve_check")
+        ]
+        for method_name in method_names:
+            getattr(self, method_name)()
 
     @api.multi
     def action_done(self):
         for document in self:
+            document._run_pre_done_check()
             document.write(document._prepare_done_data())
+            document._run_post_done_check()
+
+    @api.multi
+    def _run_pre_done_check(self):
+        self.ensure_one()
+        method_names = [
+            method_name
+            for method_name in dir(self)
+            if method_name.startswith("_pre_done_check")
+        ]
+        for method_name in method_names:
+            getattr(self, method_name)()
+
+    @api.multi
+    def _run_post_done_check(self):
+        self.ensure_one()
+        method_names = [
+            method_name
+            for method_name in dir(self)
+            if method_name.startswith("_post_done_check")
+        ]
+        for method_name in method_names:
+            getattr(self, method_name)()
 
     @api.multi
     def action_terminate(self):
         for document in self:
+            document._run_pre_terminate_check()
             document.write(document._prepare_terminate_data())
+            document._run_post_terminate_check()
+
+    @api.multi
+    def _run_pre_terminate_check(self):
+        self.ensure_one()
+        method_names = [
+            method_name
+            for method_name in dir(self)
+            if method_name.startswith("_pre_terminate_check")
+        ]
+        for method_name in method_names:
+            getattr(self, method_name)()
+
+    @api.multi
+    def _run_post_terminate_check(self):
+        self.ensure_one()
+        method_names = [
+            method_name
+            for method_name in dir(self)
+            if method_name.startswith("_post_terminate_check")
+        ]
+        for method_name in method_names:
+            getattr(self, method_name)()
 
     @api.multi
     def action_cancel(self):
         for document in self:
+            document._run_pre_cancel_check()
             document.write(document._prepare_cancel_data())
             document.restart_validation()
+            document._run_post_cancel_check()
+
+    @api.multi
+    def _run_pre_cancel_check(self):
+        self.ensure_one()
+        method_names = [
+            method_name
+            for method_name in dir(self)
+            if method_name.startswith("_pre_cancel_check")
+        ]
+        for method_name in method_names:
+            getattr(self, method_name)()
+
+    @api.multi
+    def _run_post_cancel_check(self):
+        self.ensure_one()
+        method_names = [
+            method_name
+            for method_name in dir(self)
+            if method_name.startswith("_post_cancel_check")
+        ]
+        for method_name in method_names:
+            getattr(self, method_name)()
 
     @api.multi
     def action_restart(self):
         for document in self:
+            document._run_pre_restart_check()
             document.write(document._prepare_restart_data())
+            document._run_post_restart_check()
+
+    @api.multi
+    def _run_pre_restart_check(self):
+        self.ensure_one()
+        method_names = [
+            method_name
+            for method_name in dir(self)
+            if method_name.startswith("_pre_restart_check")
+        ]
+        for method_name in method_names:
+            getattr(self, method_name)()
+
+    @api.multi
+    def _run_post_restart_check(self):
+        self.ensure_one()
+        method_names = [
+            method_name
+            for method_name in dir(self)
+            if method_name.startswith("_post_restart_check")
+        ]
+        for method_name in method_names:
+            getattr(self, method_name)()
 
     @api.multi
     def _prepare_confirm_data(self):
