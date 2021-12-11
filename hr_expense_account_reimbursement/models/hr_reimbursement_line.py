@@ -47,14 +47,19 @@ class HrReimbursementLine(models.Model):
         "require_expense_account",
     )
     def onchange_expense_account_id(self):
-        self.expense_account_id = False
+        expense_account = False
         obj_expense_acc = self.env["hr.expense_account"]
         if self.require_expense_account:
             criteria = [
                 ("employee_id", "=", self.employee_id.id),
                 ("type_id.account_id", "=", self.account_id.id),
+                ("state", "=", "approve"),
+                ("date_assign", "<=", self.reimbursement_id.date_expense),
+                "|",
+                ("date_expire", "=", False),
+                ("date_expire", ">=", self.reimbursement_id.date_expense),
             ]
             expense_accounts = obj_expense_acc.search(criteria)
             if len(expense_accounts) > 0:
                 expense_account = expense_accounts[0]
-            self.expense_account_id = expense_account
+        self.expense_account_id = expense_account
