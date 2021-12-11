@@ -89,6 +89,46 @@
                             string="Type"
                             context="{'group_by':'type_id'}"
                         />
+                <filter
+                            name="grp_date_assign_year"
+                            string="Date Assign By Year"
+                            context="{'group_by':'date_assign:year'}"
+                        />
+                <filter
+                            name="grp_date_assign_month"
+                            string="Date Assign By Month"
+                            context="{'group_by':'date_assign:month'}"
+                        />
+                <filter
+                            name="grp_date_assign_week"
+                            string="Date Assign By Week"
+                            context="{'group_by':'date_assign:week'}"
+                        />
+                <filter
+                            name="grp_date_assign_day"
+                            string="Date Assign By Day"
+                            context="{'group_by':'date_assign:day'}"
+                        />
+                <filter
+                            name="grp_date_expire_year"
+                            string="Date Expire By Year"
+                            context="{'group_by':'date_expire:year'}"
+                        />
+                <filter
+                            name="grp_date_expire_month"
+                            string="Date Expire By Month"
+                            context="{'group_by':'date_expire:month'}"
+                        />
+                <filter
+                            name="grp_date_expire_week"
+                            string="Date Expire By Week"
+                            context="{'group_by':'date_expire:week'}"
+                        />
+                <filter
+                            name="grp_date_expire_day"
+                            string="Date Expire By Day"
+                            context="{'group_by':'date_expire:day'}"
+                        />
             </group>
         </search>
     </field>
@@ -110,6 +150,9 @@
             <field name="currency_id" groups="base.group_multi_currency" />
             <field name="date_assign" />
             <field name="date_expire" />
+            <field name="amount_limit" sum="Total Limit" />
+            <field name="amount_realize" sum="Total Realize" />
+            <field name="amount_residual" sum="Total Residual" />
             <field name="state" />
         </tree>
     </field>

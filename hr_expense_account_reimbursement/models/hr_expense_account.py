@@ -37,6 +37,7 @@ class HrExpenseAccount(models.Model):
         comodel_name="hr.reimbursement_line",
         inverse_name="expense_account_id",
         domain=[("reimbursement_id.state", "not in", ["cancel", "terminate"])],
+        readonly=True,
     )
     amount_reimbursement = fields.Float(
         string="Amount Reimbursement",
