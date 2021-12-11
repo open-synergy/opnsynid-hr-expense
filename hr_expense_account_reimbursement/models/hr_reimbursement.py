@@ -24,3 +24,15 @@ class HrReimbursement(models.Model):
             line._check_expense_account()
 
         return True
+
+    @api.multi
+    def action_reload_expense_account(self):
+        for record in self:
+            record._reload_expense_account()
+
+    @api.multi
+    def _reload_expense_account(self):
+        self.ensure_one()
+        for line in self.line_ids:
+            line.onchange_require_expense_account()
+            line.onchange_expense_account_id()

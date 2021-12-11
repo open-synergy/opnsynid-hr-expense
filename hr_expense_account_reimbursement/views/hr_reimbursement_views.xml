@@ -11,6 +11,14 @@
     <field name="inherit_id" ref="hr_reimbursement.hr_reimbursement_view_form" />
     <field name="arch" type="xml">
         <data>
+            <xpath expr="//button[@name='restart_validation']" position="after">
+                <button
+                            name="action_reload_expense_account"
+                            string="Reload Expense Account"
+                            type="object"
+                            states="draft"
+                        />
+            </xpath>
             <xpath
                         expr="//field[@name='line_ids']/tree/field[@name='account_id']"
                         position="after"

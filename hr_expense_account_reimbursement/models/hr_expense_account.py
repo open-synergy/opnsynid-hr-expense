@@ -1,7 +1,8 @@
 # Copyright 2020 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from openerp import api, fields, models
+from openerp import _, api, fields, models
+from openerp.exceptions import Warning as UserError
 
 
 class HrExpenseAccount(models.Model):
@@ -52,3 +53,10 @@ class HrExpenseAccount(models.Model):
         compute="_compute_amount",
         store=True,
     )
+
+    @api.multi
+    def _pre_cancel_check_10_reimbursement_line(self):
+        self.ensure_one()
+        if len(self.reimbursement_line_ids) > 0:
+            error_msg = _("Expense account already use")
+            raise UserError(error_msg)
