@@ -28,7 +28,7 @@ class HrReimbursementLine(models.Model):
                 error_msg = _("No expense account")
                 raise UserError(error_msg)
 
-            if self.expense_account_id.amount_residual <= 0.0:
+            if self.expense_account_id.amount_residual < 0.0:
                 error_msg = _("Insuficient expense account")
                 raise UserError(error_msg)
         return result
