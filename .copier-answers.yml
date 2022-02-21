@@ -1,0 +1,14 @@
+# Do NOT update manually; changes here will be overwritten by Copier
+_commit: b98387e
+_src_path: /home/mike/ssi-addons-repo-template
+dependency_installation_mode: OCA
+generate_requirements_txt: false
+include_aeroo_report: false
+include_wkhtmltopdf: false
+odoo_version: 8.0
+rebel_module_groups: []
+repo_description: opnsynid-hr-expense
+repo_name: opnsynid-hr-expense
+repo_slug: opnsynid-hr-expense
+travis_apt_packages: []
+travis_apt_sources: []
