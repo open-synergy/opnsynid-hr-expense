@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_expense_type_configurator,hr.expense_type - configurator,model_hr_expense_type,hr_expense_type_group,1,1,1,1
+access_hr_expense_type_all,hr.expense_type - all,model_hr_expense_type,,1,0,0,0
+access_hr_expense_type_product_configurator,hr.expense_type_product - configurator,model_hr_expense_type_product,hr_expense_type_group,1,1,1,1
+access_hr_expense_type_product_all,hr.expense_type_product - all,model_hr_expense_type_product,,1,0,0,0
+access_hr_expense_type_product_category_configurator,hr.expense_type_product_category - configurator,model_hr_expense_type_product_category,hr_expense_type_group,1,1,1,1
+access_hr_expense_type_product_category_all,hr.expense_type_product_category - all,model_hr_expense_type_product_category,,1,0,0,0

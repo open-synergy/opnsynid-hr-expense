@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2022 OpenSynergy Indonesia
+     Copyright 2022 PT. Simetri Sinergi Indonesia
+     License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <record id="hr_expense_type_product_category_view_tree" model="ir.ui.view">
+          <field name="name">hr.expense_type_product_category - tree</field>
+          <field name="model">hr.expense_type_product_category</field>
+          <field name="arch" type="xml">
+              <tree string="Details" editable="bottom">
+                    <field name="categ_id" />
+                    <field name="active" widget="boolean_toggle" />
+              </tree>
+          </field>
+    </record>
+</odoo>
