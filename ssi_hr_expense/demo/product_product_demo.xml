@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2022 OpenSynergy Indonesia
+     Copyright 2022 PT. Simetri Sinergi Indonesia
+     License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
+<odoo>
+<record id="demo_product2_1" model="product.product">
+    <field name="name">Doctor - (test)</field>
+    <field name="categ_id" ref="demo_product_categ2" />
+    <field name="type">service</field>
+    <field name="uom_id" ref="uom.product_uom_unit" />
+    <field name="uom_po_id" ref="uom.product_uom_unit" />
+</record>
+
+<record id="demo_product2_2" model="product.product">
+    <field name="name">Medicine - (test)</field>
+    <field name="categ_id" ref="demo_product_categ2" />
+    <field name="type">service</field>
+    <field name="uom_id" ref="uom.product_uom_unit" />
+    <field name="uom_po_id" ref="uom.product_uom_unit" />
+</record>
+
+<record id="demo_product2_3" model="product.product">
+    <field name="name">Minor Medical Procedure - (test)</field>
+    <field name="categ_id" ref="demo_product_categ2" />
+    <field name="type">service</field>
+    <field name="uom_id" ref="uom.product_uom_unit" />
+    <field name="uom_po_id" ref="uom.product_uom_unit" />
+</record>
+
+<record id="demo_product2_4" model="product.product">
+    <field name="name">Major Medical Procedure - (test)</field>
+    <field name="categ_id" ref="demo_product_categ2" />
+    <field name="type">service</field>
+    <field name="uom_id" ref="uom.product_uom_unit" />
+    <field name="uom_po_id" ref="uom.product_uom_unit" />
+</record>
+
+<record id="demo_product2_5" model="product.product">
+    <field name="name">Lab - (test)</field>
+    <field name="categ_id" ref="demo_product_categ2" />
+    <field name="type">service</field>
+    <field name="uom_id" ref="uom.product_uom_unit" />
+    <field name="uom_po_id" ref="uom.product_uom_unit" />
+</record>
+
+<record id="demo_product2_6" model="product.product">
+    <field name="name">Dental - (test)</field>
+    <field name="categ_id" ref="demo_product_categ2" />
+    <field name="type">service</field>
+    <field name="uom_id" ref="uom.product_uom_unit" />
+    <field name="uom_po_id" ref="uom.product_uom_unit" />
+</record>
+
+<record id="demo_product2_7" model="product.product">
+    <field name="name">Spectacle - (test)</field>
+    <field name="categ_id" ref="demo_product_categ2" />
+    <field name="type">service</field>
+    <field name="uom_id" ref="uom.product_uom_unit" />
+    <field name="uom_po_id" ref="uom.product_uom_unit" />
+</record>
+
+<record id="demo_product3_1" model="product.product">
+    <field name="name">Airline/Bus/Sea Ticket - (test)</field>
+    <field name="categ_id" ref="demo_product_categ3" />
+    <field name="type">service</field>
+    <field name="uom_id" ref="uom.product_uom_unit" />
+    <field name="uom_po_id" ref="uom.product_uom_unit" />
+</record>
+
+<record id="demo_product3_2" model="product.product">
+    <field name="name">Taxi/Car Service - (test)</field>
+    <field name="categ_id" ref="demo_product_categ3" />
+    <field name="type">service</field>
+    <field name="uom_id" ref="uom.product_uom_unit" />
+    <field name="uom_po_id" ref="uom.product_uom_unit" />
+</record>
+
+<record id="demo_product3_3" model="product.product">
+    <field name="name">Hotel - (test)</field>
+    <field name="categ_id" ref="demo_product_categ3" />
+    <field name="type">service</field>
+    <field name="uom_id" ref="uom.product_uom_unit" />
+    <field name="uom_po_id" ref="uom.product_uom_unit" />
+</record>
+
+<record id="demo_product3_4" model="product.product">
+    <field name="name">Meal - (test)</field>
+    <field name="categ_id" ref="demo_product_categ3" />
+    <field name="type">service</field>
+    <field name="uom_id" ref="uom.product_uom_unit" />
+    <field name="uom_po_id" ref="uom.product_uom_unit" />
+</record>
+</odoo>

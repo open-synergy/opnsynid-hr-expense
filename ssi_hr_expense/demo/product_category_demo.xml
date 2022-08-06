@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2022 OpenSynergy Indonesia
+     Copyright 2022 PT. Simetri Sinergi Indonesia
+     License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
+<odoo>
+<record id="demo_product_categ1" model="product.category">
+    <field name="name">Expense - (test)</field>
+    <field name="parent_id" ref="product.product_category_all" />
+</record>
+
+<record id="demo_product_categ2" model="product.category">
+    <field name="name">Medical - (test)</field>
+    <field name="parent_id" ref="demo_product_categ1" />
+</record>
+
+<record id="demo_product_categ3" model="product.category">
+    <field name="name">Travel - (test)</field>
+    <field name="parent_id" ref="demo_product_categ1" />
+</record>
+</odoo>
