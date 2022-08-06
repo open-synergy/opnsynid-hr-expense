@@ -66,7 +66,7 @@
 </record>
 
 <record id="hr_expense_type_action" model="ir.actions.act_window">
-    <field name="name">Expense Type</field>
+    <field name="name">Expense Types</field>
     <field name="type">ir.actions.act_window</field>
     <field name="res_model">hr.expense_type</field>
     <field name="view_mode">tree,form</field>

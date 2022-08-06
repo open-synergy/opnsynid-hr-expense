@@ -23,4 +23,9 @@
         "views/hr_expense_type_product_views.xml",
         "views/hr_expense_type_product_category_views.xml",
     ],
+    "demo": [
+        "demo/product_category_demo.xml",
+        "demo/product_product_demo.xml",
+        "demo/hr_expense_type_demo.xml",
+    ],
 }
