@@ -229,6 +229,7 @@
                                                 name="account_id"
                                                 groups="hr_cash_advance.cash_advance_settlement_accounting_setting_group"
                                             />
+                                    <field name="analytic_account_id" />
                                     <field name="price_unit" />
                                     <field name="approve_price_unit" force_save="1" />
                                     <field name="quantity" />

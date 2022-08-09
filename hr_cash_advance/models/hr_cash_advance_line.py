@@ -58,6 +58,13 @@ class HrCashAdvanceLine(models.Model):
         comodel_name="product.product",
         required=True,
     )
+    analytic_account_id = fields.Many2one(
+        string="Analytic Account",
+        comodel_name="account.analytic.account",
+        domain=[
+            ("type", "!=", "view"),
+        ],
+    )
     price_unit = fields.Float(
         string="Unit Price",
         required=True,

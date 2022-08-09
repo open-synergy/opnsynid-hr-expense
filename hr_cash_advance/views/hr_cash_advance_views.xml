@@ -262,6 +262,7 @@
                                                 name="product_id"
                                                 domain="['|',('categ_id','in',parent.allowed_product_categ_ids[0][2]),('id','in',parent.allowed_product_ids[0][2])]"
                                             />
+                                    <field name="analytic_account_id" />
                                     <field name="price_unit" />
                                     <field name="approve_price_unit" force_save="1" />
                                     <field name="quantity" />

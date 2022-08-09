@@ -63,6 +63,13 @@ class HrCashAdvanceSettlementLine(models.Model):
         related="line_id.product_id",
         readonly=True,
     )
+    analytic_account_id = fields.Many2one(
+        string="Analytic Account",
+        comodel_name="account.analytic.account",
+        related="line_id.analytic_account_id",
+        readonly=True,
+        store=True,
+    )
     account_id = fields.Many2one(
         string="Account",
         comodel_name="account.account",
@@ -122,6 +129,9 @@ class HrCashAdvanceSettlementLine(models.Model):
             "move_id": settlement.move_id.id,
             "partner_id": settlement._get_partner().id,
             "account_id": self.account_id.id,
+            "analytic_account_id": self.analytic_account_id
+            and self.analytic_account_id.id
+            or False,
             "product_id": self.product_id.id,
             "quantity": self.approve_quantity,
             "debit": debit,
