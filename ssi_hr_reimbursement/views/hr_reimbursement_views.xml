@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2022 OpenSynergy Indonesia
+     Copyright 2022 PT. Simetri Sinergi Indonesia
+     License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
+<odoo>
+  <record id="hr_reimbursement_view_search" model="ir.ui.view">
+    <field name="name">hr.reimbursement.search</field>
+    <field name="model">hr.reimbursement</field>
+    <field
+            name="inherit_id"
+            ref="ssi_transaction_mixin.mixin_transaction_view_search"
+        />
+    <field name="mode">primary</field>
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="employee_id" />
+                <field name="date" />
+                <field name="date_due" />
+                <field name="type_id" />
+                <field name="journal_id" />
+                <field name="account_id" />
+            </xpath>
+            <xpath expr="//filter[@name='dom_my_data']" position="after">
+                <filter
+                        name="dom_reconciled"
+                        string="Reconciled"
+                        domain="[('reconciled','=',True)]"
+                    />
+                <filter
+                        name="dom_type_id"
+                        string="Non-Reconciled"
+                        domain="[('reconciled','!=',True)]"
+                    />
+            </xpath>
+            <xpath expr="//filter[@name='grp_responsible']" position="after">
+                <filter
+                        name="grp_type_id"
+                        string="Type"
+                        context="{'group_by':'type_id'}"
+                    />
+                <filter
+                        name="grp_journal_id"
+                        string="Journal"
+                        context="{'group_by':'journal_id'}"
+                    />
+                <filter
+                        name="grp_account_id"
+                        string="Account"
+                        context="{'group_by':'account_id'}"
+                    />
+            </xpath>
+        </data>
+    </field>
+</record>
+
+<record id="hr_reimbursement_view_tree" model="ir.ui.view">
+    <field name="name">hr.reimbursement.tree</field>
+    <field name="model">hr.reimbursement</field>
+    <field name="mode">primary</field>
+    <field name="inherit_id" ref="ssi_transaction_mixin.mixin_transaction_view_tree" />
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="employee_id" />
+                <field name="type_id" />
+                <field name="date" optional="show" />
+                <field name="date_due" optional="show" />
+                <field
+                        name="amount_total"
+                        string="Total"
+                        sum="Total"
+                        decoration-bf="1"
+                        optional="show"
+                    />
+                <field
+                        name="amount_realized"
+                        string="Realized"
+                        sum="Total"
+                        decoration-bf="1"
+                        optional="show"
+                    />
+                <field
+                        name="amount_residual"
+                        string="Residual"
+                        sum="Total"
+                        decoration-bf="1"
+                        optional="show"
+                    />
+            </xpath>
+        </data>
+    </field>
+</record>
+
+<record id="hr_reimbursement_view_form" model="ir.ui.view">
+    <field name="name">hr.reimbursement.form</field>
+    <field name="model">hr.reimbursement</field>
+    <field name="mode">primary</field>
+    <field name="inherit_id" ref="ssi_transaction_mixin.mixin_transaction_view_form" />
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="company_currency_id" />
+                <field name="employee_id" />
+                <field name="type_id" />
+                <field name="journal_id" />
+                <field name="account_id" />
+            </xpath>
+            <xpath expr="//group[@name='header_right']" position="inside">
+                <field name="date" />
+                <field name="duration_id" />
+                <field name="date_due" />
+            </xpath>
+            <xpath expr="//page[1]" position="before">
+                <page name="page_detail" string="Details">
+                    <field
+                            name="line_ids"
+                            context="{'default_currency_id': company_currency_id}"
+                        >
+                        <tree editable="top">
+                            <field name="currency_id" invisible="1" />
+                            <field name="account_id" />
+                            <field name="product_id" />
+                            <field name="name" />
+                            <field name="price_unit" />
+                            <field name="uom_quantity" />
+                            <field name="uom_id" />
+                            <field name="price_subtotal" />
+                        </tree>
+                    </field>
+                    <group class="oe_subtotal_footer oe_right">
+                        <field name="amount_total" />
+                        <field name="amount_realized" />
+                        <field name="amount_residual" />
+                    </group>
+                </page>
+                <page name="page_accounting" string="Accounting">
+                    <group name="grp_accounting" colspan="4" col="2">
+                        <field name="reconciled" />
+                        <field name="payable_move_line_id" />
+                        <field name="move_id" />
+                    </group>
+                </page>
+            </xpath>
+        </data>
+    </field>
+</record>
+
+<record id="hr_reimbursement_action" model="ir.actions.act_window">
+    <field name="name">Reimbursement</field>
+    <field name="type">ir.actions.act_window</field>
+    <field name="res_model">hr.reimbursement</field>
+    <field name="view_mode">tree,form</field>
+    <field name="search_view_id" ref="hr_reimbursement_view_search" />
+</record>
+
+<menuitem
+        id="hr_reimbursement_menu"
+        name="Reimbursement"
+        sequence="1"
+        parent="ssi_hr_expense.expense_menu"
+        groups="hr_reimbursement_viewer_group"
+        action="hr_reimbursement_action"
+    />
+</odoo>
