@@ -17,6 +17,9 @@ class HrReimbursementLine(models.Model):
         required=True,
         ondelete="cascade",
     )
+    product_id = fields.Many2one(
+        required=True,
+    )
 
     def _create_expense_move_line(self):
         self.ensure_one()
@@ -44,7 +47,6 @@ class HrReimbursementLine(models.Model):
             "currency_id": currency and currency.id or False,
             "amount_currency": amount_currency,
             "analytic_account_id": aa and aa.id or False,
-            "date_maturity": reimbursement.date_due,
         }
 
     def _get_expense_amount(self):
