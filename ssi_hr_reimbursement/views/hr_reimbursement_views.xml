@@ -61,11 +61,18 @@
     <field name="inherit_id" ref="ssi_transaction_mixin.mixin_transaction_view_tree" />
     <field name="arch" type="xml">
         <data>
-            <xpath expr="//field[@name='company_id']" position="after">
+            <xpath expr="//field[@name='user_id']" position="after">
                 <field name="employee_id" />
+                <field name="department_id" optional="hide" />
+                <field
+                        name="manager_id"
+                        widget="many2one_avatar_employee"
+                        optional="hide"
+                    />
+                <field name="job_id" optional="hide" />
                 <field name="type_id" />
-                <field name="date" optional="show" />
-                <field name="date_due" optional="show" />
+                <field name="date" />
+                <field name="date_due" />
                 <field
                         name="amount_total"
                         string="Total"
@@ -100,13 +107,19 @@
     <field name="arch" type="xml">
         <data>
             <xpath expr="//field[@name='company_id']" position="after">
-                <field name="company_currency_id" />
                 <field name="employee_id" />
-                <field name="type_id" />
-                <field name="journal_id" />
-                <field name="account_id" />
+                <field name="department_id" readonly="1" force_save="1" />
+                <field
+                        name="manager_id"
+                        widget="many2one_avatar_employee"
+                        readonly="1"
+                        force_save="1"
+                    />
+                <field name="job_id" readonly="1" force_save="1" />
             </xpath>
             <xpath expr="//group[@name='header_right']" position="inside">
+                <field name="company_currency_id" />
+                <field name="type_id" />
                 <field name="date" />
                 <field name="duration_id" />
                 <field name="date_due" />
@@ -119,8 +132,9 @@
                         >
                         <tree editable="top">
                             <field name="currency_id" invisible="1" />
-                            <field name="account_id" />
                             <field name="product_id" />
+                            <field name="usage_id" />
+                            <field name="account_id" />
                             <field name="name" />
                             <field name="price_unit" />
                             <field name="uom_quantity" />
@@ -136,6 +150,8 @@
                 </page>
                 <page name="page_accounting" string="Accounting">
                     <group name="grp_accounting" colspan="4" col="2">
+                        <field name="journal_id" />
+                        <field name="account_id" />
                         <field name="reconciled" />
                         <field name="payable_move_line_id" />
                         <field name="move_id" />
@@ -147,7 +163,7 @@
 </record>
 
 <record id="hr_reimbursement_action" model="ir.actions.act_window">
-    <field name="name">Reimbursement</field>
+    <field name="name">Reimbursements</field>
     <field name="type">ir.actions.act_window</field>
     <field name="res_model">hr.reimbursement</field>
     <field name="view_mode">tree,form</field>
@@ -156,7 +172,7 @@
 
 <menuitem
         id="hr_reimbursement_menu"
-        name="Reimbursement"
+        name="Reimbursements"
         sequence="1"
         parent="ssi_hr_expense.expense_menu"
         groups="hr_reimbursement_viewer_group"

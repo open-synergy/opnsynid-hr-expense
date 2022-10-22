@@ -105,6 +105,7 @@ class HrReimbursement(models.Model):
                 ("readonly", False),
             ],
         },
+        copy=True,
     )
     duration_id = fields.Many2one(
         string="Duration",
@@ -145,12 +146,14 @@ class HrReimbursement(models.Model):
         comodel_name="account.move.line",
         readonly=True,
         ondelete="restrict",
+        copy=False,
     )
     move_id = fields.Many2one(
         string="# Move",
         comodel_name="account.move",
         readonly=True,
         ondelete="restrict",
+        copy=False,
     )
 
     @api.depends(
@@ -271,8 +274,6 @@ class HrReimbursement(models.Model):
     def _get_currency(self):
         self.ensure_one()
         result = self.company_id.currency_id
-        if self.company_currency_id:
-            result = self.company_currency_id
         return result
 
     def _get_reimbursement_payable_amount(self, currency):
@@ -301,11 +302,10 @@ class HrReimbursement(models.Model):
         self.ensure_one()
         name = _("Reimbursement of %s") % (self.employee_id.name)
         data = {
-            "narration": name,
+            "name": name,
             "ref": self.name,
             "journal_id": self.journal_id.id,
             "date": self.date,
-            "reimbursement_id": self.id,
         }
         return data
 
@@ -324,7 +324,7 @@ class HrReimbursement(models.Model):
             "debit": debit,
             "credit": credit,
             "currency_id": currency and currency.id or False,
-            "amount_currency": currency.id,
+            "amount_currency": amount_currency,
             "date_maturity": self.date_due,
         }
         return data
@@ -367,3 +367,19 @@ class HrReimbursement(models.Model):
                 document.move_id.unlink()
             if document.payable_move_line_id:
                 document.payable_move_line_id.unlink()
+
+    @api.onchange(
+        "type_id",
+    )
+    def onchange_journal_id(self):
+        self.journal_id = False
+        if self.type_id and self.type_id.reimbursement_journal_id:
+            self.journal_id = self.type_id.reimbursement_journal_id
+
+    @api.onchange(
+        "type_id",
+    )
+    def onchange_account_id(self):
+        self.account_id = False
+        if self.type_id and self.type_id.reimbursement_account_id:
+            self.account_id = self.type_id.reimbursement_account_id

@@ -33,7 +33,12 @@
         "data/approval_template_data.xml",
         "data/ir_actions_server_data.xml",
         "data/base_automation_data.xml",
+        "views/hr_expense_type_views.xml",
         "views/hr_reimbursement_views.xml",
     ],
-    "demo": [],
+    "demo": [
+        "demo/account_account_demo.xml",
+        "demo/account_journal_demo.xml",
+        "demo/hr_expense_type_demo.xml",
+    ],
 }
