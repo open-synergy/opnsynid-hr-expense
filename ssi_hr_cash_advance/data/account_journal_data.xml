@@ -3,6 +3,7 @@
      Copyright 2022 Simetri Sinergi
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
+<data noupdate="1">
 <record id="journal1" model="account.journal">
     <field name="name">Employee Cash Advance</field>
     <field name="code">CA</field>
@@ -14,4 +15,5 @@
     <field name="code">CAS</field>
     <field name="type">general</field>
 </record>
+</data>
 </odoo>
