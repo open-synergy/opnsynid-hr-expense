@@ -83,6 +83,24 @@ class HrReimbursement(models.Model):
             ],
         },
     )
+
+    @api.model
+    def _default_currency_id(self):
+        return self.env.user.company_id.currency_id
+
+    currency_id = fields.Many2one(
+        string="Currency",
+        comodel_name="res.currency",
+        default=lambda self: self._default_currency_id(),
+        required=True,
+        readonly=True,
+        ondelete="restrict",
+        states={
+            "draft": [
+                ("readonly", False),
+            ],
+        },
+    )
     type_id = fields.Many2one(
         string="Type",
         comodel_name="hr.expense_type",
@@ -94,6 +112,18 @@ class HrReimbursement(models.Model):
                 ("readonly", False),
             ],
         },
+    )
+    allowed_product_ids = fields.Many2many(
+        string="Allowed Product",
+        comodel_name="product.product",
+        related="type_id.allowed_product_ids",
+        store=False,
+    )
+    allowed_product_category_ids = fields.Many2many(
+        string="Allowed Product Category",
+        comodel_name="product.category",
+        related="type_id.allowed_product_category_ids",
+        store=False,
     )
     line_ids = fields.One2many(
         string="Details",
@@ -185,10 +215,11 @@ class HrReimbursement(models.Model):
                 amount_total += line.price_total
             document.amount_total = amount_total
 
-    amount_total = fields.Float(
+    amount_total = fields.Monetary(
         string="Amount Total",
         compute="_compute_amount_total",
         store=True,
+        currency_field="currency_id",
     )
 
     @api.depends(
@@ -214,15 +245,17 @@ class HrReimbursement(models.Model):
             document.amount_realized = realized
             document.amount_residual = residual
 
-    amount_realized = fields.Float(
+    amount_realized = fields.Monetary(
         string="Amount Realized",
         compute="_compute_residual",
         store=True,
+        currency_field="currency_id",
     )
-    amount_residual = fields.Float(
+    amount_residual = fields.Monetary(
         string="Amount Residual",
         compute="_compute_residual",
         store=True,
+        currency_field="currency_id",
     )
     state = fields.Selection(
         string="State",
@@ -273,7 +306,7 @@ class HrReimbursement(models.Model):
 
     def _get_currency(self):
         self.ensure_one()
-        result = self.company_id.currency_id
+        result = self.currency_id
         return result
 
     def _get_reimbursement_payable_amount(self, currency):
