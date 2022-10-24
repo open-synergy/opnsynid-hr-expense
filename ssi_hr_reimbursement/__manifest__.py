@@ -4,7 +4,7 @@
 
 {
     "name": "Employee Reimbursement",
-    "version": "14.0.1.0.0",
+    "version": "14.0.1.1.0",
     "website": "https://simetri-sinergi.id",
     "author": "PT. Simetri Sinergi Indonesia, OpenSynergy Indonesia",
     "license": "LGPL-3",
@@ -33,6 +33,7 @@
         "data/approval_template_data.xml",
         "data/ir_actions_server_data.xml",
         "data/base_automation_data.xml",
+        "data/account_journal_data.xml",
         "views/hr_expense_type_views.xml",
         "views/hr_reimbursement_views.xml",
     ],
