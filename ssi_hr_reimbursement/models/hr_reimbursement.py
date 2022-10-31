@@ -333,9 +333,8 @@ class HrReimbursement(models.Model):
 
     def _prepare_account_move_data(self):
         self.ensure_one()
-        name = _("Reimbursement of %s") % (self.employee_id.name)
         data = {
-            "name": name,
+            "name": self.name,
             "ref": self.name,
             "journal_id": self.journal_id.id,
             "date": self.date,
