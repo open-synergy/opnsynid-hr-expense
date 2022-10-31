@@ -145,6 +145,7 @@
                             <field name="usage_id" />
                             <field name="account_id" />
                             <field name="name" />
+                            <field name="analytic_account_id" />
                             <field name="price_unit" />
                             <field name="uom_quantity" />
                             <field name="uom_id" />
