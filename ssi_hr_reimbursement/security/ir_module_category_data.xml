@@ -6,16 +6,13 @@
 <!-- Workflow -->
 <record id="hr_reimbursement_workflow_module_category" model="ir.module.category">
     <field name="name">Reimbursement</field>
-    <field name="parent_id" ref="ssi_hr_expense.hr_expense_module_category" />
+    <field name="parent_id" ref="ssi_hr.human_resource_module_category" />
 </record>
 
 <!-- Data Ownership -->
 <record id="hr_reimbursement_data_ownership_module_category" model="ir.module.category">
     <field name="name">Reimbursement</field>
-    <field
-            name="parent_id"
-            ref="ssi_hr_expense.hr_expenses_data_ownership_module_category"
-        />
+    <field name="parent_id" ref="ssi_hr.human_resource_data_module_category" />
 </record>
 
 </odoo>
