@@ -42,6 +42,10 @@
 <record id="hr_cash_advance_company_group" model="res.groups">
     <field name="name">Company</field>
     <field name="category_id" ref="hr_cash_advance_data_ownership_module_category" />
+    <field
+            name="implied_ids"
+            eval="[(4, ref('hr_cash_advance_direct_all_subordinate_group'))]"
+        />
 </record>
 
 <record id="hr_cash_advance_company_child_group" model="res.groups">
@@ -56,6 +60,10 @@
     <field
             name="implied_ids"
             eval="[(4, ref('hr_cash_advance_company_child_group'))]"
+        />
+    <field
+            name="users"
+            eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"
         />
 </record>
 
@@ -122,6 +130,10 @@
             name="category_id"
             ref="hr_cash_advance_settlement_data_ownership_module_category"
         />
+    <field
+            name="implied_ids"
+            eval="[(4, ref('hr_cash_advance_settlement_direct_all_subordinate_group'))]"
+        />
 </record>
 
 <record id="hr_cash_advance_settlement_company_child_group" model="res.groups">
@@ -145,6 +157,10 @@
     <field
             name="implied_ids"
             eval="[(4, ref('hr_cash_advance_settlement_company_child_group'))]"
+        />
+    <field
+            name="users"
+            eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"
         />
 </record>
 </odoo>
