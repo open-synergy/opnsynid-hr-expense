@@ -396,9 +396,7 @@ class HrReimbursement(models.Model):
         _super.action_cancel()
         for document in self.sudo():
             if document.move_id:
-                document.move_id.unlink()
-            if document.payable_move_line_id:
-                document.payable_move_line_id.unlink()
+                document.move_id.with_context(force_delete=True).unlink()
 
     @api.onchange(
         "type_id",
