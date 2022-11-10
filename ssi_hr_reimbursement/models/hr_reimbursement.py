@@ -175,14 +175,14 @@ class HrReimbursement(models.Model):
         string="# Move Line Payable",
         comodel_name="account.move.line",
         readonly=True,
-        ondelete="restrict",
+        ondelete="set null",
         copy=False,
     )
     move_id = fields.Many2one(
         string="# Move",
         comodel_name="account.move",
         readonly=True,
-        ondelete="restrict",
+        ondelete="set null",
         copy=False,
     )
 
