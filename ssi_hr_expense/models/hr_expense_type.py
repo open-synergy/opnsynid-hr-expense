@@ -61,3 +61,14 @@ class HrExpenseType(models.Model):
         store=False,
         compute_sudo=True,
     )
+    allowed_product_usage_ids = fields.Many2many(
+        string="Allowed Product Usage",
+        comodel_name="product.usage_type",
+        relation="rel_expense_type_2_product_usage",
+        column1="expense_type_id",
+        column2="product_usage_id",
+    )
+    default_product_usage_id = fields.Many2one(
+        string="Default Product Usage",
+        comodel_name="product.usage_type",
+    )

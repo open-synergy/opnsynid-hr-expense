@@ -4,7 +4,7 @@
 
 {
     "name": "Employee Expense",
-    "version": "14.0.1.0.0",
+    "version": "14.0.1.1.0",
     "website": "https://simetri-sinergi.id",
     "author": "PT. Simetri Sinergi Indonesia, OpenSynergy Indonesia",
     "license": "LGPL-3",
@@ -13,6 +13,7 @@
         "product",
         "ssi_hr",
         "ssi_master_data_mixin",
+        "ssi_product_usage_account_type",
     ],
     "data": [
         "security/ir_module_category_data.xml",

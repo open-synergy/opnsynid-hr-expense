@@ -60,6 +60,20 @@
                     </group>
                     <field name="product_ids" colspans="4" cols="1" nolabel="1" />
                 </page>
+                <page name="product_usage" string="Product Usage">
+                    <group name="product_usage_1" colspan="4" col="2">
+                        <field
+                                name="allowed_product_usage_ids"
+                                widget="many2many_tags"
+                                string="Allowed"
+                            />
+                        <field
+                                name="default_product_usage_id"
+                                domain="[('id', 'in', allowed_product_usage_ids)]"
+                                string="Default"
+                            />
+                    </group>
+                </page>
             </xpath>
         </data>
     </field>
