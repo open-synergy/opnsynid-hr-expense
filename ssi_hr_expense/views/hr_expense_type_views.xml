@@ -35,6 +35,22 @@
     <field name="arch" type="xml">
         <data>
             <xpath expr="//page[@name='note']" position="before">
+                <page name="page_analytic_account" string="Analytic Account">
+                    <group name="grp_analytic_account" colspan="4">
+                        <field name="analytic_account_method" />
+                        <field
+                                name="analytic_account_ids"
+                                attrs="{'invisible': [('analytic_account_method','=','python')]}"
+                                widget="many2many_tags"
+                            />
+                        <field
+                                name="python_code"
+                                widget="ace"
+                                options="{'mode': 'python'}"
+                                attrs="{'invisible': [('analytic_account_method', '=', 'fixed')]}"
+                            />
+                    </group>
+                </page>
                 <page name="product_category" string="Product Category">
                     <group name="product_category_1" colspan="4" col="2">
                         <field
