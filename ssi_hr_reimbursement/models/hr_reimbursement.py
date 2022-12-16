@@ -3,6 +3,7 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools.safe_eval import safe_eval
 
 
 class HrReimbursement(models.Model):
@@ -123,6 +124,12 @@ class HrReimbursement(models.Model):
         string="Allowed Product Category",
         comodel_name="product.category",
         related="type_id.allowed_product_category_ids",
+        store=False,
+    )
+    allowed_product_usage_ids = fields.Many2many(
+        string="Allowed Product Usage",
+        comodel_name="product.usage_type",
+        related="type_id.allowed_product_usage_ids",
         store=False,
     )
     line_ids = fields.One2many(
@@ -257,6 +264,31 @@ class HrReimbursement(models.Model):
         store=True,
         currency_field="currency_id",
     )
+
+    @api.depends(
+        "type_id",
+        "employee_id",
+    )
+    def _compute_allowed_analytic_account_ids(self):
+        for document in self:
+            result = []
+            if document.type_id:
+                type_id = document.type_id
+                if type_id.analytic_account_method == "fixed":
+                    if type_id.analytic_account_ids:
+                        result = type_id.analytic_account_ids.ids
+                elif type_id.analytic_account_method == "python":
+                    analytic_account_ids = document._evaluate_analytic_account()
+                    if analytic_account_ids:
+                        result = analytic_account_ids
+            document.allowed_analytic_account_ids = result
+
+    allowed_analytic_account_ids = fields.Many2many(
+        string="Allowed Analytic Accounts",
+        comodel_name="account.analytic.account",
+        compute="_compute_allowed_analytic_account_ids",
+        store=False,
+    )
     state = fields.Selection(
         string="State",
         default="draft",
@@ -287,6 +319,26 @@ class HrReimbursement(models.Model):
             "manual_number_ok",
         ]
         res += policy_field
+        return res
+
+    def _get_localdict(self):
+        self.ensure_one()
+        return {
+            "env": self.env,
+            "document": self,
+        }
+
+    def _evaluate_analytic_account(self):
+        self.ensure_one()
+        res = False
+        localdict = self._get_localdict()
+        try:
+            safe_eval(self.type_id.python_code, localdict, mode="exec", nocopy=True)
+            if "result" in localdict:
+                res = localdict["result"]
+        except Exception as error:
+            msg_err = _("Error evaluating conditions.\n %s") % error
+            raise UserError(msg_err)
         return res
 
     @api.onchange(
@@ -413,3 +465,18 @@ class HrReimbursement(models.Model):
         self.account_id = False
         if self.type_id and self.type_id.reimbursement_account_id:
             self.account_id = self.type_id.reimbursement_account_id
+
+    @api.onchange(
+        "type_id",
+    )
+    def onchange_line_usage_id(self):
+        self.line_ids.usage_id = False
+        if self.type_id:
+            self.line_ids.usage_id = self.type_id.default_product_usage_id.id
+
+    @api.onchange(
+        "type_id",
+    )
+    def onchange_line_analytic_account_id(self):
+        if self.type_id:
+            self.line_ids.analytic_account_id = False
