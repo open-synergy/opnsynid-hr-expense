@@ -1,7 +1,7 @@
 # Copyright 2022 OpenSynergy Indonesia
 # Copyright 2022 PT. Simetri Sinergi Indonesia
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class HrCashAdvanceSettlementLine(models.Model):
@@ -16,6 +16,9 @@ class HrCashAdvanceSettlementLine(models.Model):
         comodel_name="hr.cash_advance_settlement",
         required=True,
         ondelete="cascade",
+    )
+    type_id = fields.Many2one(
+        string="Type", related="cash_advance_settlement_id.type_id"
     )
     product_id = fields.Many2one(
         required=True,
@@ -63,3 +66,11 @@ class HrCashAdvanceSettlementLine(models.Model):
             amount = self.price_subtotal
 
         return amount, amount_currency
+
+    @api.onchange(
+        "product_id",
+    )
+    def onchange_line_usage_id(self):
+        self.usage_id = False
+        if self.product_id:
+            self.usage_id = self.type_id.default_product_usage_id.id
