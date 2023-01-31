@@ -6,7 +6,7 @@
     "name": "Employee Expense Account - Reimbursement",
     "website": "https://simetri-sinergi.id",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
-    "version": "8.0.1.1.1",
+    "version": "8.0.1.1.2",
     "license": "AGPL-3",
     "installable": True,
     "application": True,

@@ -45,6 +45,8 @@ class HrReimbursementLine(models.Model):
 
     @api.onchange(
         "require_expense_account",
+        "account_id",
+        "product_id",
     )
     def onchange_expense_account_id(self):
         expense_account = False
