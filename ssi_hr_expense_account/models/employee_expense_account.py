@@ -48,6 +48,7 @@ class EmployeeExpenseAccount(models.Model):
     ]
 
     _header_button_order = [
+        "action_open",
         "action_confirm",
         "action_approve_approval",
         "action_reject_approval",
