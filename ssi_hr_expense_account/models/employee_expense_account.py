@@ -3,7 +3,7 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError
 
 
 class EmployeeExpenseAccount(models.Model):
@@ -74,30 +74,27 @@ class EmployeeExpenseAccount(models.Model):
 
     type_id = fields.Many2one(
         comodel_name="employee_expense_account_type",
-        string="Employee Expense Account Type",
+        string="Type",
         required=True,
         ondelete="restrict",
     )
     currency_id = fields.Many2one(
         comodel_name="res.currency",
-        string="# Currency",
+        string="Currency",
         required=True,
         ondelete="restrict",
     )
     amount_limit = fields.Monetary(
         string="Amount Limit",
-        currency_field="currency_id",
         required=True,
     )
     amount_realized = fields.Monetary(
         string="Amount Realized",
-        currency_field="currency_id",
         compute="_compute_amount",
         store=True,
     )
     amount_residual = fields.Monetary(
         string="Amount Residual",
-        currency_field="currency_id",
         compute="_compute_amount",
         store=True,
     )
@@ -142,18 +139,28 @@ class EmployeeExpenseAccount(models.Model):
             for expense_field in record.type_id.expense_field_ids:
                 amount_realized = amount_realized + getattr(record, expense_field.name)
             amount_residual = amount_residual - amount_realized
-            self.amount_realized = amount_realized
-            self.amount_residual = amount_residual
+            record.amount_realized = amount_realized
+            record.amount_residual = amount_residual
 
     @api.constrains("employee_id", "date_start", "date_end")
     def constrains_expense_duration_overlap(self):
-        for record in self:
-            expense_account = self.env["employee_expense_account"].search(
+        for record in self.sudo():
+            check = self.search(
                 [
+                    ("employee_id", "=", record.employee_id.id),
                     ("type_id", "=", record.type_id.id),
-                    ("date_start", "=", record.date_start),
-                    ("date_end", "=", record.date_end),
+                    ("date_start", "<=", record.date_end),
+                    ("date_end", ">=", record.date_start),
                 ]
             )
-            if expense_account:
-                raise ValidationError(_("Error"))
+            if check:
+                error_message = _(
+                    """
+                    Employee: %s
+                    Type: %s
+                    Problem: Date start and date end can't overlap
+                    Solution: Change date start and date end
+                    """
+                    % (record.employee_id.name, record.type_id.name)
+                )
+                raise UserError(error_message)

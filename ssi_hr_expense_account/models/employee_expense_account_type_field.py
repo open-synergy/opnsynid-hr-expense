@@ -11,12 +11,12 @@ class EmployeeExpenseAccountTypeField(models.Model):
     _order = "type_id, sequence, id"
 
     type_id = fields.Many2one(
-        string="Employee Expense Account Type",
+        string="Type",
         comodel_name="employee_expense_account_type",
         ondelete="cascade",
         required=True,
     )
-    sequence = fields.Integer(required=True, default=10)
+    sequence = fields.Integer(string="Sequence", required=True, default=10)
     field_id = fields.Many2one(
         comodel_name="ir.model.fields",
         string="Field",
