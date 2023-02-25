@@ -13,6 +13,7 @@ class EmployeeExpenseAccountType(models.Model):
     account_ids = fields.Many2many(
         string="Accounts",
         comodel_name="account.account",
+        relation="rel_employee_expense_account_type_2_account",
         column1="type_id",
         column2="account_id",
     )
