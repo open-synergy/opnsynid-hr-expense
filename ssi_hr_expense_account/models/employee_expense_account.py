@@ -24,7 +24,7 @@ class EmployeeExpenseAccount(models.Model):
     _approval_from_state = "draft"
     _approval_to_state = "open"
     _approval_state = "confirm"
-    _after_approved_method = "action_done"
+    _after_approved_method = "action_open"
 
     # Attributes related to add element on view automatically
     _automatically_insert_view_element = True
@@ -32,41 +32,35 @@ class EmployeeExpenseAccount(models.Model):
     _automatically_insert_done_button = False
     _automatically_insert_done_policy_fields = False
 
-    _statusbar_visible_label = "draft,open,confirm,done"
-
+    _statusbar_visible_label = "draft,confirm,open,done"
     _policy_field_order = [
         "confirm_ok",
         "approve_ok",
         "reject_ok",
         "restart_approval_ok",
         "cancel_ok",
-        "terminate_ok",
         "restart_ok",
         "open_ok",
         "done_ok",
         "manual_number_ok",
     ]
-
-    _header_button_order = [
-        "action_open",
+    __header_button_order = [
         "action_confirm",
         "action_approve_approval",
         "action_reject_approval",
         "action_done",
         "%(ssi_transaction_cancel_mixin.base_select_cancel_reason_action)d",
-        "%(ssi_transaction_terminate_mixin.base_select_terminate_reason_action)d",
         "action_restart",
     ]
 
     # Attributes related to add element on search view automatically
     _state_filter_order = [
         "dom_draft",
-        "dom_open",
         "dom_confirm",
         "dom_reject",
+        "dom_open",
         "dom_done",
         "dom_cancel",
-        "dom_terminate",
     ]
 
     # Sequence attribute
@@ -137,7 +131,9 @@ class EmployeeExpenseAccount(models.Model):
             if not record.type_id:
                 continue
             for expense_field in record.type_id.expense_field_ids:
-                amount_realized = amount_realized + getattr(record, expense_field.name)
+                amount_realized = amount_realized + getattr(
+                    record, expense_field.field_id.name
+                )
             amount_residual = amount_residual - amount_realized
             record.amount_realized = amount_realized
             record.amount_residual = amount_residual
@@ -147,6 +143,7 @@ class EmployeeExpenseAccount(models.Model):
         for record in self.sudo():
             check = self.search(
                 [
+                    ("id", "<>", record.id),
                     ("employee_id", "=", record.employee_id.id),
                     ("type_id", "=", record.type_id.id),
                     ("date_start", "<=", record.date_end),
