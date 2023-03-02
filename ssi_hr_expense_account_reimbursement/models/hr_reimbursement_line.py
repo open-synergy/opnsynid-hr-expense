@@ -22,7 +22,7 @@ class HrReimbursementLineInherit(models.Model):
         result = False
 
         if self.type_id and self.product_id:
-            expense_products = self.env["employee_expense_account"].search(
+            expense_products = self.search(
                 [
                     ("type_id", "=", self.type_id.id),
                     ("product_id", "=", self.product_id),
@@ -30,7 +30,7 @@ class HrReimbursementLineInherit(models.Model):
             )
             if len(expense_products) > 0:
                 result = True
-            expense_categories = self.env["employee_expense_account"].search(
+            expense_categories = self.search(
                 [
                     ("type_id", "=", self.type_id.id),
                     ("categ_id", "=", self.product_id.categ_id),
