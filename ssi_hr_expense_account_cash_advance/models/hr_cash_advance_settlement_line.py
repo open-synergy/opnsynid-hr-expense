@@ -19,7 +19,7 @@ class HrReimbursementLineInherit(models.Model):
 
     @api.onchange("product_id")
     def onchange_require_expense_account(self):
-        result = False
+        pass
 
         if self.type_id and self.product_id:
             expense_products = self.env["employee_expense_account"].search(
@@ -29,7 +29,7 @@ class HrReimbursementLineInherit(models.Model):
                 ]
             )
             if len(expense_products) > 0:
-                result = True
+                pass
             expense_categories = self.env["employee_expense_account"].search(
                 [
                     ("type_id", "=", self.type_id.id),
@@ -37,9 +37,9 @@ class HrReimbursementLineInherit(models.Model):
                 ]
             )
             if len(expense_categories) > 0:
-                result = True
+                pass
 
-        self.require_expense_account = result
+        self.require_expense_account = True
 
     @api.onchange("product_id", "account_id", "require_expense_account")
     def onchange_expense_account(self):

@@ -13,7 +13,7 @@ class EmployeeExpenseAccountInherit(models.Model):
     reimbursement_line_ids = fields.One2many(
         comodel_name="hr.reimbursement_line",
         inverse_name="expense_account_id",
-        domain="[('reimbursement_id.state', 'not in', ['terminate', 'cancel'])]",
+        domain=[("reimbursement_id.state", "not in", ("terminate", "cancel"))],
         string="Reimbursements",
     )
     amount_reimbursement = fields.Monetary(
