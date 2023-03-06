@@ -21,6 +21,7 @@
         "ssi_hr_expense",
         "ssi_company_currency_mixin",
         "ssi_employee_document_mixin",
+        "base_automation",
     ],
     "data": [
         "security/ir_module_category_data.xml",
