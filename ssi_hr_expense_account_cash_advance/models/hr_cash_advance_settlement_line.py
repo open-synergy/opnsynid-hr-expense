@@ -10,7 +10,7 @@ class HrCashAdvanceSettlementLineInherit(models.Model):
     _inherit = "hr.cash_advance_settlement_line"
 
     require_expense_account = fields.Boolean(
-        string="Require Expense Account", readonly=True
+        string="Require Expense Account", readonly=False
     )
     expense_account_id = fields.Many2one(
         comodel_name="employee_expense_account", string="Expense Account", readonly=True
@@ -24,7 +24,7 @@ class HrCashAdvanceSettlementLineInherit(models.Model):
             expense_products = self.search(
                 [
                     ("type_id", "=", self.type_id.id),
-                    ("product_id", "=", self.product_id),
+                    ("product_id", "=", self.product_id.id),
                 ]
             )
             if len(expense_products) > 0:
@@ -32,7 +32,7 @@ class HrCashAdvanceSettlementLineInherit(models.Model):
             expense_categories = self.search(
                 [
                     ("type_id", "=", self.type_id.id),
-                    ("categ_id", "=", self.product_id.categ_id),
+                    ("categ_id", "=", self.product_id.categ_id.id),
                 ]
             )
             if len(expense_categories) > 0:
