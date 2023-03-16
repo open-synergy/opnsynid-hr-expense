@@ -13,6 +13,9 @@
         "ssi_hr_cash_advance",
         "ssi_hr_expense_account",
     ],
-    "data": ["views/hr_cash_advance_settlement.xml"],
+    "data": [
+        "views/hr_cash_advance_settlement.xml",
+        "views/employee_expense_account_view.xml",
+    ],
     "demo": [],
 }
