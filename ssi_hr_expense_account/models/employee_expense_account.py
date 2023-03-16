@@ -132,6 +132,7 @@ class EmployeeExpenseAccount(models.Model):
         "date_end",
         "amount_limit",
     )
+    @api.depends("employee_id", "date_start", "date_end")
     def _compute_amount(self):
         for record in self:
             amount_realized = 0.0
