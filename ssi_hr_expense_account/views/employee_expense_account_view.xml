@@ -70,9 +70,11 @@
                     <field name="currency_id" />
                 </xpath>
                 <xpath expr="//group[@name='footer_left']" position="inside">
-                    <field name="amount_limit" />
-                    <field name="amount_realized" />
-                    <field name="amount_residual" />
+                    <group name="amount" string="Amount">
+                        <field name="amount_limit" />
+                        <field name="amount_realized" />
+                        <field name="amount_residual" />
+                    </group>
                 </xpath>
             </data>
         </field>

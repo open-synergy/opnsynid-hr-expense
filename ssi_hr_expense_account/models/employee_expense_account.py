@@ -79,16 +79,16 @@ class EmployeeExpenseAccount(models.Model):
         ondelete="restrict",
     )
     amount_limit = fields.Monetary(
-        string="Amount Limit",
+        string="Limit",
         required=True,
     )
     amount_realized = fields.Monetary(
-        string="Amount Realized",
+        string="Realized",
         compute="_compute_amount",
         store=True,
     )
     amount_residual = fields.Monetary(
-        string="Amount Residual",
+        string="Residual",
         compute="_compute_amount",
         store=True,
     )
@@ -143,7 +143,7 @@ class EmployeeExpenseAccount(models.Model):
 
             for expense_field in record._get_expense_fields():
                 if expense_field:
-                    amount_realized += amount_realized + getattr(record, expense_field)
+                    amount_realized += getattr(record, expense_field)
 
             amount_residual = record.amount_limit - amount_realized
             record.amount_realized = amount_realized
