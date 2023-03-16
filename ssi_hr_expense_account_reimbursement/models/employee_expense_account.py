@@ -24,7 +24,7 @@ class EmployeeExpenseAccount(models.Model):
         for record in self:
             result = 0.0
             for line in record.reimbursement_line_ids.filtered(
-                lambda x: x.reimbursement_id.state == "open"
+                lambda x: x.reimbursement_id.state not in ("terminate", "cancel")
             ):
                 result += line.price_subtotal
             record.amount_reimbursement = result
@@ -33,7 +33,7 @@ class EmployeeExpenseAccount(models.Model):
     amount_reimbursement = fields.Monetary(
         compute="_compute_reimbursement",
         store=True,
-        string="Amount Reimbursement",
+        string="Reimbursement",
     )
 
     def _get_expense_fields(self):
