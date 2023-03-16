@@ -6,8 +6,15 @@
         <record id="employee_expense_account_to_done" model="base.automation">
             <field name="action_server_id" ref="employee_expense_account_done" />
             <field name="trigger">on_write</field>
-            <field name="filter_pre_domain">[('amount_residual','!=','0.0')]</field>
-            <field name="filter_domain">[('amount_residual','=','0.0')]</field>
+            <field name="filter_pre_domain">[('amount_residual','>',0.0)]</field>
+            <field name="filter_domain">[('amount_residual','=',0.0)]</field>
+        </record>
+
+        <record id="employee_expense_account_to_open" model="base.automation">
+            <field name="action_server_id" ref="employee_expense_account_open" />
+            <field name="trigger">on_write</field>
+            <field name="filter_pre_domain">[('amount_residual','=',0.0)]</field>
+            <field name="filter_domain">[('amount_residual','>',0.0)]</field>
         </record>
     </data>
 </odoo>

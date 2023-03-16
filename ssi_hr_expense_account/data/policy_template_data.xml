@@ -133,7 +133,31 @@ if not document.approval_template_id:
             />
             <field name="restrict_additional" eval="0" />
         </record>
-s
+
+        <!-- terminate -->
+        <record
+            id="employee_expense_account_policy_template_detail_terminate"
+            model="policy.template_detail"
+        >
+            <field name="template_id" ref="employee_expense_account_policy_template" />
+            <field
+                name="field_id"
+                search="[('model_id.model','=','employee_expense_account'),('name','=','terminate_ok')]"
+            />
+            <field name="restrict_state" eval="1" />
+            <field
+                name="state_ids"
+                search="[('field_id.model_id.model','=','employee_expense_account'),('value','=','open')]"
+            />
+              <field name="restrict_user" eval="1" />
+              <field name="computation_method">use_group</field>
+              <field
+                name="group_ids"
+                eval="[(6,0,[ref('employee_expense_account_validator_group')])]"
+            />
+            <field name="restrict_additional" eval="0" />
+        </record>
+
         <!-- restart -->
         <record
             id="employee_expense_account_policy_template_detail_restart"

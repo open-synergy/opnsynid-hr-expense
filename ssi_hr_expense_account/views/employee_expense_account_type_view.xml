@@ -42,16 +42,6 @@
                 <xpath expr="//field[@name='active']" position="after">
                     <field name="account_ids" widget="many2many_tags" />
                 </xpath>
-                <xpath expr="//page[1]" position="before">
-                    <page name="expense_field" string="Expense Fields">
-                        <field name="expense_field_ids">
-                            <tree editable="top">
-                                <field name="sequence" widget="handle" />
-                                <field name="field_id" />
-                            </tree>
-                        </field>
-                    </page>
-                </xpath>
             </data>
         </field>
     </record>
