@@ -67,7 +67,7 @@ class HrReimbursementLine(models.Model):
     )
     def onchange_expense_account(self):
         self.expense_account_id = False
-
+        domain = []
         if self.account_id:
             domain = [
                 ("employee_id", "=", self.reimbursement_id.employee_id.id),

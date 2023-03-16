@@ -13,6 +13,9 @@
         "ssi_hr_reimbursement",
         "ssi_hr_expense_account",
     ],
-    "data": ["views/hr_reimbursement_views.xml"],
+    "data": [
+        "views/hr_reimbursement_views.xml",
+        "views/employee_expense_account_view.xml",
+    ],
     "demo": [],
 }
