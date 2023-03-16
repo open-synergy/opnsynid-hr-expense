@@ -123,18 +123,28 @@ class EmployeeExpenseAccount(models.Model):
         res += policy_field
         return res
 
-    @api.depends("employee_id", "date_start", "date_end")
+    def _get_expense_fields(self):
+        return []
+
+    @api.depends(
+        "employee_id",
+        "date_start",
+        "date_end",
+        "amount_limit",
+    )
     def _compute_amount(self):
         for record in self:
             amount_realized = 0.0
             amount_residual = 0.0
+
             if not record.type_id:
                 continue
-            for expense_field in record.type_id.expense_field_ids:
-                amount_realized = amount_realized + getattr(
-                    record, expense_field.field_id.name
-                )
-            amount_residual = amount_residual - amount_realized
+
+            for expense_field in record._get_expense_fields():
+                if expense_field:
+                    amount_realized += amount_realized + getattr(record, expense_field)
+
+            amount_residual = record.amount_limit - amount_realized
             record.amount_realized = amount_realized
             record.amount_residual = amount_residual
 

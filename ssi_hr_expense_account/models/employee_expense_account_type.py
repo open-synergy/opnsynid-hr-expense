@@ -17,8 +17,3 @@ class EmployeeExpenseAccountType(models.Model):
         column1="type_id",
         column2="account_id",
     )
-    expense_field_ids = fields.One2many(
-        string="Expenses",
-        comodel_name="employee_expense_account_type.field",
-        inverse_name="type_id",
-    )
