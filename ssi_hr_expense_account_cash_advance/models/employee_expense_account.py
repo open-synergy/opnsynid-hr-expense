@@ -24,7 +24,8 @@ class EmployeeExpenseAccount(models.Model):
         for record in self:
             result = 0.0
             for line in record.cash_advance_settlement_line_ids.filtered(
-                lambda x: x.reimbursement_id.state not in ("terminate", "cancel")
+                lambda x: x.cash_advance_settlement_id.state
+                not in ("terminate", "cancel")
             ):
                 result += line.price_subtotal
             record.amount_cash_advance = result
