@@ -7,4 +7,5 @@ from . import (
     employee_expense_account_type,
     hr_expense_type_product,
     hr_expense_type_product_category,
+    hr_expense_type,
 )

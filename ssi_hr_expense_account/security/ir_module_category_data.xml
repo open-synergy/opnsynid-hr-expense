@@ -8,16 +8,7 @@
         id="employee_expense_account_workflow_module_category"
         model="ir.module.category"
     >
-        <field name="name">Employee Expense Account - Workflow</field>
-        <field name="parent_id" ref="ssi_hr.human_resource_module_category" />
-    </record>
-
-    <!-- Configurator -->
-    <record
-        id="employee_expense_account_configurator_module_category"
-        model="ir.module.category"
-    >
-        <field name="name">Employee Expense Account - Configurator</field>
+        <field name="name">Expense Account</field>
         <field name="parent_id" ref="ssi_hr.human_resource_module_category" />
     </record>
 
@@ -26,8 +17,8 @@
         id="employee_expense_account_data_ownership_module_category"
         model="ir.module.category"
     >
-        <field name="name">Employee Expense Account - Data Ownership</field>
-        <field name="parent_id" ref="ssi_hr.human_resource_module_category" />
+        <field name="name">Expense Account</field>
+        <field name="parent_id" ref="ssi_hr.human_resource_data_module_category" />
     </record>
 
 </odoo>
