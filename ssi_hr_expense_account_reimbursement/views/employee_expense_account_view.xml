@@ -17,7 +17,24 @@
                     <field name="amount_reimbursement" />
                 </xpath>
                 <xpath expr="//page[@name='note']" position="after">
-                    <page name="reimbursement" string="Reimbursement">
+                    <page name="valid_reimbursement" string="Reimbursement">
+                        <field name="valid_reimbursement_line_ids" readonly="1">
+                            <tree>
+                                <field name="reimbursement_id" />
+                                <field name="product_id" />
+                                <field name="name" />
+                                <field name="price_unit" />
+                                <field name="uom_quantity" />
+                                <field name="uom_id" />
+                                <field name="price_subtotal" />
+                            </tree>
+                        </field>
+                    </page>
+                    <page
+                        name="all_reimbursement"
+                        string="All Reimbursement"
+                        groups="base.group_erp_manager"
+                    >
                         <field name="reimbursement_line_ids" readonly="1">
                             <tree>
                                 <field name="reimbursement_id" />

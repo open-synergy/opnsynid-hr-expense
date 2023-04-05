@@ -11,8 +11,26 @@ class EmployeeExpenseAccount(models.Model):
     reimbursement_line_ids = fields.One2many(
         comodel_name="hr.reimbursement_line",
         inverse_name="expense_account_id",
-        domain="[('reimbursement_id.state', 'not in', ['terminate', 'cancel'])]",
+        string="All Reimbursements",
+    )
+
+    @api.depends(
+        "reimbursement_line_ids",
+        "reimbursement_line_ids.reimbursement_id",
+        "reimbursement_line_ids.reimbursement_id.state",
+    )
+    def _compute_valid_reimbursement_line_ids(self):
+        for record in self:
+            result = record.reimbursement_line_ids.filtered(
+                lambda x: x.reimbursement_id.state
+                not in ("reject", "cancel", "terminate")
+            )
+            record.valid_reimbursement_line_ids = result
+
+    valid_reimbursement_line_ids = fields.One2many(
         string="Reimbursements",
+        comodel_name="hr.reimbursement_line",
+        compute="_compute_valid_reimbursement_line_ids",
     )
 
     @api.depends(
@@ -24,7 +42,8 @@ class EmployeeExpenseAccount(models.Model):
         for record in self:
             result = 0.0
             for line in record.reimbursement_line_ids.filtered(
-                lambda x: x.reimbursement_id.state not in ("terminate", "cancel")
+                lambda x: x.reimbursement_id.state
+                not in ("reject", "cancel", "terminate")
             ):
                 result += line.price_subtotal
             record.amount_reimbursement = result
