@@ -11,8 +11,26 @@ class EmployeeExpenseAccount(models.Model):
     cash_advance_settlement_line_ids = fields.One2many(
         comodel_name="hr.cash_advance_settlement_line",
         inverse_name="expense_account_id",
-        domain="[('cash_advance_settlement_id.state', '!=', 'cancel')]",
-        string="Cash Advance Settlement Lines",
+        string="All Cash Advance Settlement",
+    )
+
+    @api.depends(
+        "cash_advance_settlement_line_ids",
+        "cash_advance_settlement_line_ids.cash_advance_settlement_id",
+        "cash_advance_settlement_line_ids.cash_advance_settlement_id.state",
+    )
+    def _compute_valid_cash_advance_settlement_line_ids(self):
+        for record in self:
+            result = record.cash_advance_settlement_line_ids.filtered(
+                lambda x: x.cash_advance_settlement_id.state
+                not in ("reject", "cancel", "terminate")
+            )
+            record.valid_cash_advance_settlement_line_ids = result
+
+    valid_cash_advance_settlement_line_ids = fields.One2many(
+        string="Cash Advance Settlement",
+        comodel_name="hr.cash_advance_settlement_line",
+        compute="_compute_valid_cash_advance_settlement_line_ids",
     )
 
     @api.depends(
