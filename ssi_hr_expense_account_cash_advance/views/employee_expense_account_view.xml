@@ -18,6 +18,26 @@
                 </xpath>
                 <xpath expr="//page[@name='note']" position="after">
                     <page name="cash_advance" string="Cash Advance">
+                        <field
+                            name="valid_cash_advance_settlement_line_ids"
+                            readonly="1"
+                        >
+                            <tree>
+                                <field name="cash_advance_settlement_id" />
+                                <field name="product_id" />
+                                <field name="name" />
+                                <field name="price_unit" />
+                                <field name="uom_quantity" />
+                                <field name="uom_id" />
+                                <field name="price_subtotal" />
+                            </tree>
+                        </field>
+                    </page>
+                    <page
+                        name="all_cash_advance"
+                        string="All Cash Advance"
+                        groups="base.group_erp_manager"
+                    >
                         <field name="cash_advance_settlement_line_ids" readonly="1">
                             <tree>
                                 <field name="cash_advance_settlement_id" />
