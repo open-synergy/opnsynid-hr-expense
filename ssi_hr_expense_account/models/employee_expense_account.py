@@ -32,6 +32,14 @@ class EmployeeExpenseAccount(models.Model):
     _automatically_insert_done_button = False
     _automatically_insert_done_policy_fields = False
 
+    # Date Duration
+    _date_start_readonly = True
+    _date_end_readonly = True
+    _date_start_states_list = ["draft"]
+    _date_start_states_readonly = ["draft"]
+    _date_end_states_list = ["draft"]
+    _date_end_states_readonly = ["draft"]
+
     _statusbar_visible_label = "draft,confirm,open,done"
     _policy_field_order = [
         "confirm_ok",
@@ -70,17 +78,35 @@ class EmployeeExpenseAccount(models.Model):
         comodel_name="employee_expense_account_type",
         string="Type",
         required=True,
+        readonly=True,
         ondelete="restrict",
+        states={
+            "draft": [
+                ("readonly", False),
+            ],
+        },
     )
     currency_id = fields.Many2one(
         comodel_name="res.currency",
         string="Currency",
         required=True,
+        readonly=True,
         ondelete="restrict",
+        states={
+            "draft": [
+                ("readonly", False),
+            ],
+        },
     )
     amount_limit = fields.Monetary(
         string="Limit",
         required=True,
+        readonly=True,
+        states={
+            "draft": [
+                ("readonly", False),
+            ],
+        },
     )
     amount_realized = fields.Monetary(
         string="Realized",
@@ -159,6 +185,7 @@ class EmployeeExpenseAccount(models.Model):
                     ("type_id", "=", record.type_id.id),
                     ("date_start", "<=", record.date_end),
                     ("date_end", ">=", record.date_start),
+                    ("state", "=", "open"),
                 ]
             )
             if check:
@@ -172,3 +199,10 @@ class EmployeeExpenseAccount(models.Model):
                     % (record.employee_id.name, record.type_id.name)
                 )
                 raise UserError(error_message)
+
+    @api.constrains("amount_limit")
+    def constrains_amount_limit(self):
+        for record in self.sudo():
+            if record.amount_limit <= 0:
+                strWarning = _("Amount Limit must be greater than '0'")
+                raise UserError(strWarning)
