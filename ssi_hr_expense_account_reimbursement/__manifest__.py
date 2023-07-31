@@ -4,7 +4,7 @@
 
 {
     "name": "Employee Expense Account - Reimbursement Integration",
-    "version": "14.0.1.1.0",
+    "version": "14.0.1.1.1",
     "website": "https://simetri-sinergi.id",
     "author": "PT. Simetri Sinergi Indonesia, OpenSynergy Indonesia",
     "license": "LGPL-3",
