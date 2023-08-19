@@ -8,6 +8,7 @@ setuptools.setup(
     description="Meta package for open-synergy-opnsynid-hr-expense Odoo addons",
     version=version,
     install_requires=[
+        'odoo14-addon-ssi_employee_business_trip',
         'odoo14-addon-ssi_hr_cash_advance',
         'odoo14-addon-ssi_hr_expense',
         'odoo14-addon-ssi_hr_expense_account',
