@@ -24,7 +24,7 @@ addon | version | maintainers | summary
 [ssi_hr_expense_account](ssi_hr_expense_account/) | 14.0.1.3.1 |  | Employee Expense Account
 [ssi_hr_expense_account_cash_advance](ssi_hr_expense_account_cash_advance/) | 14.0.1.1.4 |  | Employee Expense Account - Cash Advance Integration
 [ssi_hr_expense_account_reimbursement](ssi_hr_expense_account_reimbursement/) | 14.0.1.1.1 |  | Employee Expense Account - Reimbursement Integration
-[ssi_hr_reimbursement](ssi_hr_reimbursement/) | 14.0.1.5.1 |  | Employee Reimbursement
+[ssi_hr_reimbursement](ssi_hr_reimbursement/) | 14.0.1.5.2 |  | Employee Reimbursement
 
 [//]: # (end addons)
 
