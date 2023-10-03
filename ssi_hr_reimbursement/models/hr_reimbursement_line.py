@@ -44,7 +44,7 @@ class HrReimbursementLine(models.Model):
             "product_id": self.product_id.id,
             "quantity": self.uom_quantity,
             "price_unit": self.price_unit,
-            "uom_id": self.uom_id and self.uom_id.id or False,
+            "product_uom_id": self.uom_id and self.uom_id.id or False,
             "credit": credit,
             "debit": debit,
             "currency_id": currency and currency.id or False,
