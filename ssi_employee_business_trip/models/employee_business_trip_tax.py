@@ -25,6 +25,7 @@ class EmployeeBusinessTripTax(models.Model):
     )
     move_id = fields.Many2one(related="employee_business_trip_id.move_id")
     currency_id = fields.Many2one(related="employee_business_trip_id.currency_id")
+    company_id = fields.Many2one(related="employee_business_trip_id.company_id")
     company_currency_id = fields.Many2one(
         related="employee_business_trip_id.company_currency_id"
     )

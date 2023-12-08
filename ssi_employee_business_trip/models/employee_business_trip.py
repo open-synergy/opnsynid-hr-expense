@@ -13,10 +13,10 @@ class EmployeeBusinessTrip(models.Model):
     _name = "employee_business_trip"
     _description = "Employee Business Trip"
     _inherit = [
-        "mixin.transaction_confirm",
-        "mixin.transaction_open",
-        "mixin.transaction_done",
         "mixin.transaction_cancel",
+        "mixin.transaction_done",
+        "mixin.transaction_open",
+        "mixin.transaction_confirm",
         "mixin.employee_document",
         "mixin.date_duration",
         "mixin.company_currency",
@@ -86,6 +86,13 @@ class EmployeeBusinessTrip(models.Model):
     _date_due_field_name = "date_due"
     _need_date_due = True
     _normal_amount = "credit"
+
+    # Tax computation
+    _tax_lines_field_name = "tax_ids"
+    _tax_on_self = False
+    _tax_source_recordset_field_name = "per_diem_ids"
+    _price_unit_field_name = "price_unit"
+    _quantity_field_name = "uom_quantity"
 
     type_id = fields.Many2one(
         comodel_name="employee_business_trip_type",
@@ -424,7 +431,9 @@ class EmployeeBusinessTrip(models.Model):
 
             record.allowed_currency_ids = result
 
-    @api.depends("per_diem_ids", "per_diem_ids.price_subtotal")
+    @api.depends(
+        "per_diem_ids", "per_diem_ids.price_subtotal", "tax_ids", "tax_ids.tax_amount"
+    )
     def _compute_amount(self):
         for record in self:
             amount_untaxed = 0.0
@@ -461,6 +470,11 @@ class EmployeeBusinessTrip(models.Model):
 
             record.amount_realized = amount_realized
             record.amount_residual = amount_residual
+
+    @ssi_decorator.pre_confirm_action()
+    def _01_compute_tax(self):
+        self.ensure_one()
+        self._recompute_standard_tax()
 
     @ssi_decorator.post_open_action()
     def _10_create_accounting_entry(self):
@@ -502,3 +516,9 @@ class EmployeeBusinessTrip(models.Model):
     def action_compute_tax(self):
         for record in self:
             record._recompute_standard_tax()
+
+    @ssi_decorator.insert_on_form_view()
+    def _insert_form_element(self, view_arch):
+        if self._automatically_insert_view_element:
+            view_arch = self._reconfigure_statusbar_visible(view_arch)
+        return view_arch
