@@ -3,6 +3,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools.safe_eval import safe_eval
 
 
 class HrCashAdvanceSettlement(models.Model):
@@ -271,6 +272,19 @@ class HrCashAdvanceSettlement(models.Model):
         _super.action_done()
         for document in self.sudo():
             document._create_accounting_entry()
+
+    def _evaluate_analytic_account(self):
+        self.ensure_one()
+        res = False
+        localdict = self._get_localdict()
+        try:
+            safe_eval(self.type_id.python_code, localdict, mode="exec", nocopy=True)
+            if "result" in localdict:
+                res = localdict["result"]
+        except Exception as error:
+            msg_err = _("Error evaluating conditions.\n %s") % error
+            raise UserError(msg_err)
+        return res
 
     def _create_accounting_entry(self):
         self.ensure_one()
