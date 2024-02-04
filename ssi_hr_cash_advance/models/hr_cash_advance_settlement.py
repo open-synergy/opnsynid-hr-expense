@@ -1,16 +1,20 @@
 # Copyright 2022 OpenSynergy Indonesia
 # Copyright 2022 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools.safe_eval import safe_eval
+
+from odoo.addons.ssi_decorator import ssi_decorator
 
 
 class HrCashAdvanceSettlement(models.Model):
     _name = "hr.cash_advance_settlement"
     _inherit = [
-        "mixin.transaction_confirm",
-        "mixin.transaction_done",
         "mixin.transaction_cancel",
+        "mixin.transaction_done",
+        "mixin.transaction_confirm",
         "mixin.employee_document",
         "mixin.company_currency",
     ]
@@ -236,19 +240,6 @@ class HrCashAdvanceSettlement(models.Model):
         compute="_compute_allowed_analytic_account_ids",
         store=False,
     )
-    state = fields.Selection(
-        string="State",
-        default="draft",
-        required=True,
-        readonly=True,
-        selection=[
-            ("draft", "Draft"),
-            ("confirm", "Waiting for Approval"),
-            ("done", "Done"),
-            ("cancel", "Cancelled"),
-            ("reject", "Rejected"),
-        ],
-    )
 
     @api.model
     def _get_policy_field(self):
@@ -271,6 +262,26 @@ class HrCashAdvanceSettlement(models.Model):
         _super.action_done()
         for document in self.sudo():
             document._create_accounting_entry()
+
+    def _get_localdict(self):
+        self.ensure_one()
+        return {
+            "env": self.env,
+            "document": self,
+        }
+
+    def _evaluate_analytic_account(self):
+        self.ensure_one()
+        res = False
+        localdict = self._get_localdict()
+        try:
+            safe_eval(self.type_id.python_code, localdict, mode="exec", nocopy=True)
+            if "result" in localdict:
+                res = localdict["result"]
+        except Exception as error:
+            msg_err = _("Error evaluating conditions.\n %s") % error
+            raise UserError(msg_err)
+        return res
 
     def _create_accounting_entry(self):
         self.ensure_one()
@@ -394,3 +405,9 @@ class HrCashAdvanceSettlement(models.Model):
     def onchange_line_analytic_account_id(self):
         if self.type_id:
             self.line_ids.analytic_account_id = False
+
+    @ssi_decorator.insert_on_form_view()
+    def _insert_form_element(self, view_arch):
+        if self._automatically_insert_view_element:
+            view_arch = self._reconfigure_statusbar_visible(view_arch)
+        return view_arch
