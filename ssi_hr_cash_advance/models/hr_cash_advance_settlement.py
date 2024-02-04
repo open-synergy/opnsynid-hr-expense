@@ -263,6 +263,13 @@ class HrCashAdvanceSettlement(models.Model):
         for document in self.sudo():
             document._create_accounting_entry()
 
+    def _get_localdict(self):
+        self.ensure_one()
+        return {
+            "env": self.env,
+            "document": self,
+        }
+
     def _evaluate_analytic_account(self):
         self.ensure_one()
         res = False
