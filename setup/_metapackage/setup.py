@@ -10,6 +10,7 @@ setuptools.setup(
     install_requires=[
         'odoo14-addon-ssi_employee_business_trip',
         'odoo14-addon-ssi_hr_cash_advance',
+        'odoo14-addon-ssi_hr_cash_advance_work_log',
         'odoo14-addon-ssi_hr_expense',
         'odoo14-addon-ssi_hr_expense_account',
         'odoo14-addon-ssi_hr_expense_account_cash_advance',
