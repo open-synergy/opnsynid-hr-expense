@@ -15,6 +15,7 @@ setuptools.setup(
         'odoo14-addon-ssi_hr_expense_account_cash_advance',
         'odoo14-addon-ssi_hr_expense_account_reimbursement',
         'odoo14-addon-ssi_hr_reimbursement',
+        'odoo14-addon-ssi_hr_reimbursement_work_log',
     ],
     classifiers=[
         'Programming Language :: Python',
