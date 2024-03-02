@@ -20,6 +20,8 @@
                 <field name="type_id" />
                 <field name="journal_id" />
                 <field name="account_id" />
+                <field name="line_ids" string="Analytic Account" filter_domain="[('line_ids.analytic_account_id', 'ilike', self)]"/>
+                <field name="line_ids" string="Customer Analytic Account" filter_domain="[('line_ids.analytic_account_id.partner_id', 'ilike', self)]"/>
             </xpath>
             <xpath expr="//filter[@name='dom_my_data']" position="after">
                 <filter
