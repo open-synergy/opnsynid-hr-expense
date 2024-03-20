@@ -142,6 +142,13 @@
             </xpath>
             <xpath expr="//page[1]" position="before">
                 <page name="detail" string="Details">
+                    <button
+                            name="action_reload_cash_advance"
+                            type="object"
+                            string="Reload from Cash Advance"
+                            icon="fa-refresh text-primary"
+                            states="draft"
+                        />
                     <field
                             name="line_ids"
                             context="{'default_currency_id': company_currency_id}"
