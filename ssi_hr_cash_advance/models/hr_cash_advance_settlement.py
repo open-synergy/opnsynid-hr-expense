@@ -411,3 +411,23 @@ class HrCashAdvanceSettlement(models.Model):
         if self._automatically_insert_view_element:
             view_arch = self._reconfigure_statusbar_visible(view_arch)
         return view_arch
+
+    def action_reload_cash_advance(self):
+        for rec in self.filtered(lambda s: s.state == "draft"):
+            rec.line_ids = False
+            line_vals = []
+            for line_id in rec.cash_advance_id.line_ids:
+                line_vals.append((0, 0, {
+                    "cash_advance_settlement_id": rec.id,
+                    "currency_id": line_id.currency_id.id,
+                    "pricelist_id": line_id.pricelist_id and line_id.pricelist_id.id or False,
+                    "price_unit": line_id.price_unit,
+                    "product_id": line_id.product_id.id,
+                    "name": line_id.name,
+                    "usage_id": line_id.usage_id and line_id.usage_id.id or False,
+                    "uom_quantity": line_id.uom_quantity,
+                    "uom_id": line_id.uom_id.id,
+                    "account_id": line_id.account_id.id,
+                    "analytic_account_id": line_id.analytic_account_id and line_id.analytic_account_id.id or False,
+                }))
+            rec.line_ids = line_vals
