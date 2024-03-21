@@ -163,6 +163,7 @@
                         >
                         <tree editable="top">
                             <field name="currency_id" invisible="1" />
+                            <field name="date_expense" />
                             <field
                                     name="product_id"
                                     domain="['|',('id','in',parent.allowed_product_ids),('categ_id','in',parent.allowed_product_category_ids)]"
