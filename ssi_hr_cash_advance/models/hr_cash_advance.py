@@ -427,6 +427,9 @@ class HrCashAdvance(models.Model):
 
     def _create_accounting_entry(self):
         self.ensure_one()
+        if self.move_id:
+            return True
+
         move = self._create_account_move()
         payable_line = self._create_payable_line(move)
         cash_advance_line = self._create_cash_advance_line(move)
