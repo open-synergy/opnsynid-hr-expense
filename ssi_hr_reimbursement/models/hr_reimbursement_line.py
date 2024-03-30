@@ -17,6 +17,10 @@ class HrReimbursementLine(models.Model):
         required=True,
         ondelete="cascade",
     )
+    pricelist_id = fields.Many2one(
+        related="reimbursement_id.pricelist_id",
+        store=True,
+    )
     date_expense = fields.Date(
         string="Date Expense",
     )

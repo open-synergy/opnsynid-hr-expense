@@ -19,6 +19,8 @@
         "ssi_employee_document_mixin",
         "ssi_product_line_account_mixin",
         "ssi_company_currency_mixin",
+        "ssi_transaction_pricelist_mixin",
+        "ssi_m2o_configurator_mixin",
         "base_duration",
         "base_automation",
     ],

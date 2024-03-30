@@ -90,6 +90,7 @@
                             />
                     </group>
                 </page>
+                <page name="pricelist" string="Pricelist" />
             </xpath>
         </data>
     </field>

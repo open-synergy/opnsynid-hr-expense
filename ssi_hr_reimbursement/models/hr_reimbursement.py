@@ -13,6 +13,8 @@ class HrReimbursement(models.Model):
         "mixin.transaction_open",
         "mixin.transaction_done",
         "mixin.transaction_cancel",
+        "mixin.transaction_pricelist",
+        "mixin.many2one_configurator",
         "mixin.employee_document",
         "mixin.company_currency",
     ]
@@ -114,6 +116,9 @@ class HrReimbursement(models.Model):
             ],
         },
     )
+    pricelist_id = fields.Many2one(
+        required=False,
+    )
     allowed_product_ids = fields.Many2many(
         string="Allowed Product",
         comodel_name="product.product",
@@ -130,6 +135,12 @@ class HrReimbursement(models.Model):
         string="Allowed Product Usage",
         comodel_name="product.usage_type",
         related="type_id.allowed_product_usage_ids",
+        store=False,
+    )
+    allowed_pricelist_ids = fields.Many2many(
+        string="Allowed Pricelists",
+        comodel_name="product.pricelist",
+        compute="_compute_allowed_pricelist_ids",
         store=False,
     )
     line_ids = fields.One2many(
@@ -303,6 +314,22 @@ class HrReimbursement(models.Model):
             ("reject", "Rejected"),
         ],
     )
+
+    @api.depends("type_id", "currency_id", "employee_id")
+    def _compute_allowed_pricelist_ids(self):
+        for record in self:
+            result = False
+            if record.type_id and record.currency_id and record.employee_id:
+                result = record._m2o_configurator_get_filter(
+                    object_name="product.pricelist",
+                    method_selection=record.type_id.pricelist_selection_method,
+                    manual_recordset=record.type_id.pricelist_ids,
+                    domain=record.type_id.pricelist_domain,
+                    python_code=record.type_id.pricelist_python_code,
+                )
+            record.allowed_pricelist_ids = result.filtered(
+                lambda r: r.currency_id.id == record.currency_id.id
+            )
 
     @api.model
     def _get_policy_field(self):
@@ -481,3 +508,11 @@ class HrReimbursement(models.Model):
     def onchange_line_analytic_account_id(self):
         if self.type_id:
             self.line_ids.analytic_account_id = False
+
+    @api.onchange(
+        "employee_id",
+        "type_id",
+        "currency_id",
+    )
+    def onchange_pricelist_id(self):
+        self.pricelist_id = False
