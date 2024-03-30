@@ -264,9 +264,11 @@ class HrCashAdvanceSettlement(models.Model):
                     domain=record.type_id.pricelist_domain,
                     python_code=record.type_id.pricelist_python_code,
                 )
-            record.allowed_pricelist_ids = result.filtered(
-                lambda r: r.currency_id.id == record.currency_id.id
-            )
+                if result:
+                    result = result.filtered(
+                        lambda r: r.currency_id.id == record.currency_id.id
+                    )
+            record.allowed_pricelist_ids = result
 
     @api.model
     def _get_policy_field(self):
