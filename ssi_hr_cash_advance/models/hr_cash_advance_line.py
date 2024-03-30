@@ -21,6 +21,9 @@ class HrCashAdvanceLine(models.Model):
     product_id = fields.Many2one(
         required=True,
     )
+    date_expense = fields.Date(
+        string="Date Expense",
+    )
 
     @api.onchange(
         "product_id",
