@@ -23,6 +23,9 @@ class HrCashAdvanceSettlementLine(models.Model):
     product_id = fields.Many2one(
         required=True,
     )
+    date_expense = fields.Date(
+        string="Date Expense",
+    )
 
     def _create_expense_line(self, move):
         self.ensure_one()
