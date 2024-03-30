@@ -7,8 +7,11 @@ from odoo import api, fields, models
 
 class HrExpenseType(models.Model):
     _name = "hr.expense_type"
-    _inherit = ["mixin.master_data"]
+    _inherit = ["mixin.master_data", "mixin.product_pricelist_m2o_configurator"]
     _description = "Expense Type"
+
+    _product_pricelist_m2o_configurator_insert_form_element_ok = True
+    _product_pricelist_m2o_configurator_form_xpath = "//page[@name='pricelist']"
 
     name = fields.Char(
         string="Expense Type",
@@ -17,6 +20,11 @@ class HrExpenseType(models.Model):
         string="Product",
         comodel_name="hr.expense_type_product",
         inverse_name="type_id",
+    )
+    pricelist_ids = fields.Many2many(
+        relation="rel_expense_type_2_pricelist",
+        column1="type_id",
+        column2="pricelist_id",
     )
 
     @api.depends(
