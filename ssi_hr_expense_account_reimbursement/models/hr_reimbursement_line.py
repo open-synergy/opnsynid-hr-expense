@@ -11,12 +11,12 @@ class HrReimbursementLine(models.Model):
 
     require_expense_account = fields.Boolean(
         string="Require Expense Account",
-        readonly=False,
+        readonly=True,
     )
     expense_account_id = fields.Many2one(
         comodel_name="employee_expense_account",
         readonly=True,
-        string="Expense Account",
+        string="# Expense Account",
     )
 
     def _check_expense_account(self):
