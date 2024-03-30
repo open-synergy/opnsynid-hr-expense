@@ -15,6 +15,8 @@ class HrCashAdvanceSettlement(models.Model):
         "mixin.transaction_cancel",
         "mixin.transaction_done",
         "mixin.transaction_confirm",
+        "mixin.transaction_pricelist",
+        "mixin.many2one_configurator",
         "mixin.employee_document",
         "mixin.company_currency",
     ]
@@ -85,6 +87,9 @@ class HrCashAdvanceSettlement(models.Model):
             ],
         },
     )
+    pricelist_id = fields.Many2one(
+        required=False,
+    )
     allowed_product_ids = fields.Many2many(
         string="Allowed Product",
         comodel_name="product.product",
@@ -101,6 +106,12 @@ class HrCashAdvanceSettlement(models.Model):
         string="Allowed Product Usage",
         comodel_name="product.usage_type",
         related="type_id.allowed_product_usage_ids",
+        store=False,
+    )
+    allowed_pricelist_ids = fields.Many2many(
+        string="Allowed Pricelists",
+        comodel_name="product.pricelist",
+        compute="_compute_allowed_pricelist_ids",
         store=False,
     )
 
@@ -240,6 +251,22 @@ class HrCashAdvanceSettlement(models.Model):
         compute="_compute_allowed_analytic_account_ids",
         store=False,
     )
+
+    @api.depends("type_id", "currency_id", "employee_id")
+    def _compute_allowed_pricelist_ids(self):
+        for record in self:
+            result = False
+            if record.type_id and record.currency_id and record.employee_id:
+                result = record._m2o_configurator_get_filter(
+                    object_name="product.pricelist",
+                    method_selection=record.type_id.pricelist_selection_method,
+                    manual_recordset=record.type_id.pricelist_ids,
+                    domain=record.type_id.pricelist_domain,
+                    python_code=record.type_id.pricelist_python_code,
+                )
+            record.allowed_pricelist_ids = result.filtered(
+                lambda r: r.currency_id.id == record.currency_id.id
+            )
 
     @api.model
     def _get_policy_field(self):
@@ -406,6 +433,14 @@ class HrCashAdvanceSettlement(models.Model):
         if self.type_id:
             self.line_ids.analytic_account_id = False
 
+    @api.onchange(
+        "employee_id",
+        "type_id",
+        "currency_id",
+    )
+    def onchange_pricelist_id(self):
+        self.pricelist_id = False
+
     @ssi_decorator.insert_on_form_view()
     def _insert_form_element(self, view_arch):
         if self._automatically_insert_view_element:
@@ -413,7 +448,7 @@ class HrCashAdvanceSettlement(models.Model):
         return view_arch
 
     def action_reload_cash_advance(self):
-        for rec in self.filtered(lambda s: s.state == "draft"):
+        for rec in self.sudo().filtered(lambda s: s.state == "draft"):
             rec.line_ids = False
             line_vals = []
             for line_id in rec.cash_advance_id.line_ids:

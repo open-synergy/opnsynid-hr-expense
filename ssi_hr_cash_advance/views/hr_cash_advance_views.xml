@@ -156,6 +156,15 @@
                         widget="many2many_tags"
                         invisible="1"
                     />
+                <field
+                        name="allowed_pricelist_ids"
+                        widget="many2many_tags"
+                        invisible="1"
+                    />
+                <field
+                        name="pricelist_id"
+                        domain="[('id', 'in', allowed_pricelist_ids)]"
+                    />
                 <field name="date" />
                 <field name="duration_id" />
                 <field name="date_due" />
@@ -164,30 +173,75 @@
                 <page name="detail" string="Details">
                     <field
                             name="line_ids"
-                            context="{'default_currency_id': currency_id}"
+                            context="{'default_currency_id': currency_id, 'default_pricelist_id': pricelist_id}"
                         >
-                        <tree editable="top">
+                        <tree>
                             <field name="currency_id" invisible="1" />
                             <field name="date_expense" />
-                            <field
-                                    name="product_id"
-                                    domain="['|',('id','in',parent.allowed_product_ids),('categ_id','in',parent.allowed_product_category_ids)]"
-                                />
-                            <field
-                                    name="usage_id"
-                                    domain="[('id','in',parent.allowed_product_usage_ids)]"
-                                />
-                            <field name="account_id" />
+                            <field name="product_id" />
+                            <field name="usage_id" optional="hide" />
+                            <field name="type_id" invisible="1" />
+                            <field name="account_id" optional="hide" />
                             <field name="name" />
                             <field
                                     name="analytic_account_id"
                                     domain="[('id', 'in', parent.allowed_analytic_account_ids)]"
+                                    optional="show"
                                 />
                             <field name="price_unit" />
                             <field name="uom_quantity" />
                             <field name="uom_id" />
                             <field name="price_subtotal" />
                         </tree>
+                        <form>
+                            <field name="currency_id" invisible="1" />
+                            <field name="type_id" invisible="1" />
+                            <field
+                                    name="allowed_uom_ids"
+                                    widget="many2many_tags"
+                                    invisible="1"
+                                />
+                            <group name="detail_1" colspan="4" col="2">
+                                <group name="detail_1_1" colspan="1" col="2">
+                                    <field name="date_expense" />
+                                    <field
+                                            name="product_id"
+                                            domain="['|',('id','in',parent.allowed_product_ids),('categ_id','in',parent.allowed_product_category_ids)]"
+                                        />
+                                    <field name="name" />
+                                    <field
+                                            name="usage_id"
+                                            domain="[('id','in',parent.allowed_product_usage_ids)]"
+                                        />
+                                    <field name="account_id" />
+                                    <field
+                                            name="analytic_account_id"
+                                            domain="[('id', 'in', parent.allowed_analytic_account_ids)]"
+                                        />
+                                </group>
+                                <group name="detail_1_1" colspan="1" col="2">
+                                    <field name="pricelist_id" />
+                                    <label for="uom_quantity" />
+                                    <div>
+                                        <field name="uom_quantity" />
+                                        <field
+                                                name="uom_id"
+                                                domain="[('id','in',allowed_uom_ids)]"
+                                                attrs="{'required':[('product_id','!=',False)]}"
+                                                class="oe_inline"
+                                            />
+                                    </div>
+                                    <field name="quantity" invisible="1" />
+                                    <field name="price_unit" />
+                                    <field name="price_subtotal" />
+                                </group>
+                            </group>
+                            <notebook>
+                                <page name="note" string="Notes">
+                                    <field name="note" />
+                                </page>
+                            </notebook>
+                        </form>
                     </field>
                     <group class="oe_subtotal_footer oe_right">
 

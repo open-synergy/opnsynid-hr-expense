@@ -17,6 +17,10 @@ class HrCashAdvanceSettlementLine(models.Model):
         required=True,
         ondelete="cascade",
     )
+    pricelist_id = fields.Many2one(
+        related="cash_advance_settlement_id.pricelist_id",
+        store=True,
+    )
     type_id = fields.Many2one(
         string="Type", related="cash_advance_settlement_id.type_id"
     )
