@@ -169,7 +169,7 @@
                             name="action_reload_cash_advance"
                             type="object"
                             string="Reload from Cash Advance"
-                            icon="fa-refresh text-primary"
+                            icon="fa-refresh"
                             class="oe_highlight"
                             states="draft"
                         />

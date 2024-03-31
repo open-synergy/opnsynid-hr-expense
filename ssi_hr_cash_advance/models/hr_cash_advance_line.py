@@ -30,6 +30,13 @@ class HrCashAdvanceLine(models.Model):
     )
 
     @api.onchange(
+        "allowed_pricelist_ids",
+        "currency_id",
+    )
+    def onchange_pricelist_id(self):
+        pass
+
+    @api.onchange(
         "product_id",
     )
     def onchange_line_usage_id(self):
