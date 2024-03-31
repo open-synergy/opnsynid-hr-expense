@@ -29,6 +29,13 @@ class HrReimbursementLine(models.Model):
         required=True,
     )
 
+    @api.onchange(
+        "allowed_pricelist_ids",
+        "currency_id",
+    )
+    def onchange_pricelist_id(self):
+        pass
+
     def _create_expense_move_line(self):
         self.ensure_one()
         obj_line = self.env["account.move.line"].with_context(check_move_validity=False)

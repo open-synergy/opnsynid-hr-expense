@@ -31,6 +31,13 @@ class HrCashAdvanceSettlementLine(models.Model):
         string="Date Expense",
     )
 
+    @api.onchange(
+        "allowed_pricelist_ids",
+        "currency_id",
+    )
+    def onchange_pricelist_id(self):
+        pass
+
     def _create_expense_line(self, move):
         self.ensure_one()
         AML = self.env["account.move.line"].with_context(check_move_validity=False)
