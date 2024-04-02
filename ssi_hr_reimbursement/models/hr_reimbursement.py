@@ -445,11 +445,12 @@ class HrReimbursement(models.Model):
 
     def _create_accounting_entry(self):
         self.ensure_one()
-        self._create_account_move()
-        self._create_payable_reimbursement_move_line()
-        for line in self.line_ids:
-            line._create_expense_move_line()
-        self.move_id.action_post()
+        if not self.move_id:
+            self._create_account_move()
+            self._create_payable_reimbursement_move_line()
+            for line in self.line_ids:
+                line._create_expense_move_line()
+            self.move_id.action_post()
 
     def _create_account_move(self):
         self.ensure_one()
