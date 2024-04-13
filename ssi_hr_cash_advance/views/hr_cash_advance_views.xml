@@ -237,6 +237,44 @@
                                 </group>
                             </group>
                             <notebook>
+                                <page
+                                        name="standard_price"
+                                        string="Standard Price"
+                                        attrs="{'invisible':[('pricelist_id','=',False)]}"
+                                    >
+                                    <group name="standard_price" colspan="4" col="2">
+                                        <group
+                                                name="standard_price_1"
+                                                string="Price Unit"
+                                                colspan="1"
+                                                col="2"
+                                            >
+                                            <field
+                                                    name="standard_price_unit"
+                                                    string="Sarndard"
+                                                />
+                                            <field
+                                                    name="standard_price_unit_diff"
+                                                    string="Diff."
+                                                />
+                                        </group>
+                                        <group
+                                                name="standard_price_2"
+                                                string="Price Subtotal"
+                                                colspan="1"
+                                                col="2"
+                                            >
+                                            <field
+                                                    name="standard_price_subtotal"
+                                                    string="Standard"
+                                                />
+                                            <field
+                                                    name="standard_price_subtotal_diff"
+                                                    string="Diff."
+                                                />
+                                        </group>
+                                    </group>
+                                </page>
                                 <page name="note" string="Notes">
                                     <field name="note" />
                                 </page>
