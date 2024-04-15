@@ -32,6 +32,8 @@ class HrCashAdvanceSettlement(models.Model):
     _automatically_insert_view_element = True
     _automatically_insert_done_policy_fields = False
     _automatically_insert_done_button = False
+    _automatically_insert_open_policy_fields = False
+    _automatically_insert_open_button = False
 
     _statusbar_visible_label = "draft,confirm,done"
     _policy_field_order = [
