@@ -381,6 +381,18 @@ class HrReimbursement(models.Model):
         if self.duration_id:
             self.date_due = self.duration_id.get_duration(self.date)
 
+    def action_recompute_realization(self):
+        for record in self.sudo():
+            record._recompute_realization()
+
+    def _recompute_realization(self):
+        self.ensure_one()
+
+        if self.state == "open" and self.reconciled:
+            self.action_done()
+        elif self.state == "done" and not self.reconciled:
+            self.action_open()
+
     def _get_partner_id(self):
         self.ensure_one()
         if not self.employee_id.address_home_id:

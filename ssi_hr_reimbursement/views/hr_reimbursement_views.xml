@@ -71,6 +71,13 @@
     <field name="inherit_id" ref="ssi_transaction_mixin.mixin_transaction_view_tree" />
     <field name="arch" type="xml">
         <data>
+            <xpath expr="//header" position="inside">
+                <button
+                        name="action_recompute_realization"
+                        type="object"
+                        string="Recompute Realization"
+                    />
+            </xpath>
             <xpath expr="//field[@name='user_id']" position="after">
                 <field name="employee_id" />
                 <field name="department_id" optional="hide" />
@@ -117,6 +124,16 @@
     <field name="inherit_id" ref="ssi_transaction_mixin.mixin_transaction_view_form" />
     <field name="arch" type="xml">
         <data>
+            <xpath expr="//header/field[@name='state']" position="before">
+                <button
+                        name="action_recompute_realization"
+                        type="object"
+                        string="Recompute Realization"
+                        class="oe_highlight"
+                        icon="fa-gear"
+                        attrs="{'invisible':[('state','not in',['open','done'])]}"
+                    />
+            </xpath>
             <xpath expr="//field[@name='company_id']" position="after">
                 <field name="employee_id" />
                 <field name="department_id" readonly="1" force_save="1" />
