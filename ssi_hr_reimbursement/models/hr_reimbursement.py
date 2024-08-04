@@ -205,6 +205,10 @@ class HrReimbursement(models.Model):
         ondelete="set null",
         copy=False,
     )
+    last_payment_date = fields.Date(
+        string="Last Payment Date",
+        related="move_id.last_payment_date",
+    )
 
     @api.depends(
         "payable_move_line_id",
