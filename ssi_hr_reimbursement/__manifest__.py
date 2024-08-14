@@ -23,6 +23,7 @@
         "ssi_m2o_configurator_mixin",
         "base_duration",
         "base_automation",
+        "ssi_financial_accounting",
     ],
     "data": [
         "security/ir_module_category_data.xml",

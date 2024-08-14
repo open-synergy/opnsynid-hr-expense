@@ -112,6 +112,10 @@
                         decoration-bf="1"
                         optional="show"
                     />
+                <field
+                        name="last_payment_date" 
+                        optional="show"
+                    />
             </xpath>
         </data>
     </field>
