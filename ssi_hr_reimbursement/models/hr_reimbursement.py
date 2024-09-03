@@ -15,7 +15,7 @@ class HrReimbursement(models.Model):
         "mixin.transaction_cancel",
         "mixin.transaction_pricelist",
         "mixin.many2one_configurator",
-        "mixin.employee_document",
+        "mixin.employee_bank_account",
         "mixin.company_currency",
     ]
     _description = "Employee Reimbursement"
