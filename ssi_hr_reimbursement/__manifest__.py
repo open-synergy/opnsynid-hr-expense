@@ -16,7 +16,7 @@
         "ssi_transaction_open_mixin",
         "ssi_transaction_done_mixin",
         "ssi_transaction_cancel_mixin",
-        "ssi_employee_document_mixin",
+        "ssi_employee_bank_account_mixin",
         "ssi_product_line_account_mixin",
         "ssi_company_currency_mixin",
         "ssi_transaction_pricelist_mixin",

@@ -80,6 +80,7 @@
             </xpath>
             <xpath expr="//field[@name='user_id']" position="after">
                 <field name="employee_id" />
+                <field name="employee_bank_account_id" string="Bank Account" />
                 <field name="department_id" optional="hide" />
                 <field
                         name="manager_id"
@@ -112,10 +113,7 @@
                         decoration-bf="1"
                         optional="show"
                     />
-                <field
-                        name="last_payment_date" 
-                        optional="show"
-                    />
+                <field name="last_payment_date" optional="show" />
             </xpath>
         </data>
     </field>
@@ -177,6 +175,16 @@
                         name="allowed_pricelist_ids"
                         widget="many2many_tags"
                         invisible="1"
+                    />
+                <field
+                        name="allowed_bank_account_ids"
+                        widget="many2many_tags"
+                        invisible="1"
+                    />
+                <field
+                        name="employee_bank_account_id"
+                        string="Bank Account"
+                        domain="[('id', 'in', allowed_bank_account_ids)]"
                     />
                 <field
                         name="pricelist_id"
