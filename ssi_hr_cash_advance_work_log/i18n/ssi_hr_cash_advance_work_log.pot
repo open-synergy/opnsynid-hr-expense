@@ -1,0 +1,84 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ssi_hr_cash_advance_work_log
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: ssi_hr_cash_advance_work_log
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance__allowed_analytic_account_ids
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance_settlement__allowed_analytic_account_ids
+msgid "Allowed Analytic Accounts"
+msgstr ""
+
+#. module: ssi_hr_cash_advance_work_log
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance__display_name
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance_settlement__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: ssi_hr_cash_advance_work_log
+#: model:ir.model,name:ssi_hr_cash_advance_work_log.model_hr_cash_advance
+msgid "Employee Cash Advance"
+msgstr ""
+
+#. module: ssi_hr_cash_advance_work_log
+#: model:ir.model,name:ssi_hr_cash_advance_work_log.model_hr_cash_advance_settlement
+msgid "Employee Cash Advance Settlement"
+msgstr ""
+
+#. module: ssi_hr_cash_advance_work_log
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance__excess_work
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance_settlement__excess_work
+msgid "Excess Work"
+msgstr ""
+
+#. module: ssi_hr_cash_advance_work_log
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance__id
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance_settlement__id
+msgid "ID"
+msgstr ""
+
+#. module: ssi_hr_cash_advance_work_log
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance____last_update
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance_settlement____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: ssi_hr_cash_advance_work_log
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance__remaining_work
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance_settlement__remaining_work
+msgid "Remaining Work"
+msgstr ""
+
+#. module: ssi_hr_cash_advance_work_log
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance__total_work
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance_settlement__total_work
+msgid "Total Work"
+msgstr ""
+
+#. module: ssi_hr_cash_advance_work_log
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance__work_estimation
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance_settlement__work_estimation
+msgid "Work Estimation"
+msgstr ""
+
+#. module: ssi_hr_cash_advance_work_log
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance__work_log_analytic_account_id
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance_settlement__work_log_analytic_account_id
+msgid "Work Log Analytic Account"
+msgstr ""
+
+#. module: ssi_hr_cash_advance_work_log
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance__work_log_ids
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance_work_log.field_hr_cash_advance_settlement__work_log_ids
+msgid "Work Logs"
+msgstr ""
