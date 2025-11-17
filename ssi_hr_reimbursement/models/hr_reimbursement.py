@@ -262,9 +262,9 @@ class HrReimbursement(models.Model):
             if document.payable_move_line_id:
                 move_line = document.payable_move_line_id
                 if not currency:
-                    residual = move_line.amount_residual
+                    residual = abs(move_line.amount_residual)
                 else:
-                    residual = move_line.amount_residual_currency
+                    residual = abs(move_line.amount_residual_currency)
                 realized = document.amount_total - residual
             document.amount_realized = realized
             document.amount_residual = residual
