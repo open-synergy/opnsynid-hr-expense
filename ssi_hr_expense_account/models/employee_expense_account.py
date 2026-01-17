@@ -112,11 +112,13 @@ class EmployeeExpenseAccount(models.Model):
         string="Realized",
         compute="_compute_amount",
         store=True,
+        compute_sudo=True,
     )
     amount_residual = fields.Monetary(
         string="Residual",
         compute="_compute_amount",
         store=True,
+        compute_sudo=True,
     )
     state = fields.Selection(
         string="State",
