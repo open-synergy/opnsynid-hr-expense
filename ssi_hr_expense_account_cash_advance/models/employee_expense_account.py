@@ -31,6 +31,7 @@ class EmployeeExpenseAccount(models.Model):
         string="Cash Advance Settlement",
         comodel_name="hr.cash_advance_settlement_line",
         compute="_compute_valid_cash_advance_settlement_line_ids",
+        compute_sudo=True,
     )
 
     @api.depends(
@@ -53,6 +54,7 @@ class EmployeeExpenseAccount(models.Model):
         compute="_compute_cash_advance",
         store=True,
         string="Cash Advance",
+        compute_sudo=True,
     )
 
     def _get_expense_fields(self):
