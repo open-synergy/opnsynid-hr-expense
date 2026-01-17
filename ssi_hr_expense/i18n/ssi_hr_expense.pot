@@ -146,6 +146,11 @@ msgid "Doctor - (test)"
 msgstr ""
 
 #. module: ssi_hr_expense
+#: model:hr.expense_type,name:ssi_hr_expense.demo_expense_type1
+msgid "Employee Benefit - (test)"
+msgstr ""
+
+#. module: ssi_hr_expense
 #: model:ir.ui.menu,name:ssi_hr_expense.expense_menu
 #: model:ir.ui.menu,name:ssi_hr_expense.menu_hr_expense_configuration
 msgid "Expense"
@@ -384,6 +389,11 @@ msgid "Number of unread messages"
 msgstr ""
 
 #. module: ssi_hr_expense
+#: model:hr.expense_type,name:ssi_hr_expense.demo_expense_type2
+msgid "Operation - (test)"
+msgstr ""
+
+#. module: ssi_hr_expense
 #: model_terms:ir.ui.view,arch_db:ssi_hr_expense.hr_expense_type_view_form
 msgid "Pricelist"
 msgstr ""
@@ -425,6 +435,11 @@ msgstr ""
 #. module: ssi_hr_expense
 #: model_terms:ir.ui.view,arch_db:ssi_hr_expense.hr_expense_type_view_form
 msgid "Product Usage"
+msgstr ""
+
+#. module: ssi_hr_expense
+#: model:hr.expense_type,name:ssi_hr_expense.demo_expense_type3
+msgid "Project - (test)"
 msgstr ""
 
 #. module: ssi_hr_expense
