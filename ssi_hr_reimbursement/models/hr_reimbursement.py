@@ -126,24 +126,28 @@ class HrReimbursement(models.Model):
         comodel_name="product.product",
         related="type_id.allowed_product_ids",
         store=False,
+        compute_sudo=True,
     )
     allowed_product_category_ids = fields.Many2many(
         string="Allowed Product Category",
         comodel_name="product.category",
         related="type_id.allowed_product_category_ids",
         store=False,
+        compute_sudo=True,
     )
     allowed_product_usage_ids = fields.Many2many(
         string="Allowed Product Usage",
         comodel_name="product.usage_type",
         related="type_id.allowed_product_usage_ids",
         store=False,
+        compute_sudo=True,
     )
     allowed_pricelist_ids = fields.Many2many(
         string="Allowed Pricelists",
         comodel_name="product.pricelist",
         compute="_compute_allowed_pricelist_ids",
         store=False,
+        compute_sudo=True,
     )
     line_ids = fields.One2many(
         string="Details",
@@ -208,6 +212,7 @@ class HrReimbursement(models.Model):
     last_payment_date = fields.Date(
         string="Last Payment Date",
         related="move_id.last_payment_date",
+        compute_sudo=True,
     )
 
     @api.depends(
@@ -226,6 +231,7 @@ class HrReimbursement(models.Model):
         string="Reconciled",
         compute="_compute_reconciled",
         store=True,
+        compute_sudo=True,
     )
 
     @api.depends(
@@ -244,6 +250,7 @@ class HrReimbursement(models.Model):
         compute="_compute_amount_total",
         store=True,
         currency_field="currency_id",
+        compute_sudo=True,
     )
 
     @api.depends(
@@ -274,12 +281,14 @@ class HrReimbursement(models.Model):
         compute="_compute_residual",
         store=True,
         currency_field="currency_id",
+        compute_sudo=True,
     )
     amount_residual = fields.Monetary(
         string="Amount Residual",
         compute="_compute_residual",
         store=True,
         currency_field="currency_id",
+        compute_sudo=True,
     )
 
     @api.depends(
@@ -305,6 +314,7 @@ class HrReimbursement(models.Model):
         comodel_name="account.analytic.account",
         compute="_compute_allowed_analytic_account_ids",
         store=False,
+        compute_sudo=True,
     )
     state = fields.Selection(
         string="State",

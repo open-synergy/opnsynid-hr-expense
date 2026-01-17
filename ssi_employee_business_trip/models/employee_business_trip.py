@@ -200,7 +200,10 @@ class EmployeeBusinessTrip(models.Model):
         comodel_name="account.move.line", string="Payable Move Line", readonly=True
     )
     realized = fields.Boolean(
-        related="payable_move_line_id.reconciled", string="Realized", store=True
+        related="payable_move_line_id.reconciled",
+        string="Realized",
+        store=True,
+        compute_sudo=True,
     )
     # Per diem
     per_diem_ids = fields.One2many(

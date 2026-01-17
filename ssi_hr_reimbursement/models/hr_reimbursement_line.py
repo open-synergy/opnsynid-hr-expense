@@ -20,11 +20,14 @@ class HrReimbursementLine(models.Model):
     pricelist_id = fields.Many2one(
         related="reimbursement_id.pricelist_id",
         store=True,
+        compute_sudo=True,
     )
     date_expense = fields.Date(
         string="Date Expense",
     )
-    type_id = fields.Many2one(string="Type", related="reimbursement_id.type_id")
+    type_id = fields.Many2one(
+        string="Type", related="reimbursement_id.type_id", compute_sudo=True
+    )
     product_id = fields.Many2one(
         required=True,
     )
