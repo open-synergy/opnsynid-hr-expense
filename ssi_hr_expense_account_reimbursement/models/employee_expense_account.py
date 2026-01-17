@@ -31,6 +31,7 @@ class EmployeeExpenseAccount(models.Model):
         string="Reimbursements",
         comodel_name="hr.reimbursement_line",
         compute="_compute_valid_reimbursement_line_ids",
+        compute_sudo=True,
     )
 
     @api.depends(
@@ -53,6 +54,7 @@ class EmployeeExpenseAccount(models.Model):
         compute="_compute_reimbursement",
         store=True,
         string="Reimbursement",
+        compute_sudo=True,
     )
 
     def _get_expense_fields(self):
