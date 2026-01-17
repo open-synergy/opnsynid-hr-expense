@@ -42,16 +42,26 @@ class EmployeeBusinessTripPerDiem(models.Model):
 
     move_id = fields.Many2one(
         related="employee_business_trip_id.move_id",
+        compute_sudo=True,
     )
     currency_id = fields.Many2one(
         related="employee_business_trip_id.currency_id",
+        compute_sudo=True,
     )
-    company_id = fields.Many2one(related="employee_business_trip_id.company_id")
+    company_id = fields.Many2one(
+        related="employee_business_trip_id.company_id", compute_sudo=True
+    )
     company_currency_id = fields.Many2one(
-        related="employee_business_trip_id.company_currency_id"
+        related="employee_business_trip_id.company_currency_id",
+        compute_sudo=True,
     )
     employee_partner_id = fields.Many2one(
-        related="employee_business_trip_id.employee_partner_id"
+        related="employee_business_trip_id.employee_partner_id",
+        compute_sudo=True,
     )
-    date = fields.Date(related="employee_business_trip_id.date_start")
-    pricelist_id = fields.Many2one(related="employee_business_trip_id.pricelist_id")
+    date = fields.Date(
+        related="employee_business_trip_id.date_start", compute_sudo=True
+    )
+    pricelist_id = fields.Many2one(
+        related="employee_business_trip_id.pricelist_id", compute_sudo=True
+    )
