@@ -21,6 +21,7 @@ addon | version | maintainers | summary
 [ssi_employee_business_trip](ssi_employee_business_trip/) | 14.0.2.3.0 |  | Employee Business Trip
 [ssi_employee_business_trip_work_log](ssi_employee_business_trip_work_log/) | 14.0.1.0.0 |  | Employee Business Trip - Work Log Integration
 [ssi_hr_cash_advance](ssi_hr_cash_advance/) | 14.0.1.15.0 |  | Employee Cash Advance
+[ssi_hr_cash_advance_operating_unit](ssi_hr_cash_advance_operating_unit/) | 14.0.1.0.0 |  | Employee Cash Advance + Operating Unit
 [ssi_hr_cash_advance_work_log](ssi_hr_cash_advance_work_log/) | 14.0.1.0.0 |  | Employee Cash Advance - Work Log Integration
 [ssi_hr_expense](ssi_hr_expense/) | 14.0.1.3.0 |  | Employee Expense
 [ssi_hr_expense_account](ssi_hr_expense_account/) | 14.0.1.4.0 |  | Employee Expense Account
@@ -28,6 +29,7 @@ addon | version | maintainers | summary
 [ssi_hr_expense_account_reimbursement](ssi_hr_expense_account_reimbursement/) | 14.0.1.4.0 |  | Employee Expense Account - Reimbursement Integration
 [ssi_hr_expense_account_work_log](ssi_hr_expense_account_work_log/) | 14.0.1.0.0 |  | Employee Expense Account - Work Log Integration
 [ssi_hr_reimbursement](ssi_hr_reimbursement/) | 14.0.3.1.0 |  | Employee Reimbursement
+[ssi_hr_reimbursement_operating_unit](ssi_hr_reimbursement_operating_unit/) | 14.0.1.0.0 |  | Employee Reimbursement + Operating Unit
 [ssi_hr_reimbursement_work_log](ssi_hr_reimbursement_work_log/) | 14.0.1.0.0 |  | Employee Reimbursement - Work Log Integration
 
 [//]: # (end addons)

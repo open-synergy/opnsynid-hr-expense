@@ -11,6 +11,7 @@ setuptools.setup(
         'odoo14-addon-ssi_employee_business_trip',
         'odoo14-addon-ssi_employee_business_trip_work_log',
         'odoo14-addon-ssi_hr_cash_advance',
+        'odoo14-addon-ssi_hr_cash_advance_operating_unit',
         'odoo14-addon-ssi_hr_cash_advance_work_log',
         'odoo14-addon-ssi_hr_expense',
         'odoo14-addon-ssi_hr_expense_account',
@@ -18,6 +19,7 @@ setuptools.setup(
         'odoo14-addon-ssi_hr_expense_account_reimbursement',
         'odoo14-addon-ssi_hr_expense_account_work_log',
         'odoo14-addon-ssi_hr_reimbursement',
+        'odoo14-addon-ssi_hr_reimbursement_operating_unit',
         'odoo14-addon-ssi_hr_reimbursement_work_log',
     ],
     classifiers=[
