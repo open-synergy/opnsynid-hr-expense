@@ -10,6 +10,21 @@ Manage employee business trips including per-diem allowances, accounting
 entries, and a full approval workflow.
 
 
+Work Instruction
+================
+
+* `Create Employee Business Trip <docs/employee_business_trip/01-create.html>`_
+* `Edit Employee Business Trip <docs/employee_business_trip/02-edit.html>`_
+* `Delete Employee Business Trip <docs/employee_business_trip/03-delete.html>`_
+* `Confirm Employee Business Trip <docs/employee_business_trip/04-confirm.html>`_
+* `Approve Employee Business Trip <docs/employee_business_trip/05-approve.html>`_
+* `Reject Employee Business Trip <docs/employee_business_trip/06-reject.html>`_
+* `Done Employee Business Trip <docs/employee_business_trip/09-done.html>`_
+* `Cancel Employee Business Trip <docs/employee_business_trip/10-cancel.html>`_
+* `Restart Employee Business Trip <docs/employee_business_trip/12-restart.html>`_
+* `Reset Document Number — Employee Business Trip <docs/employee_business_trip/13-reset-number.html>`_
+
+
 Installation
 ============
 
