@@ -6,6 +6,12 @@ from odoo import models
 
 
 class EmployeeBusinessTrip(models.Model):
+    """
+    Extends employee_business_trip to support work log tracking.
+    Adds the mixin.work_object mixin so that work logs can be
+    recorded directly on business trip documents.
+    """
+
     _name = "employee_business_trip"
     _inherit = [
         "employee_business_trip",
