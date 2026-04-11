@@ -6,7 +6,16 @@
 
 # opnsynid-hr-expense
 
-opnsynid-hr-expense
+## Work Instructions
+
+Each module provides step-by-step operational documentation (Work Instructions)
+for using the feature from the user's perspective, stored under:
+
+```
+<module_name>/docs/<model_name>/<number>-<action>.md
+```
+
+The list of available Work Instructions can be found in each module's `README.rst`.
 
 <!-- /!\ do not modify below this line -->
 
@@ -46,6 +55,4 @@ that explains its license.
 
 ----
 
-OCA, or the [Odoo Community Association](http://odoo-community.org/), is a nonprofit
-organization whose mission is to support the collaborative development of Odoo features
-and promote its widespread use.
+This repository is maintained by [PT. Simetri Sinergi Indonesia](https://simetri-sinergi.id).
