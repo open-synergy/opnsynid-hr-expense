@@ -6,6 +6,10 @@
 Employee Expense
 ================
 
+Provides the base expense type master data for categorising employee expenses.
+Defines allowed products, product categories, and pricelist configuration
+used by cash advance and reimbursement modules.
+
 
 Installation
 ============
