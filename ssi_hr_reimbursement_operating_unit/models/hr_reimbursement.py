@@ -6,6 +6,12 @@ from odoo import models
 
 
 class HrReimbursement(models.Model):
+    """
+    Extends hr.reimbursement with operating unit support.
+    Adds mixin.single_operating_unit so reimbursement documents
+    can be scoped to a specific operating unit.
+    """
+
     _name = "hr.reimbursement"
     _inherit = [
         "hr.reimbursement",
