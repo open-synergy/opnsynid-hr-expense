@@ -5,6 +5,12 @@ from odoo import _, api, fields, models
 
 
 class HrReimbursementLine(models.Model):
+    """
+    Detail line for employee reimbursement requests.
+    Captures product, expense date, quantity, unit price, and account
+    information for each expense item in the reimbursement.
+    """
+
     _name = "hr.reimbursement_line"
     _inherit = [
         "mixin.product_line_account",

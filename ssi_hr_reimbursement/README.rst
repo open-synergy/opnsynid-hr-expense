@@ -6,6 +6,9 @@
 Employee Reimbursement
 ======================
 
+Manage employee expense reimbursement requests including expense lines,
+accounting entries, and a full approval workflow.
+
 
 Installation
 ============

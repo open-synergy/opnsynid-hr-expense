@@ -7,6 +7,12 @@ from odoo.tools.safe_eval import safe_eval
 
 
 class HrReimbursement(models.Model):
+    """
+    Transactional model for managing employee expense reimbursement requests.
+    Supports a full approval workflow (draft → confirm → open → done/cancel)
+    and integrates with accounting for journal entry and bank payment creation.
+    """
+
     _name = "hr.reimbursement"
     _inherit = [
         "mixin.transaction_confirm",

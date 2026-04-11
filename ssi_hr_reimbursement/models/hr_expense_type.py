@@ -6,6 +6,12 @@ from odoo import fields, models
 
 
 class HrExpenseType(models.Model):
+    """
+    Extends hr.expense_type to add reimbursement accounting configuration.
+    Provides dedicated journal and account fields used when creating
+    accounting entries for employee reimbursements.
+    """
+
     _name = "hr.expense_type"
     _inherit = "hr.expense_type"
 
