@@ -6,6 +6,9 @@
 Employee Cash Advance + Operating Unit
 ======================================
 
+Glue module that adds operating unit support to employee cash advance
+and cash advance settlement documents.
+
 
 Installation
 ============
