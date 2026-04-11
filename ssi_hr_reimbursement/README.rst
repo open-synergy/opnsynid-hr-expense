@@ -10,6 +10,22 @@ Manage employee expense reimbursement requests including expense lines,
 accounting entries, and a full approval workflow.
 
 
+Work Instruction
+================
+
+* `Create Employee Reimbursement <docs/hr_reimbursement/01-create.html>`_
+* `Edit Employee Reimbursement <docs/hr_reimbursement/02-edit.html>`_
+* `Delete Employee Reimbursement <docs/hr_reimbursement/03-delete.html>`_
+* `Confirm Employee Reimbursement <docs/hr_reimbursement/04-confirm.html>`_
+* `Approve Employee Reimbursement <docs/hr_reimbursement/05-approve.html>`_
+* `Reject Employee Reimbursement <docs/hr_reimbursement/06-reject.html>`_
+* `Revert to In Progress — Employee Reimbursement <docs/hr_reimbursement/07-start.html>`_
+* `Finish Employee Reimbursement <docs/hr_reimbursement/09-finish.html>`_
+* `Cancel Employee Reimbursement <docs/hr_reimbursement/10-cancel.html>`_
+* `Restart Employee Reimbursement <docs/hr_reimbursement/12-restart.html>`_
+* `Reset Document Number — Employee Reimbursement <docs/hr_reimbursement/13-reset-number.html>`_
+
+
 Installation
 ============
 
