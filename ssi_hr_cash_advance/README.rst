@@ -6,6 +6,9 @@
 Employee Cash Advance
 =====================
 
+Manage employee cash advance requests including expense lines,
+accounting entries, and a full approval workflow.
+
 
 Installation
 ============

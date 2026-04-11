@@ -6,6 +6,12 @@ from odoo import fields, models
 
 
 class HrExpenseType(models.Model):
+    """
+    Extends hr.expense_type to add cash advance accounting configuration.
+    Provides dedicated journal and account fields for cash advance
+    issuance and settlement journal entries.
+    """
+
     _name = "hr.expense_type"
     _inherit = "hr.expense_type"
 

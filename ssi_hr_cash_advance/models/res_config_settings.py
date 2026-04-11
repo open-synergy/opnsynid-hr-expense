@@ -6,6 +6,12 @@ from odoo import fields, models
 
 
 class ResConfigSettings(models.TransientModel):
+    """
+    Extends configuration settings to expose optional cash advance
+    integration modules. Each boolean field enables on-demand
+    installation of a related add-on module.
+    """
+
     _name = "res.config.settings"
     _inherit = [
         "res.config.settings",

@@ -5,6 +5,12 @@ from odoo import api, fields, models
 
 
 class HrCashAdvanceLine(models.Model):
+    """
+    Detail line for employee cash advance requests.
+    Captures product, quantity, unit price, and account information
+    for each expense item in the cash advance.
+    """
+
     _name = "hr.cash_advance_line"
     _inherit = [
         "mixin.product_line_account",
