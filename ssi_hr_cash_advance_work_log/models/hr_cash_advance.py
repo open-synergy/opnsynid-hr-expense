@@ -6,6 +6,12 @@ from odoo import models
 
 
 class HrCashAdvance(models.Model):
+    """
+    Extends hr.cash_advance to support work log tracking.
+    Adds mixin.work_object so that work logs can be recorded
+    directly on cash advance documents.
+    """
+
     _name = "hr.cash_advance"
     _inherit = [
         "hr.cash_advance",

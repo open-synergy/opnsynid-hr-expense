@@ -6,6 +6,9 @@
 Employee Cash Advance - Work Log Integration
 ============================================
 
+Integrates work log tracking with employee cash advance and cash advance
+settlement documents.
+
 
 Installation
 ============
