@@ -6,6 +6,12 @@ from odoo import fields, models
 
 
 class EmployeeBusinessTripTax(models.Model):
+    """
+    Tax line child model for employee business trips.
+    Stores calculated tax entries that are associated with
+    the per-diem lines of a business trip document.
+    """
+
     _name = "employee_business_trip.tax"
     _description = "Employee Business Trip - Tax"
     _inherit = ["mixin.tax_line"]

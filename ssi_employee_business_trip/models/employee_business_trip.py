@@ -10,6 +10,12 @@ from odoo.addons.ssi_decorator import ssi_decorator
 
 
 class EmployeeBusinessTrip(models.Model):
+    """
+    Transactional model for managing employee business trips.
+    Handles per-diem allowances, accounting entries, and a full
+    approval workflow (draft → confirm → open → done/cancel).
+    """
+
     _name = "employee_business_trip"
     _description = "Employee Business Trip"
     _inherit = [
@@ -270,7 +276,7 @@ class EmployeeBusinessTrip(models.Model):
 
     @api.model
     def _get_policy_field(self):
-        res = super(EmployeeBusinessTrip, self)._get_policy_field()
+        res = super()._get_policy_field()
         policy_field = [
             "confirm_ok",
             "open_ok",

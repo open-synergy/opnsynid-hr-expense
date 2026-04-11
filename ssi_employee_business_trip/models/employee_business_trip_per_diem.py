@@ -6,6 +6,12 @@ from odoo import fields, models
 
 
 class EmployeeBusinessTripPerDiem(models.Model):
+    """
+    Detail line for employee business trip per-diem allowances.
+    Each line captures a specific product/service and its cost
+    during the trip, and is used to build the accounting entry.
+    """
+
     _name = "employee_business_trip.per_diem"
     _description = "Employee Business Trip - Per Diem"
     _inherit = ["mixin.product_line_account", "mixin.account_move_single_line"]
