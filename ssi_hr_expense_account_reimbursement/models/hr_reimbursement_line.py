@@ -7,6 +7,12 @@ from odoo.exceptions import UserError
 
 
 class HrReimbursementLine(models.Model):
+    """
+    Extends hr.reimbursement_line to link reimbursement lines to an
+    employee expense account. Validates that a valid expense account
+    exists and has sufficient balance when required.
+    """
+
     _inherit = "hr.reimbursement_line"
 
     require_expense_account = fields.Boolean(

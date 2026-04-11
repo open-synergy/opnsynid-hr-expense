@@ -6,6 +6,9 @@
 Employee Expense Account - Reimbursement Integration
 ====================================================
 
+Glue module that links reimbursement lines to employee expense accounts
+and enforces expense account validation on reimbursement confirmation.
+
 
 Installation
 ============
