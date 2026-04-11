@@ -10,6 +10,13 @@ Glue module that links reimbursement lines to employee expense accounts
 and enforces expense account validation on reimbursement confirmation.
 
 
+Work Instruction
+================
+
+* `Create Employee Reimbursement (Additional Fields) <docs/hr_reimbursement/01-create.html>`_
+* `Confirm Employee Reimbursement (Additional Validations) <docs/hr_reimbursement/04-confirm.html>`_
+
+
 Installation
 ============
 
