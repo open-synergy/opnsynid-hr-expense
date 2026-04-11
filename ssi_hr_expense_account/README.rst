@@ -10,6 +10,23 @@ Manage employee expense budget accounts with date-range allocation,
 approval workflow, and linkage to reimbursement and cash advance modules.
 
 
+Work Instruction
+================
+
+* `Create Employee Expense Account <docs/employee_expense_account/01-create.html>`_
+* `Edit Employee Expense Account <docs/employee_expense_account/02-edit.html>`_
+* `Delete Employee Expense Account <docs/employee_expense_account/03-delete.html>`_
+* `Confirm Employee Expense Account <docs/employee_expense_account/04-confirm.html>`_
+* `Approve Employee Expense Account <docs/employee_expense_account/05-approve.html>`_
+* `Reject Employee Expense Account <docs/employee_expense_account/06-reject.html>`_
+* `Activate Employee Expense Account <docs/employee_expense_account/07-start.html>`_
+* `Finish Employee Expense Account <docs/employee_expense_account/09-finish.html>`_
+* `Cancel Employee Expense Account <docs/employee_expense_account/10-cancel.html>`_
+* `Terminate Employee Expense Account <docs/employee_expense_account/11-terminate.html>`_
+* `Restart Employee Expense Account <docs/employee_expense_account/12-restart.html>`_
+* `Reset Document Number — Employee Expense Account <docs/employee_expense_account/13-reset-number.html>`_
+
+
 Installation
 ============
 
