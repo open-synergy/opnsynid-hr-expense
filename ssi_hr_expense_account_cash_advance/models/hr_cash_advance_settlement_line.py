@@ -7,6 +7,12 @@ from odoo.exceptions import UserError
 
 
 class HrCashAdvanceSettlementLineInherit(models.Model):
+    """
+    Extends hr.cash_advance_settlement_line to link settlement lines to
+    an employee expense account. Validates that a valid expense account
+    exists and has sufficient balance when required.
+    """
+
     _inherit = "hr.cash_advance_settlement_line"
 
     require_expense_account = fields.Boolean(

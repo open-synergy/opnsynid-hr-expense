@@ -6,6 +6,12 @@ from odoo import fields, models
 
 
 class EmployeeExpenseAccountType(models.Model):
+    """
+    Master data for categorizing employee expense account types.
+    Links each type to a set of accounting accounts that are
+    allowed for expense transactions of that type.
+    """
+
     _name = "employee_expense_account_type"
     _description = "Employee Expense Account Type"
     _inherit = "mixin.master_data"

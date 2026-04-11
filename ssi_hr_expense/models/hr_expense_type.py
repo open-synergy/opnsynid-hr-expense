@@ -6,6 +6,12 @@ from odoo import api, fields, models
 
 
 class HrExpenseType(models.Model):
+    """
+    Master data for employee expense types.
+    Defines the allowed products and product categories that employees
+    can use, along with pricelist configuration for expense valuation.
+    """
+
     _name = "hr.expense_type"
     _inherit = ["mixin.master_data", "mixin.product_pricelist_m2o_configurator"]
     _description = "Expense Type"

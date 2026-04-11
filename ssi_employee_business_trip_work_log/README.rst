@@ -6,6 +6,9 @@
 Employee Business Trip - Work Log Integration
 =============================================
 
+Integrates work log tracking with employee business trips.
+Allows recording work logs directly on business trip documents.
+
 
 Installation
 ============

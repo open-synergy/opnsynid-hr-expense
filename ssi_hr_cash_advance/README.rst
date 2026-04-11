@@ -6,6 +6,34 @@
 Employee Cash Advance
 =====================
 
+Manage employee cash advance requests including expense lines,
+accounting entries, and a full approval workflow.
+
+
+Work Instruction
+================
+
+* `Create Employee Cash Advance <docs/hr_cash_advance/01-create.html>`_
+* `Edit Employee Cash Advance <docs/hr_cash_advance/02-edit.html>`_
+* `Delete Employee Cash Advance <docs/hr_cash_advance/03-delete.html>`_
+* `Confirm Employee Cash Advance <docs/hr_cash_advance/04-confirm.html>`_
+* `Approve Employee Cash Advance <docs/hr_cash_advance/05-approve.html>`_
+* `Reject Employee Cash Advance <docs/hr_cash_advance/06-reject.html>`_
+* `Reopen Employee Cash Advance <docs/hr_cash_advance/07-reopen.html>`_
+* `Done Employee Cash Advance <docs/hr_cash_advance/09-done.html>`_
+* `Cancel Employee Cash Advance <docs/hr_cash_advance/10-cancel.html>`_
+* `Restart Employee Cash Advance <docs/hr_cash_advance/12-restart.html>`_
+* `Reset Document Number — Employee Cash Advance <docs/hr_cash_advance/13-reset-number.html>`_
+* `Create Employee Cash Advance Settlement <docs/hr_cash_advance_settlement/01-create.html>`_
+* `Edit Employee Cash Advance Settlement <docs/hr_cash_advance_settlement/02-edit.html>`_
+* `Delete Employee Cash Advance Settlement <docs/hr_cash_advance_settlement/03-delete.html>`_
+* `Confirm Employee Cash Advance Settlement <docs/hr_cash_advance_settlement/04-confirm.html>`_
+* `Approve Employee Cash Advance Settlement <docs/hr_cash_advance_settlement/05-approve.html>`_
+* `Reject Employee Cash Advance Settlement <docs/hr_cash_advance_settlement/06-reject.html>`_
+* `Cancel Employee Cash Advance Settlement <docs/hr_cash_advance_settlement/10-cancel.html>`_
+* `Restart Employee Cash Advance Settlement <docs/hr_cash_advance_settlement/12-restart.html>`_
+* `Reset Document Number — Employee Cash Advance Settlement <docs/hr_cash_advance_settlement/13-reset-number.html>`_
+
 
 Installation
 ============

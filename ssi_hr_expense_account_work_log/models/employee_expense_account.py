@@ -6,6 +6,12 @@ from odoo import models
 
 
 class EmployeeExpenseAccount(models.Model):
+    """
+    Extends employee_expense_account to support work log tracking.
+    Adds mixin.work_object so that work logs can be recorded
+    directly on expense account documents.
+    """
+
     _name = "employee_expense_account"
     _inherit = [
         "employee_expense_account",

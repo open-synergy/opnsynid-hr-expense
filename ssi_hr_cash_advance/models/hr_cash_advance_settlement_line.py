@@ -5,6 +5,12 @@ from odoo import api, fields, models
 
 
 class HrCashAdvanceSettlementLine(models.Model):
+    """
+    Detail line for employee cash advance settlement documents.
+    Captures product, expense date, quantity, unit price, and
+    account information for each settled expense item.
+    """
+
     _name = "hr.cash_advance_settlement_line"
     _inherit = [
         "mixin.product_line_account",

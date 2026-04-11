@@ -6,6 +6,12 @@ from odoo import fields, models
 
 
 class EmployeeBusinessTripType(models.Model):
+    """
+    Master data for classifying employee business trip types.
+    Defines the journal, payable account, and product selection
+    rules (manual, domain, or Python code) used on trip documents.
+    """
+
     _name = "employee_business_trip_type"
     _description = "Employee Business Trip Type"
     _inherit = ["mixin.master_data"]

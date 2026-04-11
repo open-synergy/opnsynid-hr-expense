@@ -6,6 +6,12 @@ from odoo import models
 
 
 class HrReimbursement(models.Model):
+    """
+    Extends hr.reimbursement to support work log tracking.
+    Adds mixin.work_object so that work logs can be recorded
+    directly on reimbursement documents.
+    """
+
     _name = "hr.reimbursement"
     _inherit = [
         "hr.reimbursement",

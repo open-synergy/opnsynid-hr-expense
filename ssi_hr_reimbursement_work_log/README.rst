@@ -6,6 +6,8 @@
 Employee Reimbursement - Work Log Integration
 =============================================
 
+Integrates work log tracking with employee reimbursement documents.
+
 
 Installation
 ============

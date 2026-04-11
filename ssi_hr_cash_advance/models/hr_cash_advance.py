@@ -10,6 +10,12 @@ from odoo.addons.ssi_decorator import ssi_decorator
 
 
 class HrCashAdvance(models.Model):
+    """
+    Transactional model for managing employee cash advance requests.
+    Supports a full approval workflow (draft → confirm → open → done/cancel)
+    and integrates with accounting for journal entry creation.
+    """
+
     _name = "hr.cash_advance"
     _inherit = [
         "mixin.transaction_cancel",

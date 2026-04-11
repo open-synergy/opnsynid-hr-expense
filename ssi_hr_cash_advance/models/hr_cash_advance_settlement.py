@@ -10,6 +10,12 @@ from odoo.addons.ssi_decorator import ssi_decorator
 
 
 class HrCashAdvanceSettlement(models.Model):
+    """
+    Transactional model for settling employee cash advances.
+    Reconciles actual expenses against previously issued cash advances
+    through an approval workflow (draft → confirm → done/cancel).
+    """
+
     _name = "hr.cash_advance_settlement"
     _inherit = [
         "mixin.transaction_cancel",

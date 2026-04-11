@@ -6,6 +6,12 @@ from odoo import api, fields, models
 
 
 class EmployeeExpenseAccount(models.Model):
+    """
+    Extends employee_expense_account to track linked reimbursement lines.
+    Computes the total reimbursement amount that has been applied
+    against this expense account.
+    """
+
     _inherit = "employee_expense_account"
 
     reimbursement_line_ids = fields.One2many(

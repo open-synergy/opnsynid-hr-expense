@@ -6,6 +6,16 @@
 Employee Expense Account - Cash Advance Integration
 ===================================================
 
+Glue module that links cash advance settlement lines to employee expense
+accounts and enforces expense account validation on settlement confirmation.
+
+
+Work Instruction
+================
+
+* `Create Cash Advance Settlement (Additional Fields) <docs/hr_cash_advance_settlement/01-create.html>`_
+* `Confirm Cash Advance Settlement (Additional Validations) <docs/hr_cash_advance_settlement/04-confirm.html>`_
+
 
 Installation
 ============

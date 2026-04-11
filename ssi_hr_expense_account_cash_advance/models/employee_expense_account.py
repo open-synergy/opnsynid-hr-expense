@@ -6,6 +6,12 @@ from odoo import api, fields, models
 
 
 class EmployeeExpenseAccount(models.Model):
+    """
+    Extends employee_expense_account to track linked cash advance
+    settlement lines. Computes the total cash advance amount that
+    has been applied against this expense account.
+    """
+
     _inherit = "employee_expense_account"
 
     cash_advance_settlement_line_ids = fields.One2many(

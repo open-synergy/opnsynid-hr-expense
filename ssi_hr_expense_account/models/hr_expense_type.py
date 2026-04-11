@@ -6,6 +6,12 @@ from odoo import models
 
 
 class HrExpenseType(models.Model):
+    """
+    Extends hr.expense_type with expense account filtering helpers.
+    Provides a method to retrieve all products or categories that
+    require an employee expense account for expense submission.
+    """
+
     _inherit = "hr.expense_type"
 
     def _get_require_expense_products(self):

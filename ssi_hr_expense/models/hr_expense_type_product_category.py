@@ -6,6 +6,12 @@ from odoo import fields, models
 
 
 class HrExpenseTypeProductCategory(models.Model):
+    """
+    Detail line linking an expense type to an allowed product category.
+    Restricts which product categories employees can submit expenses
+    against for a given expense type.
+    """
+
     _name = "hr.expense_type_product_category"
     _description = "Expense Type Product Category"
 

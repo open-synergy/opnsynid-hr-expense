@@ -5,6 +5,11 @@ from odoo import fields, models
 
 
 class AccountMove(models.Model):
+    """
+    Extends account.move to link journal entries back to the originating
+    employee reimbursement document for traceability.
+    """
+
     _inherit = "account.move"
 
     reimbursement_id = fields.Many2one(

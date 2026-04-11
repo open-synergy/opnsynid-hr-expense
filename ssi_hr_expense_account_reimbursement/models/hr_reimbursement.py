@@ -8,6 +8,12 @@ from odoo.addons.ssi_decorator import ssi_decorator
 
 
 class HrReimbursement(models.Model):
+    """
+    Extends hr.reimbursement to validate expense account linkage.
+    Enforces that reimbursement lines requiring an expense account
+    have a valid expense account assigned before confirmation.
+    """
+
     _inherit = "hr.reimbursement"
 
     @ssi_decorator.pre_confirm_action()
