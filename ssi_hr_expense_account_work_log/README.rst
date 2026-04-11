@@ -6,6 +6,8 @@
 Employee Expense Account - Work Log Integration
 ===============================================
 
+Integrates work log tracking with employee expense account documents.
+
 
 Installation
 ============
