@@ -6,6 +6,9 @@
 Employee Expense Account
 ========================
 
+Manage employee expense budget accounts with date-range allocation,
+approval workflow, and linkage to reimbursement and cash advance modules.
+
 
 Installation
 ============

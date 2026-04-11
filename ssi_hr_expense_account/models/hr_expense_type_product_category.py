@@ -6,6 +6,12 @@ from odoo import fields, models
 
 
 class HrExpenseTypeProductCategory(models.Model):
+    """
+    Extends hr.expense_type_product_category to flag categories that
+    require an active employee expense account before expenses can
+    be submitted.
+    """
+
     _name = "hr.expense_type_product_category"
     _inherit = "hr.expense_type_product_category"
 

@@ -7,6 +7,14 @@ from odoo.exceptions import UserError
 
 
 class EmployeeExpenseAccount(models.Model):
+    """
+    Transactional model for managing employee expense accounts.
+    Tracks expense budget allocations per employee within a date range,
+    with a full approval workflow (draft → confirm → open → done/cancel).
+    Expense transactions such as reimbursements and cash advance settlements
+    are linked to an active expense account to control spending.
+    """
+
     _name = "employee_expense_account"
     _description = "Employee Expense Account"
     _inherit = [
