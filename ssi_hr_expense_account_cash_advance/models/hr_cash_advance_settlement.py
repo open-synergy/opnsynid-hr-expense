@@ -8,6 +8,12 @@ from odoo.addons.ssi_decorator import ssi_decorator
 
 
 class HrCashAdvanceSettlement(models.Model):
+    """
+    Extends hr.cash_advance_settlement to validate expense account linkage.
+    Enforces that settlement lines flagged as requiring an expense account
+    have a valid expense account assigned before confirmation.
+    """
+
     _inherit = "hr.cash_advance_settlement"
 
     @ssi_decorator.pre_confirm_action()
