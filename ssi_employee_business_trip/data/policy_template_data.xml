@@ -57,7 +57,7 @@
         <field name="restrict_additional" eval="1" />
         <field name="additional_python_code">result = False
 if env.user.id in document.active_approver_user_ids.ids:
-result = True</field>
+    result = True</field>
     </record>
 
     <!-- reject -->
@@ -79,7 +79,7 @@ result = True</field>
         <field name="restrict_additional" eval="1" />
         <field name="additional_python_code">result = False
 if env.user.id in document.active_approver_user_ids.ids:
-result = True</field>
+    result = True</field>
     </record>
 
     <!-- restart approval -->
@@ -106,7 +106,7 @@ result = True</field>
         <field name="restrict_additional" eval="1" />
         <field name="additional_python_code">result = False
 if not document.approval_template_id:
-result = True</field>
+    result = True</field>
     </record>
 
     <!-- cancel -->
