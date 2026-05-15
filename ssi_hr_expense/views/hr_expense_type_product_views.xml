@@ -7,7 +7,7 @@
           <field name="name">hr.expense_type_product - tree</field>
           <field name="model">hr.expense_type_product</field>
           <field name="arch" type="xml">
-              <tree string="Details" editable="bottom">
+              <tree editable="bottom">
                     <field name="product_id" />
                     <field name="active" widget="boolean_toggle" />
               </tree>
