@@ -43,7 +43,55 @@
         />
         <field name="mode">primary</field>
         <field name="arch" type="xml">
-            <data />
+            <data>
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="employee_id" />
+                    <field name="department_id" />
+                    <field name="manager_id" />
+                    <field name="job_id" />
+                    <field name="type_id" />
+                    <field name="currency_id" />
+                    <field name="date_start" />
+                    <field name="date_end" />
+                </xpath>
+                <xpath expr="//filter[@name='grp_responsible']" position="after">
+                    <filter
+                        name="grp_employee"
+                        string="Employee"
+                        context="{'group_by':'employee_id'}"
+                    />
+                    <filter
+                        name="grp_department"
+                        string="Department"
+                        context="{'group_by':'department_id'}"
+                    />
+                    <filter
+                        name="grp_manager"
+                        string="Manager"
+                        context="{'group_by':'manager_id'}"
+                    />
+                    <filter
+                        name="grp_job"
+                        string="Job Position"
+                        context="{'group_by':'job_id'}"
+                    />
+                    <filter
+                        name="grp_type"
+                        string="Type"
+                        context="{'group_by':'type_id'}"
+                    />
+                    <filter
+                        name="grp_currency"
+                        string="Currency"
+                        context="{'group_by':'currency_id'}"
+                    />
+                    <filter
+                        name="grp_date_start"
+                        string="Start Date"
+                        context="{'group_by':'date_start'}"
+                    />
+                </xpath>
+            </data>
         </field>
     </record>
 
