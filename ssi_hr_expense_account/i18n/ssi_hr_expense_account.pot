@@ -292,6 +292,7 @@ msgstr ""
 
 #. module: ssi_hr_expense_account
 #: model:ir.model.fields,field_description:ssi_hr_expense_account.field_employee_expense_account__currency_id
+#: model_terms:ir.ui.view,arch_db:ssi_hr_expense_account.employee_expense_account_view_search
 msgid "Currency"
 msgstr ""
 
@@ -307,6 +308,7 @@ msgstr ""
 
 #. module: ssi_hr_expense_account
 #: model:ir.model.fields,field_description:ssi_hr_expense_account.field_employee_expense_account__department_id
+#: model_terms:ir.ui.view,arch_db:ssi_hr_expense_account.employee_expense_account_view_search
 msgid "Department"
 msgstr ""
 
@@ -344,6 +346,7 @@ msgstr ""
 
 #. module: ssi_hr_expense_account
 #: model:ir.model.fields,field_description:ssi_hr_expense_account.field_employee_expense_account__employee_id
+#: model_terms:ir.ui.view,arch_db:ssi_hr_expense_account.employee_expense_account_view_search
 msgid "Employee"
 msgstr ""
 
@@ -475,6 +478,7 @@ msgstr ""
 
 #. module: ssi_hr_expense_account
 #: model:ir.model.fields,field_description:ssi_hr_expense_account.field_employee_expense_account__job_id
+#: model_terms:ir.ui.view,arch_db:ssi_hr_expense_account.employee_expense_account_view_search
 msgid "Job Position"
 msgstr ""
 
@@ -512,6 +516,7 @@ msgstr ""
 
 #. module: ssi_hr_expense_account
 #: model:ir.model.fields,field_description:ssi_hr_expense_account.field_employee_expense_account__manager_id
+#: model_terms:ir.ui.view,arch_db:ssi_hr_expense_account.employee_expense_account_view_search
 msgid "Manager"
 msgstr ""
 
@@ -700,6 +705,11 @@ msgid "Reviewer"
 msgstr ""
 
 #. module: ssi_hr_expense_account
+#: model_terms:ir.ui.view,arch_db:ssi_hr_expense_account.employee_expense_account_view_search
+msgid "Start Date"
+msgstr ""
+
+#. module: ssi_hr_expense_account
 #: model:ir.model.fields,help:ssi_hr_expense_account.field_employee_expense_account__open_ok
 msgid ""
 "Start policy\n"
@@ -770,6 +780,7 @@ msgstr ""
 
 #. module: ssi_hr_expense_account
 #: model:ir.model.fields,field_description:ssi_hr_expense_account.field_employee_expense_account__type_id
+#: model_terms:ir.ui.view,arch_db:ssi_hr_expense_account.employee_expense_account_view_search
 msgid "Type"
 msgstr ""
 
