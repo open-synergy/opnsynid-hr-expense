@@ -38,6 +38,18 @@
                         filter_domain="[('line_ids.product_id', 'ilike', self)]"
                     />
             </xpath>
+            <xpath expr="//filter[@name='dom_my_data']" position="after">
+                <filter
+                        name="dom_unrealized"
+                        string="Unrealized"
+                        domain="[('realized','=',False)]"
+                    />
+                <filter
+                        name="dom_unsettled"
+                        string="Unsettled"
+                        domain="[('settled','=',False)]"
+                    />
+            </xpath>
             <xpath expr="//filter[@name='grp_responsible']" position="after">
                 <filter
                         name="grp_employee_id"
