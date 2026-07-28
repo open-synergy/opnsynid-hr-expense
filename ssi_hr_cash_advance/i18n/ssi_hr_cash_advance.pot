@@ -1216,12 +1216,14 @@ msgstr ""
 
 #. module: ssi_hr_cash_advance
 #: model_terms:ir.ui.view,arch_db:ssi_hr_cash_advance.hr_cash_advance_view_form
+#: model_terms:ir.ui.view,arch_db:ssi_hr_cash_advance.hr_cash_advance_view_search
 #: model_terms:ir.ui.view,arch_db:ssi_hr_cash_advance.hr_cash_advance_view_tree
 msgid "Unrealized"
 msgstr ""
 
 #. module: ssi_hr_cash_advance
 #: model_terms:ir.ui.view,arch_db:ssi_hr_cash_advance.hr_cash_advance_view_form
+#: model_terms:ir.ui.view,arch_db:ssi_hr_cash_advance.hr_cash_advance_view_search
 #: model_terms:ir.ui.view,arch_db:ssi_hr_cash_advance.hr_cash_advance_view_tree
 msgid "Unsettled"
 msgstr ""
