@@ -30,7 +30,7 @@ addon | version | maintainers | summary
 [ssi_employee_business_trip](ssi_employee_business_trip/) | 14.0.2.4.0 |  | Employee Business Trip
 [ssi_employee_business_trip_documenso_signing](ssi_employee_business_trip_documenso_signing/) | 14.0.1.0.0 |  | Employee Business Trip - Documenso Signing Integration
 [ssi_employee_business_trip_work_log](ssi_employee_business_trip_work_log/) | 14.0.1.0.0 |  | Employee Business Trip - Work Log Integration
-[ssi_hr_cash_advance](ssi_hr_cash_advance/) | 14.0.1.15.0 |  | Employee Cash Advance
+[ssi_hr_cash_advance](ssi_hr_cash_advance/) | 14.0.1.16.0 |  | Employee Cash Advance
 [ssi_hr_cash_advance_documenso_signing](ssi_hr_cash_advance_documenso_signing/) | 14.0.1.0.0 |  | HR Cash Advance - Documenso Signing Integration
 [ssi_hr_cash_advance_operating_unit](ssi_hr_cash_advance_operating_unit/) | 14.0.1.0.0 |  | Employee Cash Advance + Operating Unit
 [ssi_hr_cash_advance_work_log](ssi_hr_cash_advance_work_log/) | 14.0.1.0.0 |  | Employee Cash Advance - Work Log Integration
