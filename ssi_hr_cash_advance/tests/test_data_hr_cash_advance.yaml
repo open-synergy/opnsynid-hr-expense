@@ -1,0 +1,140 @@
+scenarios:
+  - name: "Cash Advance - Unrealized/Unsettled search filters"
+    steps:
+      - step: "Get expense type (already wired with cash advance journal/accounts)"
+        action: "ref"
+        xml_id: "ssi_hr_expense.demo_expense_type1"
+        save_as: "expense_type"
+
+      - step: "Get cash advance journal"
+        action: "ref"
+        xml_id: "ssi_hr_cash_advance.demo_journal1"
+        save_as: "journal"
+
+      - step: "Get cash advance account"
+        action: "ref"
+        xml_id: "ssi_hr_cash_advance.demo_account2"
+        save_as: "cash_advance_account"
+
+      - step: "Get cash advance payable account"
+        action: "ref"
+        xml_id: "ssi_hr_cash_advance.demo_account1"
+        save_as: "payable_account"
+
+      - step: "Create employee home address partner"
+        action: "create"
+        model: "res.partner"
+        save_as: "employee_partner"
+        as_user: "base.user_admin"
+        values:
+          name: "Test Cash Advance Employee Address"
+          is_company: false
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Test Cash Advance Employee"
+          address_home_id: "REC: employee_partner.id"
+
+      - step: "Create cash advance"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          type_id: "REC: expense_type.id"
+          journal_id: "REC: journal.id"
+          cash_advance_account_id: "REC: cash_advance_account.id"
+          payable_account_id: "REC: payable_account.id"
+
+      - step: "Assert cash advance created in draft, not realized nor settled"
+        action: "assert"
+        target: "cash_advance"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+          realized:
+            type: "value"
+            expected: false
+          settled:
+            type: "value"
+            expected: false
+
+      - step: "Confirm cash advance"
+        action: "call"
+        target: "cash_advance"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirming cash advance"
+        action: "call"
+        target: "cash_advance"
+        method: "invalidate_cache"
+
+      - step: "Approve cash advance (auto-transitions to open)"
+        action: "call"
+        target: "cash_advance"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invalidate cache after approving cash advance"
+        action: "call"
+        target: "cash_advance"
+        method: "invalidate_cache"
+
+      - step: "Assert cash advance open, still unrealized and unsettled"
+        action: "assert"
+        target: "cash_advance"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+          realized:
+            type: "value"
+            expected: false
+          settled:
+            type: "value"
+            expected: false
+
+      - step: "Positive: dom_unrealized domain includes the new record"
+        action: "search"
+        model: "hr.cash_advance"
+        domain: [["id", "=", "REC: cash_advance.id"], ["realized", "=", false]]
+        save_as: "search_unrealized"
+        expect_count: 1
+
+      - step: "Negative: reversed realized domain excludes the new record"
+        action: "search"
+        model: "hr.cash_advance"
+        domain: [["id", "=", "REC: cash_advance.id"], ["realized", "=", true]]
+        save_as: "search_realized"
+        expect_count: 0
+
+      - step: "Positive: dom_unsettled domain includes the new record"
+        action: "search"
+        model: "hr.cash_advance"
+        domain: [["id", "=", "REC: cash_advance.id"], ["settled", "=", false]]
+        save_as: "search_unsettled"
+        expect_count: 1
+
+      - step: "Negative: reversed settled domain excludes the new record"
+        action: "search"
+        model: "hr.cash_advance"
+        domain: [["id", "=", "REC: cash_advance.id"], ["settled", "=", true]]
+        save_as: "search_settled"
+        expect_count: 0
