@@ -14,6 +14,7 @@
         "ssi_hr",
         "ssi_master_data_mixin",
         "ssi_product_usage_account_type",
+        "web_tour",
     ],
     "data": [
         "security/ir_module_category_data.xml",
@@ -23,6 +24,7 @@
         "views/hr_expense_type_views.xml",
         "views/hr_expense_type_product_views.xml",
         "views/hr_expense_type_product_category_views.xml",
+        "views/assets.xml",
     ],
     "demo": [
         "demo/product_category_demo.xml",
