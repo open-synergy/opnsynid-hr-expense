@@ -1,6 +1,8 @@
 # Confirm Employee Reimbursement
 
-> **Module:** ssi_hr_expense_account_reimbursement **Extends:** ssi_hr_reimbursement
+> **Module:** ssi_hr_expense_account_reimbursement
+>
+> **Extends:** ssi_hr_reimbursement — model `hr_reimbursement`, aksi `04-confirm`
 
 ## Additional Validation
 
