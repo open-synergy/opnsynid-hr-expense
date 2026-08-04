@@ -1,8 +1,11 @@
 # Create Cash Advance Settlement
 
-> **Module:** ssi_hr_expense_account_cash_advance **Extends:** ssi_hr_cash_advance
+> **Module:** ssi_hr_expense_account_cash_advance
+>
+> **Extends:** ssi_hr_cash_advance — model `hr_cash_advance_settlement`, aksi
+> `01-create`
 
-## Additional Fields / Changes
+## Additional Fields
 
 When this module is installed, each settlement line gains the following fields in the
 line form (visible in the **Expense Account** tab of each line):
