@@ -25,6 +25,7 @@
         "ssi_accounting_entry_mixin",
         "ssi_product_line_account_mixin",
         "base_automation",
+        "web_tour",
     ],
     "data": [
         "security/ir_module_category_data.xml",
@@ -39,6 +40,7 @@
         "data/base_automation_data.xml",
         "views/employee_business_trip_type_views.xml",
         "views/employee_business_trip_views.xml",
+        "views/assets.xml",
     ],
     "demo": [],
 }
