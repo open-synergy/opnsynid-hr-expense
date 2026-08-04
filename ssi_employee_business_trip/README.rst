@@ -23,6 +23,11 @@ Work Instruction
 * `Cancel Employee Business Trip <docs/employee_business_trip/10-cancel.html>`_
 * `Restart Employee Business Trip <docs/employee_business_trip/12-restart.html>`_
 * `Reset Document Number — Employee Business Trip <docs/employee_business_trip/13-reset-number.html>`_
+* `Create Employee Business Trip Type <docs/employee_business_trip_type/01-create.html>`_
+* `Edit Employee Business Trip Type <docs/employee_business_trip_type/02-edit.html>`_
+* `Delete Employee Business Trip Type <docs/employee_business_trip_type/03-delete.html>`_
+* `Deactivate Employee Business Trip Type <docs/employee_business_trip_type/04-deactivate.html>`_
+* `Activate Employee Business Trip Type <docs/employee_business_trip_type/05-activate.html>`_
 
 
 Installation
