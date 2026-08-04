@@ -37,6 +37,9 @@ class TestUiEmployeeBusinessTripType(HttpSavepointCase):
                 "name": "Tour Business Trip Payable",
                 "code": "TOURBTT",
                 "user_type_id": cls.env.ref("account.data_account_type_payable").id,
+                # Payable/receivable account types must be reconcilable, or
+                # Odoo core rejects the record with a ValidationError.
+                "reconcile": True,
             }
         )
         # Config: a sequence.template for this model is what makes the
