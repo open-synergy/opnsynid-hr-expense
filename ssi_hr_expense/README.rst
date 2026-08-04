@@ -10,6 +10,15 @@ Provides the base expense type master data for categorising employee expenses.
 Defines allowed products, product categories, and pricelist configuration
 used by cash advance and reimbursement modules.
 
+Work Instruction
+================
+
+* `Create Expense Type <docs/hr_expense_type/01-create.html>`_
+* `Edit Expense Type <docs/hr_expense_type/02-edit.html>`_
+* `Delete Expense Type <docs/hr_expense_type/03-delete.html>`_
+* `Deactivate Expense Type <docs/hr_expense_type/04-deactivate.html>`_
+* `Activate Expense Type <docs/hr_expense_type/05-activate.html>`_
+
 
 Installation
 ============
