@@ -10,6 +10,12 @@ Integrates work log tracking with employee business trips.
 Allows recording work logs directly on business trip documents.
 
 
+Work Instruction
+================
+
+* `Create Employee Business Trip <docs/employee_business_trip/index.html>`_
+
+
 Installation
 ============
 
