@@ -118,6 +118,13 @@ class TestUiHrCashAdvanceSettlementDocumenso(HttpSavepointCase):
             )
         )
         cash_advance.action_confirm()
+        # `approve_ok` is a computed policy field whose dependencies are
+        # not declared via `@api.depends` (see
+        # ssi_transaction_confirm_mixin), so it is not automatically
+        # invalidated by `action_confirm()` within the same environment.
+        # Force recomputation before calling `action_approve_approval()`,
+        # mirroring `test_data_hr_cash_advance.yaml`.
+        cash_advance.invalidate_cache()
         cash_advance.action_approve_approval()
 
         # Pre-Condition IK 05-approve.md (delta): record already Waiting

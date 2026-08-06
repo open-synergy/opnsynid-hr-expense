@@ -69,7 +69,7 @@ odoo.define(
                 {
                     content: "Open the record",
                     trigger:
-                        ".o_data_row:contains(Tour Cash Advance Settlement Documenso Approve) .o_data_cell:first",
+                        ".o_data_row:contains(Tour Cash Advance Settlement Documenso Employee Approve) .o_data_cell:first",
                     extra_trigger: ".o_list_view",
                 },
                 {
