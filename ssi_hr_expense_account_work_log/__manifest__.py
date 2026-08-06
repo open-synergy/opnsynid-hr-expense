@@ -11,8 +11,11 @@
     "depends": [
         "ssi_hr_expense_account",
         "ssi_work_log_mixin",
+        "web_tour",
     ],
-    "data": [],
+    "data": [
+        "views/assets.xml",
+    ],
     "demo": [],
     "images": [],
 }

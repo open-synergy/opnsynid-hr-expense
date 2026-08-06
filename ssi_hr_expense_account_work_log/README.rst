@@ -9,6 +9,12 @@ Employee Expense Account - Work Log Integration
 Integrates work log tracking with employee expense account documents.
 
 
+Work Instruction
+================
+
+* `Create Employee Expense Account <docs/employee_expense_account/index.html>`_
+
+
 Installation
 ============
 
