@@ -92,10 +92,25 @@ class TestUiHrCashAdvanceSettlementDocumenso(HttpSavepointCase):
                 }
             )
         )
+        employee_partner = (
+            cls.env["res.partner"]
+            .with_user(cls.admin)
+            .create(
+                {
+                    "name": "Tour Cash Advance Settlement Documenso Address",
+                    "is_company": False,
+                }
+            )
+        )
         employee = (
             cls.env["hr.employee"]
             .with_user(cls.admin)
-            .create({"name": "Tour Cash Advance Settlement Documenso Employee Approve"})
+            .create(
+                {
+                    "name": "Tour Cash Advance Settlement Documenso Employee Approve",
+                    "address_home_id": employee_partner.id,
+                }
+            )
         )
 
         # Helper fixture: a cash advance already Open, referenced by the
