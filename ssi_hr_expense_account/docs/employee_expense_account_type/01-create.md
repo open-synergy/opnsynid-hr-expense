@@ -3,8 +3,7 @@
 > **Module:** ssi_hr_expense_account\
 > **Model:** `employee_expense_account_type`\
 > **Menu:** Human Resource > Configuration > Expense > Expense Account Types\
-> **Actor:** user in group `Human Resource - Configurator / Employee Expense Account
-> Type`\
+> **Actor:** user in group `Human Resource - Configurator / Employee Expense Account Type`\
 > **Inline Actions:** `action_generate_code` (Generate Code), `action_reset_code` (Reset
 > code)
 
@@ -20,8 +19,8 @@
 1. Open the **Human Resource > Configuration > Expense > Expense Account Types** menu.
 2. Click the **New** button. **(14.0: "Create")**
 3. Fill in the fields:
-   - **Name** *(required)*: Enter the expense account type name.
-   - **Code** *(required)*: Enter a unique code for this type, or fill with **/** and
+   - **Name** _(required)_: Enter the expense account type name.
+   - **Code** _(required)_: Enter a unique code for this type, or fill with **/** and
      use the **Generate Code** button later (see step 4) to assign one automatically.
    - **Accounts**: Select the accounting accounts allowed for expense accounts of this
      type. Optional — leave empty if no restriction is needed yet.

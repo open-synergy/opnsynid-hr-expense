@@ -137,8 +137,7 @@ odoo.define("ssi_hr_expense_account.employee_expense_account_type_tour", functio
             },
             {
                 content: "New record is shown in the list",
-                trigger:
-                    ".o_list_view .o_data_row:contains(Tour Expense Account Type)",
+                trigger: ".o_list_view .o_data_row:contains(Tour Expense Account Type)",
                 run: function () {
                     // Assertion only.
                 },

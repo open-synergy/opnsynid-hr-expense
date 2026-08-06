@@ -3,8 +3,7 @@
 > **Module:** ssi_hr_expense_account\
 > **Model:** `employee_expense_account_type`\
 > **Menu:** Human Resource > Configuration > Expense > Expense Account Types\
-> **Actor:** user in group `Human Resource - Configurator / Employee Expense Account
-> Type`\
+> **Actor:** user in group `Human Resource - Configurator / Employee Expense Account Type`\
 > **Requires:** `01-create`
 
 ## Pre-Condition

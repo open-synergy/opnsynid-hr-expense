@@ -29,9 +29,7 @@ class TestUiEmployeeExpenseAccountType(HttpSavepointCase):
             {
                 "name": "Tour Expense Type Account",
                 "code": "TOUREAT",
-                "user_type_id": cls.env.ref(
-                    "account.data_account_type_expenses"
-                ).id,
+                "user_type_id": cls.env.ref("account.data_account_type_expenses").id,
             }
         )
         # Config: a sequence.template for this model is what makes the
