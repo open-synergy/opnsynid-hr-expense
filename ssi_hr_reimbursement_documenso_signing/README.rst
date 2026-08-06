@@ -8,3 +8,9 @@ HR Reimbursement - Documenso Signing Integration
 
 This module integrates Documenso digital signing into the HR Reimbursement module.
 It adds a Documenso signing tab to the employee reimbursement form view.
+
+
+Work Instruction
+================
+
+* `Employee Reimbursement <docs/hr_reimbursement/index.html>`_
