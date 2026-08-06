@@ -10,6 +10,12 @@ Glue module that adds operating unit support to employee reimbursement
 documents.
 
 
+Work Instruction
+================
+
+* `Create Employee Reimbursement <docs/hr_reimbursement/index.html>`_
+
+
 Installation
 ============
 
