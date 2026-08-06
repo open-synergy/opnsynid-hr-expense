@@ -12,8 +12,11 @@
     "depends": [
         "ssi_employee_business_trip",
         "ssi_connector_documenso_signing",
+        "web_tour",
     ],
-    "data": [],
+    "data": [
+        "views/assets.xml",
+    ],
     "demo": [],
     "images": [],
 }

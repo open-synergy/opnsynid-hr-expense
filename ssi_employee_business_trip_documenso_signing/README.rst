@@ -8,3 +8,9 @@ Employee Business Trip - Documenso Signing Integration
 
 This module integrates Documenso digital signing into the Employee Business Trip module.
 It adds a Documenso signing tab to the business trip form view.
+
+
+Work Instruction
+================
+
+* `Employee Business Trip <docs/employee_business_trip/index.html>`_
