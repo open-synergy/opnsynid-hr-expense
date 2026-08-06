@@ -8,3 +8,10 @@ HR Cash Advance - Documenso Signing Integration
 
 This module integrates Documenso digital signing into the HR Cash Advance module.
 It adds a Documenso signing tab to the cash advance and cash advance settlement form views.
+
+
+Work Instruction
+================
+
+* `Employee Cash Advance <docs/hr_cash_advance/index.html>`_
+* `Employee Cash Advance Settlement <docs/hr_cash_advance_settlement/index.html>`_
