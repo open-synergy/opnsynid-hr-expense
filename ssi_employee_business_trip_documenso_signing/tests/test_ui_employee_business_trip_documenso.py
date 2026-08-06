@@ -118,6 +118,7 @@ class TestUiEmployeeBusinessTripDocumenso(HttpSavepointCase):
                     "date_end": "2026-01-07",
                     "origin_id": origin_city.id,
                     "destination_id": destination_city.id,
+                    "currency_id": cls.env.company.currency_id.id,
                     "pricelist_id": pricelist.id,
                     "journal_id": journal.id,
                     "payable_account_id": payable_account.id,
