@@ -40,6 +40,7 @@ class TestUiEmployeeBusinessTripDocumenso(HttpSavepointCase):
                     "name": "Tour EBT Documenso Payable",
                     "code": "TOUREBTDPAY",
                     "user_type_id": account_type_payable.id,
+                    "reconcile": True,
                 }
             )
         )
