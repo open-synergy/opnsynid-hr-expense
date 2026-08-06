@@ -8,3 +8,9 @@ HR Expense Account - Documenso Signing Integration
 
 This module integrates Documenso digital signing into the HR Expense Account module.
 It adds a Documenso signing tab to the employee expense account form view.
+
+
+Work Instruction
+================
+
+* `Employee Expense Account <docs/employee_expense_account/index.html>`_
