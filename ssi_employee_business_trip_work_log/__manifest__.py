@@ -11,8 +11,11 @@
     "depends": [
         "ssi_employee_business_trip",
         "ssi_work_log_mixin",
+        "web_tour",
     ],
-    "data": [],
+    "data": [
+        "views/assets.xml",
+    ],
     "demo": [],
     "images": [],
 }
