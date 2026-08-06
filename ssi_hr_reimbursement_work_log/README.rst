@@ -9,6 +9,12 @@ Employee Reimbursement - Work Log Integration
 Integrates work log tracking with employee reimbursement documents.
 
 
+Work Instruction
+================
+
+* `Create Employee Reimbursement <docs/hr_reimbursement/index.html>`_
+
+
 Installation
 ============
 
