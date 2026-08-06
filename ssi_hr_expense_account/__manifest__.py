@@ -22,6 +22,7 @@
         "ssi_company_currency_mixin",
         "ssi_employee_document_mixin",
         "base_automation",
+        "web_tour",
     ],
     "data": [
         "security/ir_module_category_data.xml",
@@ -38,6 +39,7 @@
         "views/employee_expense_account_type_view.xml",
         "views/hr_expense_type_product_views.xml",
         "views/hr_expense_type_product_category_views.xml",
+        "views/assets.xml",
     ],
     "demo": [],
 }
