@@ -10,6 +10,13 @@ Integrates work log tracking with employee cash advance and cash advance
 settlement documents.
 
 
+Work Instruction
+================
+
+* `Create Employee Cash Advance <docs/hr_cash_advance/index.html>`_
+* `Create Employee Cash Advance Settlement <docs/hr_cash_advance_settlement/index.html>`_
+
+
 Installation
 ============
 
