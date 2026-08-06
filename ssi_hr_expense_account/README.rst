@@ -25,6 +25,11 @@ Work Instruction
 * `Terminate Employee Expense Account <docs/employee_expense_account/11-terminate.html>`_
 * `Restart Employee Expense Account <docs/employee_expense_account/12-restart.html>`_
 * `Reset Document Number — Employee Expense Account <docs/employee_expense_account/13-reset-number.html>`_
+* `Create Employee Expense Account Type <docs/employee_expense_account_type/01-create.html>`_
+* `Edit Employee Expense Account Type <docs/employee_expense_account_type/02-edit.html>`_
+* `Delete Employee Expense Account Type <docs/employee_expense_account_type/03-delete.html>`_
+* `Deactivate Employee Expense Account Type <docs/employee_expense_account_type/04-deactivate.html>`_
+* `Activate Employee Expense Account Type <docs/employee_expense_account_type/05-activate.html>`_
 
 
 Installation
