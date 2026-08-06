@@ -6,6 +6,16 @@ from odoo import models
 
 
 class EmployeeBusinessTrip(models.Model):
+    """Add Documenso e-signature support to employee business trip approval.
+
+    Mixes in ``mixin.documenso_signing_approval`` so a business trip's
+    approval can be driven by a Documenso signature request instead of
+    per-approver clicks, whenever the active approval template has a
+    Documenso Signing Template configured. ``_documenso_signing_create_page
+    = True`` injects the **Signature Requests** tab on the form
+    regardless of whether Documenso signing is actually used.
+    """
+
     _name = "employee_business_trip"
     _inherit = [
         "employee_business_trip",
