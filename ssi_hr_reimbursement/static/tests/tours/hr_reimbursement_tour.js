@@ -168,8 +168,13 @@ odoo.define("ssi_hr_reimbursement.hr_reimbursement_tour", function (require) {
                 run: "text 100.0",
             },
             {
+                // Placed inside a plain <div> (not the usual auto
+                // wrapped <label>/<td> pair), this Float field's root
+                // element is the <input> itself (same rendering as a
+                // Char field in 14.0, odoo-development-ui-test,
+                // patterns.md §C) -- no nested ` input` suffix.
                 content: "Fill in the Qty",
-                trigger: ".o_field_widget[name='uom_quantity'] input",
+                trigger: ".o_field_widget[name='uom_quantity']",
                 run: "text 1.0",
             },
             {
