@@ -13,6 +13,10 @@
                 type="text/javascript"
                 src="/ssi_hr_cash_advance/static/tests/tours/hr_cash_advance_tour.js"
             />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_cash_advance/static/tests/tours/hr_cash_advance_settlement_tour.js"
+            />
         </xpath>
     </template>
 </odoo>
