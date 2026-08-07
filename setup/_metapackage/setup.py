@@ -10,6 +10,7 @@ setuptools.setup(
     install_requires=[
         'odoo14-addon-ssi_employee_business_trip',
         'odoo14-addon-ssi_employee_business_trip_documenso_signing',
+        'odoo14-addon-ssi_employee_business_trip_operating_unit',
         'odoo14-addon-ssi_employee_business_trip_work_log',
         'odoo14-addon-ssi_hr_cash_advance',
         'odoo14-addon-ssi_hr_cash_advance_documenso_signing',
