@@ -93,12 +93,14 @@ class TestUiHrReimbursement(HttpSavepointCase):
                 }
             )
         )
+        # Shared by all four tours; its name matches the literal
+        # string the create tour's JS types into the Type field.
         cls.expense_type = (
             cls.env["hr.expense_type"]
             .with_user(cls.admin)
             .create(
                 {
-                    "name": "Tour Reimbursement Type",
+                    "name": "Tour Reimbursement Create Type",
                     "code": "TOURRMBTYPE",
                     "reimbursement_journal_id": journal.id,
                     "reimbursement_account_id": header_account.id,
@@ -126,12 +128,16 @@ class TestUiHrReimbursement(HttpSavepointCase):
 
         # Fixture for the create tour: only the master data the tour
         # picks from dropdowns is needed -- the tour itself creates the
-        # ``hr.reimbursement`` record via the UI.
-        cls._create_employee_with_bank("Tour Reimbursement Create Employee")
+        # ``hr.reimbursement`` record via the UI. The bank account
+        # number must match the literal string the JS tour searches
+        # for (static, not derived from a runtime id).
+        cls._create_employee_with_bank(
+            "Tour Reimbursement Create Employee", "TOURRMBCREATEBANK"
+        )
 
         # Fixture for the confirm tour -- Pre-Condition: Draft status.
         employee_confirm, bank_confirm = cls._create_employee_with_bank(
-            "Tour Reimbursement Confirm Employee"
+            "Tour Reimbursement Confirm Employee", "TOURRMBCONFIRMBANK"
         )
         cls.reimbursement_confirm = cls._create_reimbursement(
             employee_confirm, bank_confirm
@@ -141,7 +147,7 @@ class TestUiHrReimbursement(HttpSavepointCase):
         # Approval status, reached in Python via ``action_confirm()``,
         # not by clicking through the UI.
         employee_approve, bank_approve = cls._create_employee_with_bank(
-            "Tour Reimbursement Approve Employee"
+            "Tour Reimbursement Approve Employee", "TOURRMBAPPROVEBANK"
         )
         cls.reimbursement_approve = cls._create_reimbursement(
             employee_approve, bank_approve
@@ -152,14 +158,14 @@ class TestUiHrReimbursement(HttpSavepointCase):
         # Waiting for Approval, or In Progress status; Draft is used
         # since no extra state transition is required for it.
         employee_cancel, bank_cancel = cls._create_employee_with_bank(
-            "Tour Reimbursement Cancel Employee"
+            "Tour Reimbursement Cancel Employee", "TOURRMBCANCELBANK"
         )
         cls.reimbursement_cancel = cls._create_reimbursement(
             employee_cancel, bank_cancel
         )
 
     @classmethod
-    def _create_employee_with_bank(cls, name):
+    def _create_employee_with_bank(cls, name, bank_acc_number):
         """Create an employee and a bank account tied to its address.
 
         The bank account is linked to the employee's home-address
@@ -171,6 +177,10 @@ class TestUiHrReimbursement(HttpSavepointCase):
 
         :param name: unique employee name, also used as the tour's
             list-row marker
+        :param bank_acc_number: static, unique account number -- for
+            the create tour this must equal the literal string the JS
+            tour types into the Bank Account field, since it cannot
+            reference a runtime-generated id
         :return: tuple of the created ``hr.employee`` and
             ``res.partner.bank`` records
         """
@@ -192,7 +202,7 @@ class TestUiHrReimbursement(HttpSavepointCase):
             .with_user(cls.admin)
             .create(
                 {
-                    "acc_number": "TOURRMBBANK" + str(employee.id),
+                    "acc_number": bank_acc_number,
                     "partner_id": partner.id,
                 }
             )

@@ -379,15 +379,13 @@ odoo.define("ssi_hr_reimbursement.hr_reimbursement_tour", function (require) {
                 },
             },
             {
+                // The wizard renders `cancel_reason_id` with
+                // `widget="radio"` (base_select_cancel_reason_views.xml),
+                // not the default many2one autocomplete -- select the
+                // matching radio item by its label text.
                 content: "Select the Cancellation Reason",
-                trigger: ".o_field_many2one[name='cancel_reason_id'] input",
-                run: "text Tour Reimbursement Cancel Reason",
-            },
-            {
-                content: "Pick the reason from the dropdown",
                 trigger:
-                    ".ui-autocomplete .ui-menu-item a:contains(Tour Reimbursement Cancel Reason)",
-                in_modal: false,
+                    ".o_field_widget[name='cancel_reason_id'] .o_radio_item:contains(Tour Reimbursement Cancel Reason) input",
             },
 
             // Flow 5 — Click Confirm.
