@@ -131,6 +131,12 @@ class TestUiEmployeeExpenseAccount(HttpSavepointCase):
             .create(dict(common_values, employee_id=cls.employee_terminate.id))
         )
         cls.terminate_record.with_user(admin).action_confirm()
+        # invalidate_cache() is required because approve_ok's
+        # additional_python_code reads active_approver_user_ids, which
+        # is computed from the approval.approval records action_confirm()
+        # just created; without it the stale cached value from record
+        # creation (still Draft) is reused.
+        cls.terminate_record.invalidate_cache()
         cls.terminate_record.with_user(admin).action_approve_approval()
 
     def test_create(self):
