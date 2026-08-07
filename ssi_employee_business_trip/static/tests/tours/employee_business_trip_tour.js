@@ -211,8 +211,21 @@ odoo.define("ssi_employee_business_trip.employee_business_trip_tour", function (
                 run: "text 2",
             },
             {
+                // `price_unit` is a Monetary field, NOT a plain Float:
+                // `FieldMonetary` renders its edit-mode root as a `<div
+                // class="o_input">` wrapping the currency symbol AND a
+                // nested `<input>` (web/static/src/js/fields/
+                // basic_fields.js `FieldMonetary.init` -- "They are a
+                // div containing a span with the currency symbol and
+                // the actual input."). Targeting the bare
+                // `.o_field_widget` div (correct for `uom_quantity`
+                // above, a plain Float) makes the tour engine classify
+                // it as non-input, and the built-in "text" run action
+                // then crashes calling `.focusIn()` on the div (verified
+                // in CI: TypeError: values.$element.focusIn is not a
+                // function). The nested `input` targets the real input.
                 content: "Fill in the Price",
-                trigger: ".o_selected_row .o_field_widget[name='price_unit']",
+                trigger: ".o_selected_row .o_field_widget[name='price_unit'] input",
                 run: "text 100.0",
             },
 
