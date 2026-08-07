@@ -1,0 +1,225 @@
+setup:
+  steps:
+    - step: "Get expense type (already wired with reimbursement journal/account)"
+      action: "ref"
+      xml_id: "ssi_hr_expense.demo_expense_type1"
+      save_as: "expense_type"
+
+    - step: "Get reimbursement journal"
+      action: "ref"
+      xml_id: "ssi_hr_reimbursement.demo_journal1"
+      save_as: "journal"
+
+    - step: "Get reimbursement payable account"
+      action: "ref"
+      xml_id: "ssi_hr_reimbursement.demo_account1"
+      save_as: "payable_account"
+
+    - step: "Get expense account type"
+      action: "ref"
+      xml_id: "account.data_account_type_expenses"
+      save_as: "expense_acc_type"
+
+    # `setup:` replays before every scenario in the same transaction (no
+    # rollback in between), so a fixed `code`/`name` would collide with
+    # the previous scenario's record on the 2nd+ replay. Generate a
+    # fresh, never-colliding value on each replay.
+    - step: "Create detail line expense account"
+      action: "create"
+      model: "account.account"
+      save_as: "line_account"
+      values:
+        code: "EVAL: 'RMOUE%d' % env['account.account'].search_count([])"
+        name: "Test Reimbursement OU Expense"
+        user_type_id: "REC: expense_acc_type.id"
+
+    - step: "Create detail line product"
+      action: "create"
+      model: "product.product"
+      save_as: "product"
+      values:
+        name:
+          "EVAL: 'Test Reimbursement OU Product %d' %
+          env['product.product'].search_count([])"
+
+    - step: "Create employee home address partner"
+      action: "create"
+      model: "res.partner"
+      save_as: "employee_partner"
+      as_user: "base.user_admin"
+      values:
+        name: "Test Reimbursement OU Employee Address"
+        is_company: false
+
+    - step: "Create employee"
+      action: "create"
+      model: "hr.employee"
+      save_as: "employee"
+      as_user: "base.user_admin"
+      values:
+        name: "Test Reimbursement OU Employee"
+        address_home_id: "REC: employee_partner.id"
+
+    - step: "Create partner for the operating unit"
+      action: "create"
+      model: "res.partner"
+      save_as: "ou_partner"
+      values:
+        name: "Test Reimbursement OU Partner"
+
+    - step: "Create operating unit"
+      action: "create"
+      model: "operating.unit"
+      save_as: "ou"
+      values:
+        name:
+          "EVAL: 'Test Reimbursement Operating Unit %d' %
+          env['operating.unit'].search_count([])"
+        code: "EVAL: 'RMOU%d' % env['operating.unit'].search_count([])"
+        partner_id: "REC: ou_partner.id"
+
+scenarios:
+  - name:
+      "Reimbursement open propagates its operating unit to the journal entry header and
+      payable line"
+    steps:
+      - step: "Create reimbursement with the operating unit"
+        action: "create"
+        model: "hr.reimbursement"
+        save_as: "reimbursement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          type_id: "REC: expense_type.id"
+          journal_id: "REC: journal.id"
+          account_id: "REC: payable_account.id"
+          operating_unit_id: "REC: ou.id"
+
+      - step: "Create one reimbursement detail line"
+        action: "create"
+        model: "hr.reimbursement_line"
+        save_as: "line"
+        as_user: "base.user_admin"
+        values:
+          reimbursement_id: "REC: reimbursement.id"
+          name: "Test Reimbursement OU Line"
+          product_id: "REC: product.id"
+          account_id: "REC: line_account.id"
+          uom_quantity: 1
+          price_unit: 100000.0
+
+      - step: "Confirm reimbursement"
+        action: "call"
+        target: "reimbursement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirming reimbursement"
+        action: "call"
+        target: "reimbursement"
+        method: "invalidate_cache"
+
+      - step:
+          "Approve reimbursement (auto-transitions to open, posting its journal entry)"
+        action: "call"
+        target: "reimbursement"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invalidate cache after approving reimbursement"
+        action: "call"
+        target: "reimbursement"
+        method: "invalidate_cache"
+
+      - step: "Move and payable move line both carry the reimbursement's operating unit"
+        action: "assert"
+        target: "reimbursement"
+        asserts:
+          move_id.operating_unit_id.code:
+            type: "value"
+            expected: "REC: ou.code"
+          payable_move_line_id.operating_unit_id.code:
+            type: "value"
+            expected: "REC: ou.code"
+
+  - name:
+      "Reimbursement opened without an operating unit posts normally, with no operating
+      unit on the move"
+    steps:
+      - step: "Create reimbursement with operating unit explicitly empty"
+        action: "create"
+        model: "hr.reimbursement"
+        save_as: "reimbursement_no_ou"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          type_id: "REC: expense_type.id"
+          journal_id: "REC: journal.id"
+          account_id: "REC: payable_account.id"
+          operating_unit_id: false
+
+      - step: "Create one reimbursement detail line"
+        action: "create"
+        model: "hr.reimbursement_line"
+        save_as: "line_no_ou"
+        as_user: "base.user_admin"
+        values:
+          reimbursement_id: "REC: reimbursement_no_ou.id"
+          name: "Test Reimbursement No-OU Line"
+          product_id: "REC: product.id"
+          account_id: "REC: line_account.id"
+          uom_quantity: 1
+          price_unit: 50000.0
+
+      - step: "Confirm reimbursement"
+        action: "call"
+        target: "reimbursement_no_ou"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirming reimbursement"
+        action: "call"
+        target: "reimbursement_no_ou"
+        method: "invalidate_cache"
+
+      - step: "Approve reimbursement, opening it and posting the journal entry"
+        action: "call"
+        target: "reimbursement_no_ou"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invalidate cache after approving reimbursement"
+        action: "call"
+        target: "reimbursement_no_ou"
+        method: "invalidate_cache"
+
+      - step: "Move is created normally, with no operating unit"
+        action: "assert"
+        target: "reimbursement_no_ou"
+        asserts:
+          move_id:
+            type: "value"
+            operator: "is_truthy"
+          move_id.operating_unit_id:
+            type: "value"
+            operator: "is_falsy"

@@ -19,7 +19,9 @@ the **Operating Unit / Multiple Operating Units** group
 (`operating_unit.group_multi_operating_unit`):
 
 - **Operating Unit**: The operating unit the reimbursement document belongs to.
-  Displayed after the **Company** field.
+  Displayed after the **Company** field. Editable while the document is in **Draft**
+  status; becomes read-only once the document leaves Draft. Propagated to the
+  `account.move` (and its journal items) created when the document is opened.
 
 ## Modified — Record Visibility
 
