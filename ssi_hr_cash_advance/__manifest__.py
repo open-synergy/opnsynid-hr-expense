@@ -23,6 +23,7 @@
         "ssi_m2o_configurator_mixin",
         "base_duration",
         "base_automation",
+        "web_tour",
     ],
     "data": [
         "security/ir_module_category_data.xml",
@@ -40,6 +41,7 @@
         "views/hr_expense_type_views.xml",
         "views/hr_cash_advance_views.xml",
         "views/hr_cash_advance_views_settlement.xml",
+        "views/assets.xml",
     ],
     "demo": [
         "demo/account_account_demo.xml",
