@@ -20,7 +20,10 @@ the **Operating Unit / Multiple Operating Units** group
 (`operating_unit.group_multi_operating_unit`):
 
 - **Operating Unit**: The operating unit the cash advance settlement document belongs
-  to. Displayed after the **Company** field.
+  to. Displayed after the **Company** field. Automatically filled in with the Operating
+  Unit of the selected **# Cash Advance** field; can still be changed manually while the
+  document is in the **Draft** state. Once the document leaves Draft, the field becomes
+  read-only.
 
 ## Modified — Record Visibility
 

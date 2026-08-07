@@ -12,6 +12,7 @@
     "depends": [
         "ssi_hr_cash_advance",
         "ssi_operating_unit_mixin",
+        "ssi_financial_accounting_operating_unit",
         "web_tour",
     ],
     "data": [
