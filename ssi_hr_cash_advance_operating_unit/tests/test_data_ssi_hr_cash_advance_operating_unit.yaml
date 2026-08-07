@@ -1,0 +1,318 @@
+setup:
+  steps:
+    - step: "Get expense type (already wired with cash advance journal/accounts)"
+      action: "ref"
+      xml_id: "ssi_hr_expense.demo_expense_type1"
+      save_as: "expense_type"
+
+    - step: "Get cash advance journal"
+      action: "ref"
+      xml_id: "ssi_hr_cash_advance.demo_journal1"
+      save_as: "ca_journal"
+
+    - step: "Get cash advance settlement journal"
+      action: "ref"
+      xml_id: "ssi_hr_cash_advance.demo_journal2"
+      save_as: "settlement_journal"
+
+    - step: "Get cash advance account"
+      action: "ref"
+      xml_id: "ssi_hr_cash_advance.demo_account2"
+      save_as: "cash_advance_account"
+
+    - step: "Get cash advance payable account"
+      action: "ref"
+      xml_id: "ssi_hr_cash_advance.demo_account1"
+      save_as: "payable_account"
+
+    - step: "Get expense account type"
+      action: "ref"
+      xml_id: "account.data_account_type_expenses"
+      save_as: "expense_acc_type"
+
+    # `setup:` replays before every scenario in the same transaction (no
+    # rollback in between), so a fixed `code`/`name` would collide with
+    # the previous scenario's record on the 2nd+ replay. Generate a
+    # fresh, never-colliding value on each replay.
+    - step: "Create settlement expense account"
+      action: "create"
+      model: "account.account"
+      save_as: "settlement_account"
+      values:
+        code: "EVAL: 'CAOUE%d' % env['account.account'].search_count([])"
+        name: "Test Cash Advance OU Settlement Expense"
+        user_type_id: "REC: expense_acc_type.id"
+
+    - step: "Create settlement expense product"
+      action: "create"
+      model: "product.product"
+      save_as: "product"
+      values:
+        name:
+          "EVAL: 'Test Cash Advance OU Product %d' %
+          env['product.product'].search_count([])"
+
+    - step: "Create employee home address partner"
+      action: "create"
+      model: "res.partner"
+      save_as: "employee_partner"
+      as_user: "base.user_admin"
+      values:
+        name: "Test Cash Advance OU Employee Address"
+        is_company: false
+
+    - step: "Create employee"
+      action: "create"
+      model: "hr.employee"
+      save_as: "employee"
+      as_user: "base.user_admin"
+      values:
+        name: "Test Cash Advance OU Employee"
+        address_home_id: "REC: employee_partner.id"
+
+    - step: "Create partner for the operating unit"
+      action: "create"
+      model: "res.partner"
+      save_as: "ou_partner"
+      values:
+        name: "Test Cash Advance OU Partner"
+
+    - step: "Create operating unit"
+      action: "create"
+      model: "operating.unit"
+      save_as: "ou"
+      values:
+        name:
+          "EVAL: 'Test Cash Advance Operating Unit %d' %
+          env['operating.unit'].search_count([])"
+        code: "EVAL: 'CAOU%d' % env['operating.unit'].search_count([])"
+        partner_id: "REC: ou_partner.id"
+
+    - step: "Create cash advance with the operating unit"
+      action: "create"
+      model: "hr.cash_advance"
+      save_as: "cash_advance"
+      as_user: "base.user_admin"
+      values:
+        employee_id: "REC: employee.id"
+        date: 2026-01-15
+        date_due: 2026-02-15
+        type_id: "REC: expense_type.id"
+        journal_id: "REC: ca_journal.id"
+        cash_advance_account_id: "REC: cash_advance_account.id"
+        payable_account_id: "REC: payable_account.id"
+        operating_unit_id: "REC: ou.id"
+
+    - step: "Confirm cash advance"
+      action: "call"
+      target: "cash_advance"
+      method: "action_confirm"
+      as_user: "base.user_admin"
+      asserts:
+        state:
+          type: "value"
+          expected: "confirm"
+
+    - step: "Invalidate cache after confirming cash advance"
+      action: "call"
+      target: "cash_advance"
+      method: "invalidate_cache"
+
+    - step: "Approve cash advance (auto-transitions to open, posting its journal entry)"
+      action: "call"
+      target: "cash_advance"
+      method: "action_approve_approval"
+      as_user: "base.user_admin"
+      asserts:
+        state:
+          type: "value"
+          expected: "open"
+
+    - step: "Invalidate cache after approving cash advance"
+      action: "call"
+      target: "cash_advance"
+      method: "invalidate_cache"
+
+scenarios:
+  - name:
+      "Cash advance open propagates its operating unit to the journal entry header and
+      lines"
+    steps:
+      - step:
+          "Move, payable move line and cash advance move line all carry the cash
+          advance's operating unit"
+        action: "assert"
+        target: "cash_advance"
+        asserts:
+          move_id.operating_unit_id.code:
+            type: "value"
+            expected: "REC: ou.code"
+          payable_move_line_id.operating_unit_id.code:
+            type: "value"
+            expected: "REC: ou.code"
+          cash_advance_move_line_id.operating_unit_id.code:
+            type: "value"
+            expected: "REC: ou.code"
+
+  - name:
+      "Cash advance settlement done propagates its operating unit to its journal entry"
+    steps:
+      - step:
+          "Create settlement for the open cash advance, with the same operating unit"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REC: settlement_journal.id"
+          date: 2026-02-01
+          operating_unit_id: "REC: ou.id"
+
+      - step: "Create one settlement detail line"
+        action: "create"
+        model: "hr.cash_advance_settlement_line"
+        save_as: "settlement_line"
+        as_user: "base.user_admin"
+        values:
+          cash_advance_settlement_id: "REC: settlement.id"
+          name: "Test Cash Advance OU Settlement Line"
+          product_id: "REC: product.id"
+          account_id: "REC: settlement_account.id"
+          uom_quantity: 1
+          price_unit: 100000.0
+
+      - step: "Confirm settlement"
+        action: "call"
+        target: "settlement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirming settlement"
+        action: "call"
+        target: "settlement"
+        method: "invalidate_cache"
+
+      - step: "Approve settlement (auto-transitions to done, posting its journal entry)"
+        action: "call"
+        target: "settlement"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Invalidate cache after approving settlement"
+        action: "call"
+        target: "settlement"
+        method: "invalidate_cache"
+
+      - step: "Settlement move carries the same operating unit"
+        action: "assert"
+        target: "settlement"
+        asserts:
+          move_id:
+            type: "value"
+            operator: "is_truthy"
+          move_id.operating_unit_id.code:
+            type: "value"
+            expected: "REC: ou.code"
+
+  - name: "Selecting a cash advance on a draft settlement fills in its operating unit"
+    steps:
+      - step: "Get admin user"
+        action: "ref"
+        xml_id: "base.user_admin"
+        save_as: "admin_user"
+
+      - step: "Get multi operating unit group"
+        action: "ref"
+        xml_id: "operating_unit.group_multi_operating_unit"
+        save_as: "ou_group"
+
+      - step: "Grant admin the group so the Operating Unit field renders on the form"
+        action: "write"
+        target: "admin_user"
+        values:
+          groups_id:
+            - - 4
+              - "REC: ou_group.id"
+
+      - step: "Open a new settlement form and select the open cash advance"
+        action: "form"
+        model: "hr.cash_advance_settlement"
+        as_user: "base.user_admin"
+        save: false
+        values:
+          cash_advance_id: "REC: cash_advance"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: ou"
+
+  - name:
+      "Cash advance opened without an operating unit posts normally, with no operating
+      unit on the move"
+    steps:
+      - step: "Create cash advance with operating unit explicitly empty"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance_no_ou"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          type_id: "REC: expense_type.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: cash_advance_account.id"
+          payable_account_id: "REC: payable_account.id"
+          operating_unit_id: false
+
+      - step: "Confirm cash advance"
+        action: "call"
+        target: "cash_advance_no_ou"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirming cash advance"
+        action: "call"
+        target: "cash_advance_no_ou"
+        method: "invalidate_cache"
+
+      - step: "Approve cash advance, opening it and posting the journal entry"
+        action: "call"
+        target: "cash_advance_no_ou"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invalidate cache after approving cash advance"
+        action: "call"
+        target: "cash_advance_no_ou"
+        method: "invalidate_cache"
+
+      - step: "Move is created normally, with no operating unit"
+        action: "assert"
+        target: "cash_advance_no_ou"
+        asserts:
+          move_id:
+            type: "value"
+            operator: "is_truthy"
+          move_id.operating_unit_id:
+            type: "value"
+            operator: "is_falsy"
