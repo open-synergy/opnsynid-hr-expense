@@ -13,6 +13,10 @@
                 type="text/javascript"
                 src="/ssi_hr_expense_account/static/tests/tours/employee_expense_account_type_tour.js"
             />
+            <script
+                type="text/javascript"
+                src="/ssi_hr_expense_account/static/tests/tours/employee_expense_account_tour.js"
+            />
         </xpath>
     </template>
 </odoo>

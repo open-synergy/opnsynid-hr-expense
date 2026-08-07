@@ -12,6 +12,7 @@
 3. Click the **Terminate** button.
 4. In the wizard that appears, select the **Termination Reason**.
 5. Click **Confirm**.
+6. Click **OK** on the confirmation dialog.
 
 ## Post-Condition
 
