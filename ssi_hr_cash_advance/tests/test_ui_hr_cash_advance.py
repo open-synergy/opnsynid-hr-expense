@@ -24,12 +24,11 @@ class TestUiHrCashAdvance(HttpSavepointCase):
         (except create, which the tour itself creates via the UI)
         with a unique employee name used as the list-row marker
         (Keputusan Desain, issue
-        open-synergy/opnsynid-hr-expense#131). The create tour's
-        employee is linked to ``base.user_admin`` via ``user_id`` so
-        the Employee field's default
-        (``mixin.employee_document._default_employee_id``) resolves
-        it automatically, matching the IK's "Automatically filled
-        with the current user's employee".
+        open-synergy/opnsynid-hr-expense#131). The create tour relies
+        on the Employee field's existing default
+        (``mixin.employee_document._default_employee_id``) instead of
+        a fixture employee -- see the comment above that fixture's
+        (deliberately absent) block for why.
         """
         super().setUpClass()
         cls.admin = cls.env.ref("base.user_admin")
@@ -108,15 +107,16 @@ class TestUiHrCashAdvance(HttpSavepointCase):
         # Fixture for the create tour: only the master data the tour
         # picks from a dropdown is needed (the type above) -- the
         # tour itself creates the ``hr.cash_advance`` record via the
-        # UI. The employee is linked to the admin user so the
-        # Employee field's default resolves it without a manual UI
-        # step.
-        cls.env["hr.employee"].with_user(cls.admin).create(
-            {
-                "name": "Tour Cash Advance Create Employee",
-                "user_id": cls.admin.id,
-            }
-        )
+        # UI. No dedicated employee is created here: ``hr.employee``
+        # has a unique constraint on ``user_id``
+        # (``hr_employee_user_uniq``), and the CI database already
+        # links ``base.user_admin`` to a default employee via demo
+        # data, so the Employee field's default
+        # (``mixin.employee_document._default_employee_id``) already
+        # resolves without any fixture -- the tour never asserts
+        # which employee it resolves to (Keputusan Desain, issue
+        # open-synergy/opnsynid-hr-expense#131: "nilai turunan ...
+        # dibiarkan apa adanya").
 
         # Fixture for the confirm tour -- Pre-Condition: Draft
         # status.
