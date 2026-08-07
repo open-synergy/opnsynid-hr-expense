@@ -12,10 +12,12 @@
     "depends": [
         "ssi_hr_cash_advance",
         "ssi_hr_expense_account",
+        "web_tour",
     ],
     "data": [
         "views/hr_cash_advance_settlement.xml",
         "views/employee_expense_account_view.xml",
+        "views/assets.xml",
     ],
     "demo": [],
 }
