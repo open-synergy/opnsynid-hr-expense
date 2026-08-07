@@ -1,0 +1,297 @@
+setup:
+  steps:
+    - step: "Get payable account type"
+      action: "ref"
+      xml_id: "account.data_account_type_payable"
+      save_as: "payable_acc_type"
+
+    - step: "Get expense account type"
+      action: "ref"
+      xml_id: "account.data_account_type_expenses"
+      save_as: "expense_acc_type"
+
+    # `setup:` replays before every scenario in the same transaction (no
+    # rollback in between), so a fixed `code`/`name` would collide with
+    # the previous scenario's record on the 2nd+ replay. Generate a
+    # fresh, never-colliding value on each replay.
+    - step: "Create payable account"
+      action: "create"
+      model: "account.account"
+      save_as: "payable_account"
+      values:
+        code: "EVAL: 'EBTOUP%d' % env['account.account'].search_count([])"
+        name: "Test Business Trip OU Payable"
+        user_type_id: "REC: payable_acc_type.id"
+        reconcile: true
+
+    - step: "Create per diem expense account"
+      action: "create"
+      model: "account.account"
+      save_as: "per_diem_account"
+      values:
+        code: "EVAL: 'EBTOUE%d' % env['account.account'].search_count([])"
+        name: "Test Business Trip OU Per Diem Expense"
+        user_type_id: "REC: expense_acc_type.id"
+
+    - step: "Create journal"
+      action: "create"
+      model: "account.journal"
+      save_as: "journal"
+      values:
+        name:
+          "EVAL: 'Test Business Trip OU Journal %d' %
+          env['account.journal'].search_count([])"
+        code: "EVAL: 'EJ%d' % env['account.journal'].search_count([])"
+        type: "general"
+
+    - step: "Create business trip type"
+      action: "create"
+      model: "employee_business_trip_type"
+      save_as: "trip_type"
+      values:
+        name: "Test Business Trip OU Type"
+        code: "/"
+        journal_id: "REC: journal.id"
+        payable_account_id: "REC: payable_account.id"
+
+    - step: "Create per diem product"
+      action: "create"
+      model: "product.product"
+      save_as: "product"
+      values:
+        name:
+          "EVAL: 'Test Business Trip OU Product %d' %
+          env['product.product'].search_count([])"
+
+    - step: "Get Indonesia country"
+      action: "ref"
+      xml_id: "base.id"
+      save_as: "indonesia"
+
+    - step: "Create origin city"
+      action: "create"
+      model: "res.city"
+      save_as: "origin_city"
+      values:
+        name:
+          "EVAL: 'Test Business Trip OU Origin %d' % env['res.city'].search_count([])"
+        country_id: "REC: indonesia.id"
+
+    - step: "Create destination city"
+      action: "create"
+      model: "res.city"
+      save_as: "destination_city"
+      values:
+        name:
+          "EVAL: 'Test Business Trip OU Destination %d' %
+          env['res.city'].search_count([])"
+        country_id: "REC: indonesia.id"
+
+    - step: "Create pricelist"
+      action: "create"
+      model: "product.pricelist"
+      save_as: "pricelist"
+      values:
+        name:
+          "EVAL: 'Test Business Trip OU Pricelist %d' %
+          env['product.pricelist'].search_count([])"
+
+    - step: "Create employee home address partner"
+      action: "create"
+      model: "res.partner"
+      save_as: "employee_partner"
+      as_user: "base.user_admin"
+      values:
+        name:
+          "EVAL: 'Test Business Trip OU Employee Address %d' %
+          env['res.partner'].search_count([])"
+        is_company: false
+
+    - step: "Create employee"
+      action: "create"
+      model: "hr.employee"
+      save_as: "employee"
+      as_user: "base.user_admin"
+      values:
+        name:
+          "EVAL: 'Test Business Trip OU Employee %d' %
+          env['hr.employee'].search_count([])"
+        address_home_id: "REC: employee_partner.id"
+
+    - step: "Create partner for the operating unit"
+      action: "create"
+      model: "res.partner"
+      save_as: "ou_partner"
+      values:
+        name:
+          "EVAL: 'Test Business Trip OU Partner %d' %
+          env['res.partner'].search_count([])"
+
+    - step: "Create operating unit"
+      action: "create"
+      model: "operating.unit"
+      save_as: "ou"
+      values:
+        name:
+          "EVAL: 'Test Business Trip Operating Unit %d' %
+          env['operating.unit'].search_count([])"
+        code: "EVAL: 'EBTOU%d' % env['operating.unit'].search_count([])"
+        partner_id: "REC: ou_partner.id"
+
+scenarios:
+  - name:
+      "Business trip open propagates its operating unit to the journal entry header and
+      payable line"
+    steps:
+      - step: "Create business trip with the operating unit"
+        action: "create"
+        model: "employee_business_trip"
+        save_as: "trip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: trip_type.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          date_start: 2026-01-16
+          date_end: 2026-01-18
+          origin_id: "REC: origin_city.id"
+          destination_id: "REC: destination_city.id"
+          currency_id: "EVAL: env.company.currency_id.id"
+          pricelist_id: "REC: pricelist.id"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+          operating_unit_id: "REC: ou.id"
+
+      - step: "Create one per diem line"
+        action: "create"
+        model: "employee_business_trip.per_diem"
+        save_as: "per_diem"
+        as_user: "base.user_admin"
+        values:
+          employee_business_trip_id: "REC: trip.id"
+          name: "Test Business Trip OU Per Diem Line"
+          product_id: "REC: product.id"
+          account_id: "REC: per_diem_account.id"
+          uom_quantity: 1
+          price_unit: 500000.0
+
+      - step: "Confirm business trip"
+        action: "call"
+        target: "trip"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirming business trip"
+        action: "call"
+        target: "trip"
+        method: "invalidate_cache"
+
+      - step:
+          "Approve business trip (auto-transitions to open, posting its journal entry)"
+        action: "call"
+        target: "trip"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invalidate cache after approving business trip"
+        action: "call"
+        target: "trip"
+        method: "invalidate_cache"
+
+      - step: "Move and payable move line both carry the business trip's operating unit"
+        action: "assert"
+        target: "trip"
+        asserts:
+          move_id.operating_unit_id.code:
+            type: "value"
+            expected: "REC: ou.code"
+          payable_move_line_id.operating_unit_id.code:
+            type: "value"
+            expected: "REC: ou.code"
+
+  - name:
+      "Business trip opened without an operating unit posts normally, with no operating
+      unit on the move"
+    steps:
+      - step: "Create business trip with operating unit explicitly empty"
+        action: "create"
+        model: "employee_business_trip"
+        save_as: "trip_no_ou"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: trip_type.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          date_start: 2026-01-16
+          date_end: 2026-01-18
+          origin_id: "REC: origin_city.id"
+          destination_id: "REC: destination_city.id"
+          currency_id: "EVAL: env.company.currency_id.id"
+          pricelist_id: "REC: pricelist.id"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+          operating_unit_id: false
+
+      - step: "Create one per diem line"
+        action: "create"
+        model: "employee_business_trip.per_diem"
+        save_as: "per_diem_no_ou"
+        as_user: "base.user_admin"
+        values:
+          employee_business_trip_id: "REC: trip_no_ou.id"
+          name: "Test Business Trip No-OU Per Diem Line"
+          product_id: "REC: product.id"
+          account_id: "REC: per_diem_account.id"
+          uom_quantity: 1
+          price_unit: 250000.0
+
+      - step: "Confirm business trip"
+        action: "call"
+        target: "trip_no_ou"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirming business trip"
+        action: "call"
+        target: "trip_no_ou"
+        method: "invalidate_cache"
+
+      - step: "Approve business trip, opening it and posting the journal entry"
+        action: "call"
+        target: "trip_no_ou"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invalidate cache after approving business trip"
+        action: "call"
+        target: "trip_no_ou"
+        method: "invalidate_cache"
+
+      - step: "Move is created normally, with no operating unit"
+        action: "assert"
+        target: "trip_no_ou"
+        asserts:
+          move_id:
+            type: "value"
+            operator: "is_truthy"
+          move_id.operating_unit_id:
+            type: "value"
+            operator: "is_falsy"
