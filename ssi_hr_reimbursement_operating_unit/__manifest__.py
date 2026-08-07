@@ -11,6 +11,7 @@
     "installable": True,
     "depends": [
         "ssi_hr_reimbursement",
+        "ssi_financial_accounting_operating_unit",
         "ssi_operating_unit_mixin",
         "web_tour",
     ],
