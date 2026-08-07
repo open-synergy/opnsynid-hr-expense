@@ -1,16 +1,29 @@
 # Finish Employee Business Trip
 
+> **Note:** There is no manual Done action. The status transition to **Done** is handled
+> automatically by the system via `base.automation` when the payable journal entry line
+> associated with this business trip is fully reconciled (payment made). This file is
+> kept as reference documentation only.
+
 ## Pre-Condition
 
 - Record is in **In Progress** status.
-- User has _Can Finished_ access right.
+- The associated payable accounting journal entry line (`payable_move_line_id`) exists.
 
 ## Flow
 
-1. Open the **Human Resource > Expense > Business Trips** menu.
-2. Open the record to finish.
-3. Click the **Done** button.
+This transition is automatic. No user action is required in the Employee Business Trip
+form.
+
+The system monitors the `realized` field, which is related to
+`payable_move_line_id.reconciled`. When it changes from `False` to `True` (i.e., the
+payable move line is fully matched against a payment), the automation
+`employee_business_trip_ready_2_done` triggers `action_done` automatically.
+
+To trigger reconciliation, process the payment through the accounting module
+(**Accounting > Vendors > Payments** or bank statement reconciliation).
 
 ## Post-Condition
 
-- Status changes to **Done**.
+- Status changes to **Done** automatically once the payable journal entry line is fully
+  reconciled.
