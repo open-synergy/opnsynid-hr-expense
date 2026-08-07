@@ -24,6 +24,7 @@
         "base_duration",
         "base_automation",
         "ssi_financial_accounting",
+        "web_tour",
     ],
     "data": [
         "security/ir_module_category_data.xml",
@@ -39,6 +40,7 @@
         "data/account_journal_data.xml",
         "views/hr_expense_type_views.xml",
         "views/hr_reimbursement_views.xml",
+        "views/assets.xml",
     ],
     "demo": [
         "demo/account_account_demo.xml",
