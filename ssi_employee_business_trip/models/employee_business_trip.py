@@ -513,9 +513,24 @@ class EmployeeBusinessTrip(models.Model):
 
     @ssi_decorator.post_open_action()
     def _10_skip_open(self):
+        """Auto-skip to Done right after entering Open, when eligible.
+
+        Runs as a ``post_open_action`` hook, right after
+        ``_10_create_accounting_entry``. When the trip has no Per Diem
+        line (``move_id`` is still empty), there is nothing left to do
+        in Open, so the trip is pushed straight to Done.
+
+        Uses ``bypass_policy_check`` because this transition is an
+        internal side effect of the approval flow, not a direct user
+        action: whether it succeeds must not depend on the ``done_ok``
+        access of whichever user happened to approve the last level.
+        Mirrors ``employee_business_trip_action_done``, the server
+        action used by the ``employee_business_trip_ready_2_done``
+        automation.
+        """
         self.ensure_one()
         if not self.move_id:
-            self.action_done()
+            self.with_context(bypass_policy_check=True).action_done()
 
     @ssi_decorator.post_cancel_action()
     def _delete_accounting_entry(self):

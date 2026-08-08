@@ -1,0 +1,266 @@
+setup:
+  steps:
+    - step: "Get payable account type"
+      action: "ref"
+      xml_id: "account.data_account_type_payable"
+      save_as: "payable_acc_type"
+
+    - step: "Get expense account type"
+      action: "ref"
+      xml_id: "account.data_account_type_expenses"
+      save_as: "expense_acc_type"
+
+    # `setup:` replays before every scenario in the same transaction (no
+    # rollback in between), so a fixed `code`/`name` would collide with
+    # the previous scenario's record on the 2nd+ replay. Generate a
+    # fresh, never-colliding value on each replay.
+    - step: "Create payable account"
+      action: "create"
+      model: "account.account"
+      save_as: "payable_account"
+      values:
+        code: "EVAL: 'EBTSKP%d' % env['account.account'].search_count([])"
+        name: "Test Skip Open Payable"
+        user_type_id: "REC: payable_acc_type.id"
+        reconcile: true
+
+    - step: "Create per diem expense account"
+      action: "create"
+      model: "account.account"
+      save_as: "per_diem_account"
+      values:
+        code: "EVAL: 'EBTSKE%d' % env['account.account'].search_count([])"
+        name: "Test Skip Open Per Diem Expense"
+        user_type_id: "REC: expense_acc_type.id"
+
+    - step: "Create journal"
+      action: "create"
+      model: "account.journal"
+      save_as: "journal"
+      values:
+        name:
+          "EVAL: 'Test Skip Open Journal %d' % env['account.journal'].search_count([])"
+        code: "EVAL: 'SOJ%d' % env['account.journal'].search_count([])"
+        type: "general"
+
+    - step: "Create business trip type"
+      action: "create"
+      model: "employee_business_trip_type"
+      save_as: "trip_type"
+      values:
+        name: "Test Skip Open Type"
+        code: "/"
+        journal_id: "REC: journal.id"
+        payable_account_id: "REC: payable_account.id"
+
+    - step: "Create per diem product"
+      action: "create"
+      model: "product.product"
+      save_as: "product"
+      values:
+        name:
+          "EVAL: 'Test Skip Open Product %d' % env['product.product'].search_count([])"
+
+    - step: "Get Indonesia country"
+      action: "ref"
+      xml_id: "base.id"
+      save_as: "indonesia"
+
+    - step: "Create origin city"
+      action: "create"
+      model: "res.city"
+      save_as: "origin_city"
+      values:
+        name: "EVAL: 'Test Skip Open Origin %d' % env['res.city'].search_count([])"
+        country_id: "REC: indonesia.id"
+
+    - step: "Create destination city"
+      action: "create"
+      model: "res.city"
+      save_as: "destination_city"
+      values:
+        name: "EVAL: 'Test Skip Open Destination %d' % env['res.city'].search_count([])"
+        country_id: "REC: indonesia.id"
+
+    - step: "Create pricelist"
+      action: "create"
+      model: "product.pricelist"
+      save_as: "pricelist"
+      values:
+        name:
+          "EVAL: 'Test Skip Open Pricelist %d' %
+          env['product.pricelist'].search_count([])"
+
+    - step: "Create employee home address partner"
+      action: "create"
+      model: "res.partner"
+      save_as: "employee_partner"
+      as_user: "base.user_admin"
+      values:
+        name:
+          "EVAL: 'Test Skip Open Employee Address %d' %
+          env['res.partner'].search_count([])"
+        is_company: false
+
+    - step: "Create employee"
+      action: "create"
+      model: "hr.employee"
+      save_as: "employee"
+      as_user: "base.user_admin"
+      values:
+        name: "EVAL: 'Test Skip Open Employee %d' % env['hr.employee'].search_count([])"
+        address_home_id: "REC: employee_partner.id"
+
+scenarios:
+  - name:
+      "Business trip without a Per Diem line is auto-skipped to Done on approval (issue
+      #149 fix)"
+    steps:
+      - step: "Create business trip with no Per Diem line"
+        action: "create"
+        model: "employee_business_trip"
+        save_as: "trip_no_per_diem"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: trip_type.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          date_start: 2026-01-16
+          date_end: 2026-01-18
+          origin_id: "REC: origin_city.id"
+          destination_id: "REC: destination_city.id"
+          currency_id: "EVAL: env.company.currency_id.id"
+          pricelist_id: "REC: pricelist.id"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+
+      - step: "Assert trip created in draft"
+        action: "assert"
+        target: "trip_no_per_diem"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+
+      - step: "Confirm business trip"
+        action: "call"
+        target: "trip_no_per_diem"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirming business trip"
+        action: "call"
+        target: "trip_no_per_diem"
+        method: "invalidate_cache"
+
+      - step:
+          "Approve business trip -- auto-transitions to Open, then _10_skip_open
+          bypasses the policy check and pushes it to Done without raising a UserError"
+        action: "call"
+        target: "trip_no_per_diem"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Invalidate cache after approving business trip"
+        action: "call"
+        target: "trip_no_per_diem"
+        method: "invalidate_cache"
+
+      - step: "No Per Diem line means no accounting entry was created"
+        action: "assert"
+        target: "trip_no_per_diem"
+        asserts:
+          move_id:
+            type: "value"
+            operator: "is_falsy"
+          state:
+            type: "value"
+            expected: "done"
+
+  - name:
+      "Business trip with a Per Diem line still stops at Open on approval (regression,
+      issue #132)"
+    steps:
+      - step: "Create business trip with a Per Diem line"
+        action: "create"
+        model: "employee_business_trip"
+        save_as: "trip_with_per_diem"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: trip_type.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          date_start: 2026-01-16
+          date_end: 2026-01-18
+          origin_id: "REC: origin_city.id"
+          destination_id: "REC: destination_city.id"
+          currency_id: "EVAL: env.company.currency_id.id"
+          pricelist_id: "REC: pricelist.id"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+
+      - step: "Create one Per Diem line"
+        action: "create"
+        model: "employee_business_trip.per_diem"
+        save_as: "per_diem"
+        as_user: "base.user_admin"
+        values:
+          employee_business_trip_id: "REC: trip_with_per_diem.id"
+          name: "Test Skip Open Per Diem Line"
+          product_id: "REC: product.id"
+          account_id: "REC: per_diem_account.id"
+          uom_quantity: 1
+          price_unit: 500000.0
+
+      - step: "Confirm business trip"
+        action: "call"
+        target: "trip_with_per_diem"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirming business trip"
+        action: "call"
+        target: "trip_with_per_diem"
+        method: "invalidate_cache"
+
+      - step:
+          "Approve business trip -- the Per Diem line makes _10_create_accounting_entry
+          set move_id, so _10_skip_open does not skip it to Done"
+        action: "call"
+        target: "trip_with_per_diem"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invalidate cache after approving business trip"
+        action: "call"
+        target: "trip_with_per_diem"
+        method: "invalidate_cache"
+
+      - step: "The Per Diem line means an accounting entry was created"
+        action: "assert"
+        target: "trip_with_per_diem"
+        asserts:
+          move_id:
+            type: "value"
+            operator: "is_truthy"
+          state:
+            type: "value"
+            expected: "open"
