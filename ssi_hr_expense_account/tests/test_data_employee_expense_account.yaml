@@ -1,0 +1,234 @@
+scenarios:
+  - name: "Create Employee Expense Account"
+    steps:
+      - step: "Create expense type"
+        action: "create"
+        model: "employee_expense_account_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Test Expense Type"
+          code: "/"
+
+      - step: "Create currency"
+        action: "create"
+        model: "res.currency"
+        save_as: "currency"
+        as_user: "base.user_admin"
+        values:
+          name: "EEA"
+          symbol: "E$"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Test Expense Account Employee"
+
+      - step: "Create expense account"
+        action: "create"
+        model: "employee_expense_account"
+        save_as: "record"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: expense_type.id"
+          currency_id: "REC: currency.id"
+          employee_id: "REC: employee.id"
+          date_start: 2026-01-01
+          date_end: 2026-12-31
+          amount_limit: 1000.0
+
+      - step: "Assert created in draft with computed residual"
+        action: "assert"
+        target: "record"
+        asserts:
+          id:
+            type: "value"
+            operator: "is_truthy"
+          state:
+            type: "value"
+            expected: "draft"
+          amount_realized:
+            type: "value"
+            expected: 0.0
+          amount_residual:
+            type: "value"
+            expected: 1000.0
+
+  - name: "Form view renders the mixin-inserted elements"
+    steps:
+      - step: "Create expense type"
+        action: "create"
+        model: "employee_expense_account_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Test Expense Type Form"
+          code: "/"
+
+      - step: "Create currency"
+        action: "create"
+        model: "res.currency"
+        save_as: "currency"
+        as_user: "base.user_admin"
+        values:
+          name: "EEF"
+          symbol: "F$"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Test Expense Account Form Employee"
+
+      - step: "Build the record through the form view"
+        action: "form"
+        model: "employee_expense_account"
+        save_as: "form_record"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: expense_type"
+          currency_id: "REC: currency"
+          employee_id: "REC: employee"
+          date_start: 2026-01-01
+          date_end: 2026-12-31
+          amount_limit: 500.0
+
+      - step: "Assert record reached draft state"
+        action: "assert"
+        target: "form_record"
+        asserts:
+          id:
+            type: "value"
+            operator: "is_truthy"
+          state:
+            type: "value"
+            expected: "draft"
+
+  - name: "Reject non-positive amount limit"
+    steps:
+      - step: "Create expense type"
+        action: "create"
+        model: "employee_expense_account_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Test Expense Type Limit"
+          code: "/"
+
+      - step: "Create currency"
+        action: "create"
+        model: "res.currency"
+        save_as: "currency"
+        as_user: "base.user_admin"
+        values:
+          name: "EEL"
+          symbol: "L$"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Test Expense Account Limit Employee"
+
+      - step: "Create with amount_limit = 0 must be rejected"
+        action: "create"
+        model: "employee_expense_account"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+          message_contains: "greater than"
+        values:
+          type_id: "REC: expense_type.id"
+          currency_id: "REC: currency.id"
+          employee_id: "REC: employee.id"
+          date_start: 2026-01-01
+          date_end: 2026-12-31
+          amount_limit: 0.0
+
+  - name: "Reject overlapping date range on open accounts"
+    steps:
+      - step: "Create expense type"
+        action: "create"
+        model: "employee_expense_account_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Test Expense Type Overlap"
+          code: "/"
+
+      - step: "Create currency"
+        action: "create"
+        model: "res.currency"
+        save_as: "currency"
+        as_user: "base.user_admin"
+        values:
+          name: "EEO"
+          symbol: "O$"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Test Expense Account Overlap Employee"
+
+      - step: "Create first expense account"
+        action: "create"
+        model: "employee_expense_account"
+        save_as: "first"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: expense_type.id"
+          currency_id: "REC: currency.id"
+          employee_id: "REC: employee.id"
+          date_start: 2026-01-01
+          date_end: 2026-06-30
+          amount_limit: 1000.0
+
+      - step: "Confirm first expense account"
+        action: "call"
+        target: "first"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirming first expense account"
+        action: "call"
+        target: "first"
+        method: "invalidate_cache"
+
+      - step: "Approve first expense account (auto-transitions to open)"
+        action: "call"
+        target: "first"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Overlapping second record must be rejected"
+        action: "create"
+        model: "employee_expense_account"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+          message_contains: "overlap"
+        values:
+          type_id: "REC: expense_type.id"
+          currency_id: "REC: currency.id"
+          employee_id: "REC: employee.id"
+          date_start: 2026-04-01
+          date_end: 2026-09-30
+          amount_limit: 500.0
