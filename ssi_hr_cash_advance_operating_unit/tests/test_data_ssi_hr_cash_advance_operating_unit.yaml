@@ -108,30 +108,30 @@ setup:
       target: "cash_advance"
       method: "action_confirm"
       as_user: "base.user_admin"
+
+    - step: "Refresh cache after confirming cash advance"
+      action: "assert"
+      target: "cash_advance"
+      refresh: true
       asserts:
         state:
           type: "value"
           expected: "confirm"
-
-    - step: "Invalidate cache after confirming cash advance"
-      action: "call"
-      target: "cash_advance"
-      method: "invalidate_cache"
 
     - step: "Approve cash advance (auto-transitions to open, posting its journal entry)"
       action: "call"
       target: "cash_advance"
       method: "action_approve_approval"
       as_user: "base.user_admin"
+
+    - step: "Refresh cache after approving cash advance"
+      action: "assert"
+      target: "cash_advance"
+      refresh: true
       asserts:
         state:
           type: "value"
           expected: "open"
-
-    - step: "Invalidate cache after approving cash advance"
-      action: "call"
-      target: "cash_advance"
-      method: "invalidate_cache"
 
 scenarios:
   - name:
@@ -189,30 +189,30 @@ scenarios:
         target: "settlement"
         method: "action_confirm"
         as_user: "base.user_admin"
+
+      - step: "Refresh cache after confirming settlement"
+        action: "assert"
+        target: "settlement"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "confirm"
-
-      - step: "Invalidate cache after confirming settlement"
-        action: "call"
-        target: "settlement"
-        method: "invalidate_cache"
 
       - step: "Approve settlement (auto-transitions to done, posting its journal entry)"
         action: "call"
         target: "settlement"
         method: "action_approve_approval"
         as_user: "base.user_admin"
+
+      - step: "Refresh cache after approving settlement"
+        action: "assert"
+        target: "settlement"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "done"
-
-      - step: "Invalidate cache after approving settlement"
-        action: "call"
-        target: "settlement"
-        method: "invalidate_cache"
 
       - step: "Settlement move carries the same operating unit"
         action: "assert"
@@ -281,30 +281,30 @@ scenarios:
         target: "cash_advance_no_ou"
         method: "action_confirm"
         as_user: "base.user_admin"
+
+      - step: "Refresh cache after confirming cash advance"
+        action: "assert"
+        target: "cash_advance_no_ou"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "confirm"
-
-      - step: "Invalidate cache after confirming cash advance"
-        action: "call"
-        target: "cash_advance_no_ou"
-        method: "invalidate_cache"
 
       - step: "Approve cash advance, opening it and posting the journal entry"
         action: "call"
         target: "cash_advance_no_ou"
         method: "action_approve_approval"
         as_user: "base.user_admin"
+
+      - step: "Refresh cache after approving cash advance"
+        action: "assert"
+        target: "cash_advance_no_ou"
+        refresh: true
         asserts:
           state:
             type: "value"
             expected: "open"
-
-      - step: "Invalidate cache after approving cash advance"
-        action: "call"
-        target: "cash_advance_no_ou"
-        method: "invalidate_cache"
 
       - step: "Move is created normally, with no operating unit"
         action: "assert"
