@@ -37,6 +37,12 @@ class HrExpenseType(models.Model):
         "product_ids",
     )
     def _compute_allowed_product_ids(self):
+        """Collect the products allowed for this expense type.
+
+        Builds the list from ``product_ids`` (the type's product lines),
+        one product per line, so downstream views can restrict expense
+        line selection to only those products.
+        """
         for record in self:
             result = []
             if record.product_ids:
@@ -61,6 +67,12 @@ class HrExpenseType(models.Model):
         "product_category_ids",
     )
     def _compute_allowed_product_category_ids(self):
+        """Collect the product categories allowed for this expense type.
+
+        Builds the list from ``product_category_ids`` (the type's product
+        category lines), one category per line, so downstream views can
+        restrict expense line selection to only those categories.
+        """
         for record in self:
             result = []
             if record.product_category_ids:
