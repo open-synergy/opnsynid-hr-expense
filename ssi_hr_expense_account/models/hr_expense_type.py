@@ -15,6 +15,14 @@ class HrExpenseType(models.Model):
     _inherit = "hr.expense_type"
 
     def _get_require_expense_products(self):
+        """Return products requiring an employee expense account.
+
+        Collects products belonging to a category flagged
+        ``require_expense_account`` on this expense type, plus
+        products directly flagged the same way.
+
+        :return: ``product.product`` recordset
+        """
         Product = self.env["product.product"]
         for record in self:
             categ_ids = (

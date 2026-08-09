@@ -5,6 +5,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from odoo.addons.ssi_decorator import ssi_decorator
+
 
 class EmployeeExpenseAccount(models.Model):
     """
@@ -160,6 +162,14 @@ class EmployeeExpenseAccount(models.Model):
         return res
 
     def _get_expense_fields(self):
+        """Return the field names contributing to ``amount_realized``.
+
+        Extension point: override in a glue module (cash advance
+        settlement, reimbursement, …) to add the field that holds the
+        amount already realized against this expense account.
+
+        :return: list of field names on this model
+        """
         return []
 
     @api.depends(
@@ -170,6 +180,12 @@ class EmployeeExpenseAccount(models.Model):
     )
     @api.depends("employee_id", "date_start", "date_end")
     def _compute_amount(self):
+        """Compute ``amount_realized`` and ``amount_residual``.
+
+        Sums every field returned by ``_get_expense_fields`` into
+        ``amount_realized``, then subtracts it from ``amount_limit``
+        to get ``amount_residual``.
+        """
         for record in self:
             amount_realized = 0.0
             amount_residual = 0.0
@@ -187,6 +203,12 @@ class EmployeeExpenseAccount(models.Model):
 
     @api.constrains("employee_id", "date_start", "date_end")
     def constrains_expense_duration_overlap(self):
+        """Forbid overlapping date ranges for the same employee/type.
+
+        Checks other ``open`` expense accounts of the same employee
+        and type; raises ``UserError`` when ``date_start``/``date_end``
+        overlaps an existing one.
+        """
         for record in self.sudo():
             check = self.search(
                 [
@@ -212,7 +234,18 @@ class EmployeeExpenseAccount(models.Model):
 
     @api.constrains("amount_limit")
     def constrains_amount_limit(self):
+        """Forbid a non-positive ``amount_limit``.
+
+        Raises ``UserError`` when ``amount_limit`` is lower than or
+        equal to zero.
+        """
         for record in self.sudo():
             if record.amount_limit <= 0:
                 strWarning = _("Amount Limit must be greater than '0'")
                 raise UserError(strWarning)
+
+    @ssi_decorator.insert_on_form_view()
+    def _insert_form_element(self, view_arch):
+        if self._automatically_insert_view_element:
+            view_arch = self._reconfigure_statusbar_visible(view_arch)
+        return view_arch
