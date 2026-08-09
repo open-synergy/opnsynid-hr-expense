@@ -249,6 +249,20 @@ class TestUiHrCashAdvanceSettlement(HttpSavepointCase):
         status exists for the employee"), not by clicking through the
         UI (Keputusan Desain, issue open-synergy/opnsynid-hr-expense#131).
 
+        Between the two calls the record is flushed and its cache
+        invalidated (scoped to its own ids). ``action_confirm()``'s
+        policy check reads ``confirm_ok``, which -- via the shared
+        ``mixin.policy`` compute -- also caches ``approve_ok`` at a
+        moment this record's ``approval.approval`` row does not exist
+        yet, so it caches ``False``. Without the refresh,
+        ``action_approve_approval()`` reads that stale cached value
+        and raises "Document is not allowed to approve" nondeterminis-
+        tically, even though ``base.user_admin`` is a member of
+        ``hr_cash_advance_validator_group`` and would otherwise be a
+        valid approver (see ``odoo-development-unit-test`` skill,
+        ``test-traps.md`` T-04, and ``odoo_yaml_test.case`` ``_refresh``
+        on the 14.0 branch, which this mirrors).
+
         :param employee: ``hr.employee`` the record is submitted for
         :param name: optional manual document number; when set it
             survives sequence generation at Open (``mixin.sequence``
@@ -270,6 +284,9 @@ class TestUiHrCashAdvanceSettlement(HttpSavepointCase):
             vals["name"] = name
         cash_advance = cls.env["hr.cash_advance"].with_user(cls.admin).create(vals)
         cash_advance.action_confirm()
+        # Force a fresh read of approve_ok -- see docstring above (T-04).
+        cash_advance.flush()
+        cash_advance.invalidate_cache(ids=cash_advance.ids)
         cash_advance.action_approve_approval()
         return cash_advance
 

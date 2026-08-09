@@ -1,3 +1,6 @@
+options:
+  auto_refresh: true
+
 scenarios:
   - name: "Cash Advance - Unrealized/Unsettled search filters"
     steps:
@@ -77,11 +80,6 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "Invalidate cache after confirming cash advance"
-        action: "call"
-        target: "cash_advance"
-        method: "invalidate_cache"
-
       - step: "Approve cash advance (auto-transitions to open)"
         action: "call"
         target: "cash_advance"
@@ -91,11 +89,6 @@ scenarios:
           state:
             type: "value"
             expected: "open"
-
-      - step: "Invalidate cache after approving cash advance"
-        action: "call"
-        target: "cash_advance"
-        method: "invalidate_cache"
 
       - step: "Assert cash advance open, still unrealized and unsettled"
         action: "assert"

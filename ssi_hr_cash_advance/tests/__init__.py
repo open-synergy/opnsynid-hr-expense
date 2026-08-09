@@ -4,3 +4,4 @@
 
 from . import test_hr_cash_advance
 from . import test_ui_hr_cash_advance
+from . import test_ui_hr_cash_advance_settlement
