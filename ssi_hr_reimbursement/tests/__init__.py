@@ -3,5 +3,6 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from . import (  # noqa: F401
+    test_hr_reimbursement,
     test_ui_hr_reimbursement,
 )

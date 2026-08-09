@@ -1,0 +1,96 @@
+options:
+  auto_refresh: true
+
+setup:
+  steps:
+    - step: "Get expense type (already wired with reimbursement journal/account)"
+      action: "ref"
+      xml_id: "ssi_hr_expense.demo_expense_type1"
+      save_as: "expense_type"
+
+    - step: "Get reimbursement journal"
+      action: "ref"
+      xml_id: "ssi_hr_reimbursement.demo_journal1"
+      save_as: "journal"
+
+    - step: "Get reimbursement payable account"
+      action: "ref"
+      xml_id: "ssi_hr_reimbursement.demo_account1"
+      save_as: "account"
+
+scenarios:
+  - name: "Form view renders the mixin-inserted elements"
+    steps:
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Test Reimbursement Form Employee"
+
+      - step: "Build the record through the form view"
+        action: "form"
+        model: "hr.reimbursement"
+        save_as: "form_record"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee"
+          type_id: "REC: expense_type"
+          journal_id: "REC: journal"
+          account_id: "REC: account"
+          date: 2026-01-15
+          date_due: 2026-02-15
+
+      - step: "Assert record reached draft state"
+        action: "assert"
+        target: "form_record"
+        asserts:
+          id:
+            type: "value"
+            operator: "is_truthy"
+          state:
+            type: "value"
+            expected: "draft"
+
+  - name: "Reject opening a reimbursement for an employee without a home address"
+    steps:
+      - step: "Create employee without a home address"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_no_address"
+        as_user: "base.user_admin"
+        values:
+          name: "Test Reimbursement No Address Employee"
+
+      - step: "Create reimbursement for that employee"
+        action: "create"
+        model: "hr.reimbursement"
+        save_as: "reimbursement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_no_address.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REC: journal.id"
+          account_id: "REC: account.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+
+      - step: "Confirm reimbursement"
+        action: "call"
+        target: "reimbursement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approving must fail: employee has no home address"
+        action: "call"
+        target: "reimbursement"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+          message_contains: "home address"
