@@ -1,5 +1,11 @@
 # Create Employee Reimbursement
 
+> **Module:** ssi*hr_reimbursement\
+> **Model:** `hr.reimbursement`\
+> **Menu:** Human Resource > Expense > Reimbursements\
+> **Actor:** user in group \_Reimbursement — User*\
+> **State:** `—` → `draft`
+
 ## Pre-Condition
 
 - None.

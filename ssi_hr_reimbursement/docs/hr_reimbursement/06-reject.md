@@ -1,5 +1,13 @@
 # Reject Employee Reimbursement
 
+> **Module:** ssi*hr_reimbursement\
+> **Model:** `hr.reimbursement`\
+> **Menu:** Human Resource > Expense > Reimbursements\
+> **Actor:** user registered as an approver on the active approval template (approvers drawn
+> from group \_Reimbursement — Validator*)\
+> **State:** `confirm` → `reject`\
+> **Requires:** `04-confirm`
+
 ## Pre-Condition
 
 - Record is in **Waiting for Approval** status.

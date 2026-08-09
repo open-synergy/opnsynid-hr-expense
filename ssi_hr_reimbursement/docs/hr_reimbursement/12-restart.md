@@ -1,5 +1,12 @@
 # Restart Employee Reimbursement
 
+> **Module:** ssi*hr_reimbursement\
+> **Model:** `hr.reimbursement`\
+> **Menu:** Human Resource > Expense > Reimbursements\
+> **Actor:** user in group \_Reimbursement — Validator*\
+> **State:** `cancel` | `reject` → `draft`\
+> **Requires:** `10-cancel`
+
 ## Pre-Condition
 
 - Record is in **Cancelled** or **Rejected** status.

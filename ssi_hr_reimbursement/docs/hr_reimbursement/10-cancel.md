@@ -1,5 +1,12 @@
 # Cancel Employee Reimbursement
 
+> **Module:** ssi*hr_reimbursement\
+> **Model:** `hr.reimbursement`\
+> **Menu:** Human Resource > Expense > Reimbursements\
+> **Actor:** user in group \_Reimbursement — Validator*\
+> **State:** `draft` | `confirm` | `open` → `cancel`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
 - Record is in **Draft**, **Waiting for Approval**, or **In Progress** status.

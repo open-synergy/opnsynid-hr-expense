@@ -1,5 +1,15 @@
 # Finish Employee Reimbursement
 
+> **Module:** ssi_hr_reimbursement\
+> **Model:** `hr.reimbursement`\
+> **Menu:** Human Resource > Expense > Reimbursements\
+> **Actor:** System — triggered automatically by `base.automation` (`reimbursement_ready_2_done`),
+> no user action\
+> **State:** `open` → `done`\
+> **Requires:** `05-approve`
+
+---
+
 > **Note:** There is no manual Finish action. The status transition to **Done** is
 > handled automatically by the system via `base.automation` when the accounting journal
 > entry associated with this reimbursement is fully reconciled (payment received). This
