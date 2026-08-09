@@ -26,6 +26,17 @@ class HrCashAdvanceSettlementLineInherit(models.Model):
     )
 
     def _check_expense_account(self):
+        """Validate the expense account linked to this settlement line.
+
+        When ``require_expense_account`` is set, raises
+        :class:`~odoo.exceptions.UserError` if no expense account is
+        assigned, or if the assigned account has a negative residual
+        amount (insufficient balance).
+
+        :return: ``True`` when validation passes
+        :raises UserError: when the expense account is missing or has
+            insufficient balance
+        """
         self.ensure_one()
         result = True
         if self.require_expense_account:

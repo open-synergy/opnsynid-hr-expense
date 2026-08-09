@@ -18,6 +18,14 @@ class HrCashAdvanceSettlement(models.Model):
 
     @ssi_decorator.pre_confirm_action()
     def _check_expense_account(self):
+        """Validate expense accounts before confirmation.
+
+        Runs as a pre-confirm check (``action_confirm``): delegates to
+        each settlement line's own ``_check_expense_account`` so a
+        missing or insufficient expense account blocks confirmation.
+
+        :return: ``True`` when every line passes validation
+        """
         self.ensure_one()
         for line in self.line_ids:
             line._check_expense_account()
