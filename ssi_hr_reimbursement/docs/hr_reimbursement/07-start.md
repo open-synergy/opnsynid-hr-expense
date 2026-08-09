@@ -1,11 +1,11 @@
 # Revert Employee Reimbursement to In Progress
 
-> **Module:** ssi_hr_reimbursement
-> **Model:** `hr.reimbursement`
-> **Menu:** Human Resource > Expense > Reimbursements
-> **Actor:** System — triggered automatically by `base.automation`
-> (`reimbursement_ready_2_open`), no user action
-> **State:** `done` → `open`
+> **Module:** ssi_hr_reimbursement\
+> **Model:** `hr.reimbursement`\
+> **Menu:** Human Resource > Expense > Reimbursements\
+> **Actor:** System — triggered automatically by `base.automation` (`reimbursement_ready_2_open`),
+> no user action\
+> **State:** `done` → `open`\
 > **Requires:** `09-finish`
 
 ---
