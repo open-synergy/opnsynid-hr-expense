@@ -1,5 +1,11 @@
 # Create Employee Cash Advance
 
+> **Module:** ssi_hr_cash_advance\
+> **Model:** `hr.cash_advance`\
+> **Menu:** Human Resource > Expense > Cash Advances\
+> **Actor:** user in group `User` (`hr_cash_advance_user_group`)\
+> **State:** `—` → `draft`
+
 ## Pre-Condition
 
 - None.

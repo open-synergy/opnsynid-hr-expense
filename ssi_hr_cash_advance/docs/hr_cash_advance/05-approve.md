@@ -1,5 +1,13 @@
 # Approve Employee Cash Advance
 
+> **Module:** ssi_hr_cash_advance\
+> **Model:** `hr.cash_advance`\
+> **Menu:** Human Resource > Expense > Cash Advances\
+> **Actor:** user registered as approver on the pending approval level, via the\
+> **Standard** approval template, group `Validator` (`hr_cash_advance_validator_group`)\
+> **State:** `confirm` → `open`\
+> **Requires:** `04-confirm`
+
 ## Pre-Condition
 
 - Record is in **Waiting for Approval** status.

@@ -1,5 +1,12 @@
 # Done Employee Cash Advance
 
+> **Module:** ssi_hr_cash_advance\
+> **Model:** `hr.cash_advance`\
+> **Menu:** Human Resource > Expense > Cash Advances\
+> **Actor:** system (`base.automation` record `cash_advance_open_2_done`, no user action)\
+> **State:** `open` → `done`\
+> **Requires:** `05-approve`
+
 ## Pre-Condition
 
 - Record is in **Open** status.

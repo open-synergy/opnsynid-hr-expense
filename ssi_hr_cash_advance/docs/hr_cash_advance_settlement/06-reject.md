@@ -1,5 +1,14 @@
 # Reject Employee Cash Advance Settlement
 
+> **Module:** ssi_hr_cash_advance\
+> **Model:** `hr.cash_advance_settlement`\
+> **Menu:** Human Resource > Expense > Cash Advance Settlements\
+> **Actor:** user registered as approver on the pending approval level, via the\
+> **Standard** approval template, group `Validator`\
+> (`hr_cash_advance_settlement_validator_group`)\
+> **State:** `confirm` → `reject`\
+> **Requires:** `04-confirm`
+
 ## Pre-Condition
 
 - Record is in **Waiting for Approval** status.
