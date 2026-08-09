@@ -1,9 +1,16 @@
 # Finish Employee Business Trip
 
-> **Note:** There is no manual Done action. The status transition to **Done** is handled
-> automatically by the system via `base.automation` when the payable journal entry line
-> associated with this business trip is fully reconciled (payment made). This file is
-> kept as reference documentation only.
+> **Module:** ssi_employee_business_trip\
+> **Model:** `employee_business_trip`\
+> **Menu:** Human Resource > Expense > Business Trips\
+> **Actor:** system (`base.automation` `employee_business_trip_ready_2_done`)\
+> **State:** `open` → `done`\
+> **Requires:** `05-approve`
+
+**Note:** There is no manual Done action. The status transition to **Done** is handled
+automatically by the system via `base.automation` when the payable journal entry line
+associated with this business trip is fully reconciled (payment made). This file is kept
+as reference documentation only.
 
 ## Pre-Condition
 

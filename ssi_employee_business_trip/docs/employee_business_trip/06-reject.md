@@ -1,5 +1,13 @@
 # Reject Employee Business Trip
 
+> **Module:** ssi_employee_business_trip\
+> **Model:** `employee_business_trip`\
+> **Menu:** Human Resource > Expense > Business Trips\
+> **Actor:** user registered as an approver on the active `approval.template` (`reject_ok`
+> policy)\
+> **State:** `confirm` → `reject`\
+> **Requires:** `04-confirm`
+
 ## Pre-Condition
 
 - Record is in **Waiting for Approval** status.
