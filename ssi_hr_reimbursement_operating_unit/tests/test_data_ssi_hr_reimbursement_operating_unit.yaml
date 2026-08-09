@@ -120,10 +120,14 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "Invalidate cache after confirming reimbursement"
-        action: "call"
+      - step: "Force cache refresh before approval reads confirm-time compute fields"
+        action: "assert"
         target: "reimbursement"
-        method: "invalidate_cache"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step:
           "Approve reimbursement (auto-transitions to open, posting its journal entry)"
@@ -136,14 +140,10 @@ scenarios:
             type: "value"
             expected: "open"
 
-      - step: "Invalidate cache after approving reimbursement"
-        action: "call"
-        target: "reimbursement"
-        method: "invalidate_cache"
-
       - step: "Move and payable move line both carry the reimbursement's operating unit"
         action: "assert"
         target: "reimbursement"
+        refresh: true
         asserts:
           move_id.operating_unit_id.code:
             type: "value"
@@ -193,10 +193,14 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "Invalidate cache after confirming reimbursement"
-        action: "call"
+      - step: "Force cache refresh before approval reads confirm-time compute fields"
+        action: "assert"
         target: "reimbursement_no_ou"
-        method: "invalidate_cache"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve reimbursement, opening it and posting the journal entry"
         action: "call"
@@ -208,14 +212,10 @@ scenarios:
             type: "value"
             expected: "open"
 
-      - step: "Invalidate cache after approving reimbursement"
-        action: "call"
-        target: "reimbursement_no_ou"
-        method: "invalidate_cache"
-
       - step: "Move is created normally, with no operating unit"
         action: "assert"
         target: "reimbursement_no_ou"
+        refresh: true
         asserts:
           move_id:
             type: "value"
