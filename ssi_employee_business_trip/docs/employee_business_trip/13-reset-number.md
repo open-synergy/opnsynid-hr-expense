@@ -1,5 +1,11 @@
 # Reset Document Number — Employee Business Trip
 
+> **Module:** ssi_employee_business_trip\
+> **Model:** `employee_business_trip`\
+> **Menu:** Human Resource > Expense > Business Trips\
+> **Actor:** user in group `Employee Business Trip / Validator` (`manual_number_ok` policy)\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
 - Record is in **Draft** status.
