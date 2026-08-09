@@ -1,5 +1,15 @@
 # Revert Employee Reimbursement to In Progress
 
+> **Module:** ssi_hr_reimbursement
+> **Model:** `hr.reimbursement`
+> **Menu:** Human Resource > Expense > Reimbursements
+> **Actor:** System — triggered automatically by `base.automation`
+> (`reimbursement_ready_2_open`), no user action
+> **State:** `done` → `open`
+> **Requires:** `09-finish`
+
+---
+
 > **Note:** There is no manual Revert to In Progress action. The status transition back
 > to **In Progress** is handled automatically by the system via `base.automation` when
 > the accounting journal entry reconciliation is reversed (payment cancelled or

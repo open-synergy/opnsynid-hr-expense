@@ -1,5 +1,13 @@
 # Approve Employee Reimbursement
 
+> **Module:** ssi_hr_reimbursement
+> **Model:** `hr.reimbursement`
+> **Menu:** Human Resource > Expense > Reimbursements
+> **Actor:** user registered as an approver on the active approval template (approvers
+> drawn from group *Reimbursement — Validator*)
+> **State:** `confirm` → `open`
+> **Requires:** `04-confirm`
+
 ## Pre-Condition
 
 - Record is in **Waiting for Approval** status.

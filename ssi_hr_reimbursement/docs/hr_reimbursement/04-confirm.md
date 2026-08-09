@@ -1,5 +1,12 @@
 # Confirm Employee Reimbursement
 
+> **Module:** ssi_hr_reimbursement
+> **Model:** `hr.reimbursement`
+> **Menu:** Human Resource > Expense > Reimbursements
+> **Actor:** user in group *Reimbursement — User*
+> **State:** `draft` → `confirm`
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
 - Record is in **Draft** status.
