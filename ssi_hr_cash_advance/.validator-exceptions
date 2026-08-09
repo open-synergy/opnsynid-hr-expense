@@ -1,0 +1,11 @@
+# Penyimpangan yang diterima untuk validator `module` (lihat validator-contract.md §13).
+#
+# res.config.settings adalah extension model core Odoo (base), bukan wizard SSI:
+# _name-nya milik base, ACL-nya sudah disediakan base, dan mengubah _name melanggar
+# 02-core-principles.md (XML ID & tabel dipakai data produksi). Validator menandainya
+# hanya karena ia TransientModel. Lihat issue open-synergy/opnsynid-hr-expense#159
+# ("## Keputusan Desain").
+
+module name-wizard-tanpa-notasi-titik|models/res_config_settings.py: _name 'res.config.settings' memakai notasi titik -- res.config.settings adalah extension model core Odoo (base); _name-nya bukan milik modul ini dan mengubahnya melanggar 02-core-principles.md (XML ID & tabel dipakai data produksi)
+module berkas-wizard-berada-di-wizards|models/res_config_settings.py: TransientModel di luar wizards/ -- res.config.settings bukan wizard SSI, melainkan extension res.config.settings core Odoo; ditempatkan di models/ mengikuti konvensi extension model, bukan wizard
+module acl-wizard-satu-user-access-tanpa-all-access|res.config.settings: tidak ada ACL sama sekali -- ACL res.config.settings sudah disediakan modul base; menambah ACL baru untuk model core akan duplikat/bertentangan dengan ACL base

@@ -153,6 +153,10 @@ class HrCashAdvance(models.Model):
 
     @api.model
     def _default_currency_id(self):
+        """Return the current user's company currency as the default.
+
+        :return: a single ``res.currency`` record
+        """
         return self.env.user.company_id.currency_id
 
     currency_id = fields.Many2one(
@@ -248,6 +252,10 @@ class HrCashAdvance(models.Model):
         "line_ids.price_subtotal",
     )
     def _compute_amount_total(self):
+        """Sum the ``price_total`` of every detail line into the header.
+
+        :return: None, sets ``amount_total`` on each record
+        """
         for document in self:
             amount_total = 0.0
             for line in document.line_ids:
@@ -267,6 +275,10 @@ class HrCashAdvance(models.Model):
         "payable_move_line_id.matched_credit_ids",
     )
     def _compute_realized(self):
+        """Flag the document as realized once its payable line reconciles.
+
+        :return: None, sets ``realized`` on each record
+        """
         for record in self:
             result = False
             if record.payable_move_line_id.reconciled:
@@ -286,6 +298,10 @@ class HrCashAdvance(models.Model):
         "cash_advance_move_line_id.matched_credit_ids",
     )
     def _compute_settled(self):
+        """Flag the document as settled once its cash advance line reconciles.
+
+        :return: None, sets ``settled`` on each record
+        """
         for record in self:
             result = False
             if record.cash_advance_move_line_id.reconciled:
@@ -306,6 +322,13 @@ class HrCashAdvance(models.Model):
         "payable_move_line_id.amount_residual_currency",
     )
     def _compute_amount_realized(self):
+        """Compute the unrealized amount from the payable move line.
+
+        Takes the negated ``amount_residual_currency`` of the payable
+        line, since a payable balance is stored as a credit.
+
+        :return: None, sets ``amount_unrealized`` on each record
+        """
         for document in self:
             result = 0.0
             if document.payable_move_line_id:
@@ -328,6 +351,10 @@ class HrCashAdvance(models.Model):
         "cash_advance_move_line_id.amount_residual_currency",
     )
     def _compute_amount_settled(self):
+        """Compute the unsettled amount from the cash advance move line.
+
+        :return: None, sets ``amount_unsettled`` on each record
+        """
         for document in self:
             result = 0.0
             if document.cash_advance_move_line_id:
@@ -348,6 +375,14 @@ class HrCashAdvance(models.Model):
         "employee_id",
     )
     def _compute_allowed_analytic_account_ids(self):
+        """Resolve the analytic accounts allowed by the document type.
+
+        Uses a fixed list configured on ``type_id`` when
+        ``analytic_account_method`` is ``fixed``, or evaluates
+        ``type_id.python_code`` when it is ``python``.
+
+        :return: None, sets ``allowed_analytic_account_ids`` on each record
+        """
         for document in self:
             result = []
             if document.type_id:
@@ -371,6 +406,13 @@ class HrCashAdvance(models.Model):
 
     @api.depends("type_id", "currency_id", "employee_id")
     def _compute_allowed_pricelist_ids(self):
+        """Resolve the pricelists allowed by the document type.
+
+        Delegates to the m2o configurator on ``type_id`` and keeps only
+        pricelists that share the document's ``currency_id``.
+
+        :return: None, sets ``allowed_pricelist_ids`` on each record
+        """
         for record in self:
             result = False
             if record.type_id and record.currency_id and record.employee_id:
@@ -405,6 +447,13 @@ class HrCashAdvance(models.Model):
         return res
 
     def _get_localdict(self):
+        """Build the local variables exposed to ``type_id.python_code``.
+
+        The evaluated code can read ``env`` and ``document`` and must set
+        a ``result`` variable with the computed analytic account ids.
+
+        :return: dict with keys ``env`` and ``document``
+        """
         self.ensure_one()
         return {
             "env": self.env,
@@ -412,6 +461,11 @@ class HrCashAdvance(models.Model):
         }
 
     def _evaluate_analytic_account(self):
+        """Evaluate ``type_id.python_code`` to get analytic accounts.
+
+        :return: list of ``account.analytic.account`` ids, or ``False``
+        :raises UserError: if the Python code fails to evaluate
+        """
         self.ensure_one()
         res = False
         localdict = self._get_localdict()
@@ -449,22 +503,44 @@ class HrCashAdvance(models.Model):
             self.payable_account_id = self.type_id.cash_advance_payable_account_id
 
     def action_open(self):
+        """Open the cash advance and create its accounting entry.
+
+        :return: result of the parent ``action_open``
+        """
         _super = super(HrCashAdvance, self)
         _super.action_open()
         for document in self.sudo():
             document._create_accounting_entry()
 
     def action_cancel(self, cancel_reason=False):
+        """Cancel the cash advance and remove its accounting entry.
+
+        :param cancel_reason: optional ``hr.cash_advance.cancel.reason``
+            record explaining the cancellation
+        :return: result of the parent ``action_cancel``
+        """
         _super = super(HrCashAdvance, self)
         _super.action_cancel(cancel_reason=cancel_reason)
         for document in self.sudo():
             document._delete_accounting_entry()
 
     def action_recompute_realization(self):
+        """Recompute the realized/settled state of the selected records.
+
+        :return: None
+        """
         for record in self.sudo():
             record._recompute_realization()
 
     def _recompute_realization(self):
+        """Move the document between ``open`` and ``done`` as needed.
+
+        A fully realized and settled ``open`` document is moved to
+        ``done``; a ``done`` document that is no longer both realized
+        and settled is reopened.
+
+        :return: None
+        """
         self.ensure_one()
 
         if self.state == "open" and self.realized and self.settled:
@@ -473,6 +549,10 @@ class HrCashAdvance(models.Model):
             self.action_open()
 
     def _delete_accounting_entry(self):
+        """Cancel and delete the journal entry created on open, if any.
+
+        :return: ``True`` if there was nothing to delete
+        """
         self.ensure_one()
         if not self.move_id:
             return True
@@ -484,6 +564,13 @@ class HrCashAdvance(models.Model):
         self.move_id.with_context(force_delete=True).unlink()
 
     def _create_accounting_entry(self):
+        """Create and post the journal entry for this cash advance.
+
+        Builds the journal entry with a payable line and a cash
+        advance line, links them back to the document, then posts it.
+
+        :return: ``True`` if a journal entry already exists
+        """
         self.ensure_one()
         if self.move_id:
             return True
@@ -501,11 +588,22 @@ class HrCashAdvance(models.Model):
         move.action_post()
 
     def _create_account_move(self):
+        """Create the ``account.move`` header for this document.
+
+        :return: the created ``account.move`` record
+        """
         self.ensure_one()
         AccountMove = self.env["account.move"].with_context(check_move_validity=False)
         return AccountMove.create(self._prepare_create_account_move_data())
 
     def _prepare_create_account_move_data(self):
+        """Build the ``account.move`` values for this document.
+
+        Extension point: override to add fields such as analytic or
+        operating unit without touching ``_create_account_move``.
+
+        :return: dict of ``account.move`` values
+        """
         self.ensure_one()
         data = {
             "name": self.name,
@@ -515,16 +613,33 @@ class HrCashAdvance(models.Model):
         return data
 
     def _create_payable_line(self, move):
+        """Create the payable ``account.move.line`` of the entry.
+
+        :param move: the ``account.move`` this line belongs to
+        :return: the created ``account.move.line`` record
+        """
         self.ensure_one()
         AML = self.env["account.move.line"].with_context(check_move_validity=False)
         return AML.create(self._prepare_create_payable_line_data(move))
 
     def _create_cash_advance_line(self, move):
+        """Create the cash advance ``account.move.line`` of the entry.
+
+        :param move: the ``account.move`` this line belongs to
+        :return: the created ``account.move.line`` record
+        """
         self.ensure_one()
         AML = self.env["account.move.line"].with_context(check_move_validity=False)
         return AML.create(self._prepare_create_cash_advance_line_data(move))
 
     def _prepare_create_payable_line_data(self, move):
+        """Build the payable ``account.move.line`` values.
+
+        Extension point: override to customize the payable line.
+
+        :param move: the ``account.move`` this line belongs to
+        :return: dict of ``account.move.line`` values
+        """
         self.ensure_one()
         currency = self._get_currency()
         amount, amount_currency = self._get_cash_advance_amount(currency)
@@ -542,6 +657,13 @@ class HrCashAdvance(models.Model):
         return data
 
     def _prepare_create_cash_advance_line_data(self, move):
+        """Build the cash advance ``account.move.line`` values.
+
+        Extension point: override to customize the cash advance line.
+
+        :param move: the ``account.move`` this line belongs to
+        :return: dict of ``account.move.line`` values
+        """
         self.ensure_one()
         currency = self._get_currency()
         amount, amount_currency = self._get_cash_advance_amount(currency)
@@ -560,11 +682,23 @@ class HrCashAdvance(models.Model):
         return data
 
     def _get_currency(self):
+        """Return the currency used to build the accounting entry.
+
+        Extension point: override to source the currency differently.
+
+        :return: a single ``res.currency`` record
+        """
         self.ensure_one()
         result = self.currency_id
         return result
 
     def _get_cash_advance_amount(self, currency):
+        """Convert the total amount to company currency for the entry.
+
+        :param currency: the document currency, or ``False``
+        :return: tuple ``(amount, amount_currency)`` in company currency
+            and document currency respectively
+        """
         self.ensure_one()
         amount = amount_currency = 0.0
         move_date = self.date
@@ -581,6 +715,11 @@ class HrCashAdvance(models.Model):
         return amount, amount_currency
 
     def _get_partner_id(self):
+        """Resolve the partner used on the accounting entry lines.
+
+        :return: id of the employee's home address partner
+        :raises UserError: if the employee has no home address defined
+        """
         self.ensure_one()
         if not self.employee_id.address_home_id:
             err_msg = _("No home address defined for employee")
