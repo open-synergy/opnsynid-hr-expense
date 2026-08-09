@@ -1,5 +1,13 @@
 # Approve Employee Expense Account
 
+> **Module:** ssi_hr_expense_account\
+> **Model:** `employee_expense_account`\
+> **Menu:** Human Resource > Expense > Expense Accounts\
+> **Actor:** approver on the approval level that is currently pending (group
+> `Expense Account / Validator`)\
+> **State:** `confirm` → `open`\
+> **Requires:** `04-confirm`
+
 ## Pre-Condition
 
 - Record is in **Waiting for Approval** status.

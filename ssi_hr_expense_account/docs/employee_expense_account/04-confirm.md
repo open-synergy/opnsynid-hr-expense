@@ -1,5 +1,12 @@
 # Confirm Employee Expense Account
 
+> **Module:** ssi_hr_expense_account\
+> **Model:** `employee_expense_account`\
+> **Menu:** Human Resource > Expense > Expense Accounts\
+> **Actor:** user in group `Expense Account / User`\
+> **State:** `draft` → `confirm`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
 - Record is in **Draft** status.

@@ -1,5 +1,12 @@
 # Start Employee Expense Account
 
+> **Module:** ssi_hr_expense_account\
+> **Model:** `employee_expense_account`\
+> **Menu:** Human Resource > Expense > Expense Accounts\
+> **Actor:** — (triggered automatically, no user action)\
+> **State:** `done` → `open`\
+> **Requires:** `09-finish`
+
 ## Pre-Condition
 
 - Record is in **Done** status.

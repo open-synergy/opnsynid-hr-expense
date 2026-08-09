@@ -1,5 +1,12 @@
 # Cancel Employee Expense Account
 
+> **Module:** ssi_hr_expense_account\
+> **Model:** `employee_expense_account`\
+> **Menu:** Human Resource > Expense > Expense Accounts\
+> **Actor:** user in group `Expense Account / Validator`\
+> **State:** `draft`/`confirm`/`open` → `cancel`\
+> **Requires:** `01-create`
+
 ## Pre-Condition
 
 - Record is in a status that allows cancellation (usually **Draft**, **Waiting for

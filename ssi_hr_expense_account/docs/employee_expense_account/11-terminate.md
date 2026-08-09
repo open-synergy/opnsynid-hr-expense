@@ -1,5 +1,12 @@
 # Terminate Employee Expense Account
 
+> **Module:** ssi_hr_expense_account\
+> **Model:** `employee_expense_account`\
+> **Menu:** Human Resource > Expense > Expense Accounts\
+> **Actor:** user in group `Expense Account / Validator`\
+> **State:** `open` → `terminate`\
+> **Requires:** `05-approve`
+
 ## Pre-Condition
 
 - Record is in a status that allows termination.
