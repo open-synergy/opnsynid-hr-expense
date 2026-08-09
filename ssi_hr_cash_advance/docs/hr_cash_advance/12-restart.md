@@ -1,5 +1,12 @@
 # Restart Employee Cash Advance
 
+> **Module:** ssi_hr_cash_advance\
+> **Model:** `hr.cash_advance`\
+> **Menu:** Human Resource > Expense > Cash Advances\
+> **Actor:** user in group `Validator` (`hr_cash_advance_validator_group`)\
+> **State:** `cancel` | `reject` → `draft`\
+> **Requires:** `10-cancel`
+
 ## Pre-Condition
 
 - Record is in **Cancelled** or **Rejected** status.

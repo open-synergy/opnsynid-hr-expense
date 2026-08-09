@@ -1,5 +1,12 @@
 # Reopen Employee Cash Advance
 
+> **Module:** ssi_hr_cash_advance\
+> **Model:** `hr.cash_advance`\
+> **Menu:** Human Resource > Expense > Cash Advances\
+> **Actor:** system (`base.automation` record `cash_advance_done_2_open`, no user action)\
+> **State:** `done` → `open`\
+> **Requires:** `09-done`
+
 ## Pre-Condition
 
 - Record is in **Done** status.
