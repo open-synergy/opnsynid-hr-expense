@@ -26,6 +26,14 @@ class HrReimbursementLine(models.Model):
     )
 
     def _check_expense_account(self):
+        """Validate that this line has a usable expense account.
+
+        Raises ``UserError`` when ``require_expense_account`` is set
+        but no ``expense_account_id`` is linked, or when the linked
+        account's ``amount_residual`` is negative.
+
+        :return: ``True`` when the line passes validation
+        """
         self.ensure_one()
         result = True
         if self.require_expense_account:

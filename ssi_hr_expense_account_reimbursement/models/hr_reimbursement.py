@@ -18,6 +18,16 @@ class HrReimbursement(models.Model):
 
     @ssi_decorator.pre_confirm_action()
     def _check_expense_account(self):
+        """Validate expense account linkage before confirmation.
+
+        Runs as a ``pre_confirm_action`` hook: delegates the check to
+        every line's ``_check_expense_account``, which raises
+        ``UserError`` when a line requires an expense account but
+        none is linked, or when the linked account has insufficient
+        balance.
+
+        :return: ``True`` when every line passes validation
+        """
         self.ensure_one()
         for line in self.line_ids:
             line._check_expense_account()
