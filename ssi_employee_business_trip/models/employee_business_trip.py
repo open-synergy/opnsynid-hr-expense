@@ -292,6 +292,14 @@ class EmployeeBusinessTrip(models.Model):
         return res
 
     def _get_localdict(self):
+        """Build the ``localdict`` used to evaluate ``safe_eval`` code.
+
+        Exposes ``env`` and ``document`` (this record) to the Python
+        code fields evaluated by the "code" selection methods below
+        (origin, destination, product, pricelist, currency).
+
+        :return: dict with keys ``env`` and ``document``
+        """
         self.ensure_one()
         return {
             "env": self.env,
@@ -312,6 +320,14 @@ class EmployeeBusinessTrip(models.Model):
 
     @api.depends("type_id")
     def _compute_allowed_origin_ids(self):
+        """Compute the ``res.city`` records allowed as trip origin.
+
+        Resolves ``allowed_origin_ids`` from the trip type's
+        ``origin_selection_method``: a manual list, a search domain,
+        or a Python code snippet evaluated via :meth:`_get_localdict`
+        (localdict variables: ``env``, ``document``; expected output
+        variable: ``result``, a list of ``res.city`` ids).
+        """
         for record in self:
             result = []
             if record.type_id:
@@ -338,6 +354,15 @@ class EmployeeBusinessTrip(models.Model):
 
     @api.depends("type_id")
     def _compute_allowed_destination_ids(self):
+        """Compute the ``res.city`` records allowed as destination.
+
+        Resolves ``allowed_destination_ids`` from the trip type's
+        ``destination_selection_method``: a manual list, a search
+        domain, or a Python code snippet evaluated via
+        :meth:`_get_localdict` (localdict variables: ``env``,
+        ``document``; expected output variable: ``result``, a list of
+        ``res.city`` ids).
+        """
         for record in self:
             result = []
             if record.type_id:
@@ -364,6 +389,14 @@ class EmployeeBusinessTrip(models.Model):
 
     @api.depends("type_id")
     def _compute_allowed_product_ids(self):
+        """Compute the ``product.product`` records allowed on the trip.
+
+        Resolves ``allowed_product_ids`` from the trip type's
+        ``product_selection_method``: a manual list, a search domain,
+        or a Python code snippet evaluated via :meth:`_get_localdict`
+        (localdict variables: ``env``, ``document``; expected output
+        variable: ``result``, a list of ``product.product`` ids).
+        """
         for record in self:
             result = []
             if record.type_id:
@@ -390,6 +423,15 @@ class EmployeeBusinessTrip(models.Model):
 
     @api.depends("type_id", "allowed_currency_ids")
     def _compute_allowed_pricelist_ids(self):
+        """Compute the ``product.pricelist`` records allowed on the trip.
+
+        Resolves ``allowed_pricelist_ids`` from the trip type's
+        ``pricelist_selection_method``: a manual list, a search
+        domain, or a Python code snippet evaluated via
+        :meth:`_get_localdict` (localdict variables: ``env``,
+        ``document``; expected output variable: ``result``, a
+        recordset or list of ``product.pricelist`` ids).
+        """
         for record in self:
             result = []
             if record.type_id:
@@ -416,6 +458,15 @@ class EmployeeBusinessTrip(models.Model):
 
     @api.depends("type_id")
     def _compute_allowed_currency_ids(self):
+        """Compute the ``res.currency`` records allowed on the trip.
+
+        Resolves ``allowed_currency_ids`` from the trip type's
+        ``currency_selection_method``: a manual list, a search
+        domain, or a Python code snippet evaluated via
+        :meth:`_get_localdict` (localdict variables: ``env``,
+        ``document``; expected output variable: ``result``, a list of
+        ``res.currency`` ids).
+        """
         for record in self:
             result = []
             if record.type_id:
@@ -444,6 +495,12 @@ class EmployeeBusinessTrip(models.Model):
         "per_diem_ids", "per_diem_ids.price_subtotal", "tax_ids", "tax_ids.tax_amount"
     )
     def _compute_amount(self):
+        """Compute the untaxed, tax, and total amounts of the trip.
+
+        Sums ``price_subtotal`` across ``per_diem_ids`` for the
+        untaxed amount, sums ``tax_amount`` across ``tax_ids`` for the
+        tax amount, and adds both together for ``amount_total``.
+        """
         for record in self:
             amount_untaxed = 0.0
             amount_tax = 0.0
@@ -467,6 +524,13 @@ class EmployeeBusinessTrip(models.Model):
         "payable_move_line_id.reconciled",
     )
     def _compute_realized(self):
+        """Compute the realized and residual amounts of the trip.
+
+        Derives ``amount_realized``/``amount_residual`` from the
+        payable move line's ``amount_residual_currency`` so the paid
+        and outstanding portions stay in sync with the reconciliation
+        state of ``payable_move_line_id``.
+        """
         for record in self:
             amount_realized = 0.0
             amount_residual = 0.0
@@ -482,11 +546,25 @@ class EmployeeBusinessTrip(models.Model):
 
     @ssi_decorator.pre_confirm_action()
     def _01_compute_tax(self):
+        """Recompute standard tax lines before confirmation.
+
+        Runs as a ``pre_confirm_action`` hook so ``tax_ids`` reflects
+        the current per diem lines before the approval flow starts.
+        """
         self.ensure_one()
         self._recompute_standard_tax()
 
     @ssi_decorator.post_open_action()
     def _10_create_accounting_entry(self):
+        """Create the accounting move for the trip once it is opened.
+
+        Runs as a ``post_open_action`` hook. Does nothing when there
+        is no ``per_diem_ids`` line, or when ``move_id`` is already
+        set. Otherwise creates the standard move and move line via the
+        accounting mixins, links ``payable_move_line_id``, creates
+        move lines for each per diem and tax line, then posts the
+        move.
+        """
         self.ensure_one()
 
         if not self.per_diem_ids:
@@ -534,10 +612,21 @@ class EmployeeBusinessTrip(models.Model):
 
     @ssi_decorator.post_cancel_action()
     def _delete_accounting_entry(self):
+        """Delete the accounting move when the trip is cancelled.
+
+        Runs as a ``post_cancel_action`` hook, reversing the move
+        created by ``_10_create_accounting_entry``.
+        """
         self.ensure_one()
         self._delete_standard_move()  # Mixin
 
     def action_compute_tax(self):
+        """Recompute standard tax lines for the selected trips.
+
+        Public action bound to the "Compute Tax" button; delegates to
+        the accounting mixin's ``_recompute_standard_tax`` for each
+        record.
+        """
         for record in self:
             record._recompute_standard_tax()
 
