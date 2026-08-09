@@ -46,11 +46,23 @@ class HrReimbursementLine(models.Model):
         pass
 
     def _create_expense_move_line(self):
+        """Create the expense ``account.move.line`` for this line.
+
+        Uses ``_prepare_expense_move_lines`` to build the values and
+        attaches the resulting line to the parent document's move.
+        """
         self.ensure_one()
         obj_line = self.env["account.move.line"].with_context(check_move_validity=False)
         obj_line.create(self._prepare_expense_move_lines())
 
     def _prepare_expense_move_lines(self):
+        """Build the expense ``account.move.line`` values.
+
+        Extension point: override in a glue module to add fields
+        without touching ``_create_expense_move_line``.
+
+        :return: dict of ``account.move.line`` values
+        """
         self.ensure_one()
         reimbursement = self.reimbursement_id
         currency = reimbursement._get_currency()
@@ -76,6 +88,14 @@ class HrReimbursementLine(models.Model):
         }
 
     def _get_expense_amount(self):
+        """Compute debit/credit/foreign amount for this expense line.
+
+        Converts ``price_subtotal`` to company currency when the
+        parent document has a foreign currency, then splits the
+        result into debit or credit depending on its sign.
+
+        :return: tuple ``(debit, credit, amount_currency)``
+        """
         debit = credit = amount = amount_currency = 0.0
         reimbursement = self.reimbursement_id
         currency = reimbursement._get_currency()

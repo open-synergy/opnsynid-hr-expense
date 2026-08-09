@@ -5,6 +5,8 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools.safe_eval import safe_eval
 
+from odoo.addons.ssi_decorator import ssi_decorator
+
 
 class HrReimbursement(models.Model):
     """
@@ -97,6 +99,10 @@ class HrReimbursement(models.Model):
 
     @api.model
     def _default_currency_id(self):
+        """Return the default currency for ``currency_id``.
+
+        :return: the ``res.currency`` of the current user's company
+        """
         return self.env.user.company_id.currency_id
 
     currency_id = fields.Many2one(
@@ -227,6 +233,11 @@ class HrReimbursement(models.Model):
         "payable_move_line_id.matched_credit_ids",
     )
     def _compute_reconciled(self):
+        """Compute ``reconciled`` from the payable move line state.
+
+        ``reconciled`` is ``True`` when ``payable_move_line_id`` is
+        fully reconciled against matching debit/credit move lines.
+        """
         for record in self:
             result = False
             if record.payable_move_line_id.reconciled:
@@ -245,6 +256,11 @@ class HrReimbursement(models.Model):
         "line_ids.price_subtotal",
     )
     def _compute_amount_total(self):
+        """Compute ``amount_total`` as the sum of ``line_ids`` totals.
+
+        Sums ``price_total`` of every detail line into the document
+        ``amount_total``.
+        """
         for document in self:
             amount_total = 0.0
             for line in document.line_ids:
@@ -268,6 +284,14 @@ class HrReimbursement(models.Model):
         "payable_move_line_id.amount_residual_currency",
     )
     def _compute_residual(self):
+        """Compute ``amount_realized`` and ``amount_residual``.
+
+        Derives the realized/residual amount from the outstanding
+        balance of ``payable_move_line_id`` (in company currency or
+        document currency, depending on whether ``currency_id`` is
+        set), falling back to the full ``amount_total`` as residual
+        when the document has no payable move line yet.
+        """
         for document in self:
             realized = 0.0
             residual = document.amount_total
@@ -302,6 +326,13 @@ class HrReimbursement(models.Model):
         "employee_id",
     )
     def _compute_allowed_analytic_account_ids(self):
+        """Compute ``allowed_analytic_account_ids`` from ``type_id``.
+
+        Resolves the allowed analytic accounts using the expense
+        type's ``analytic_account_method``: a fixed manual list, or
+        the result of ``_evaluate_analytic_account`` when the method
+        is ``python``.
+        """
         for document in self:
             result = []
             if document.type_id:
@@ -339,6 +370,13 @@ class HrReimbursement(models.Model):
 
     @api.depends("type_id", "currency_id", "employee_id")
     def _compute_allowed_pricelist_ids(self):
+        """Compute ``allowed_pricelist_ids`` from ``type_id``.
+
+        Resolves the allowed pricelists through the m2o configurator
+        of ``type_id`` (selection method, manual recordset, domain or
+        Python code), then keeps only pricelists matching
+        ``currency_id``.
+        """
         for record in self:
             result = False
             if record.type_id and record.currency_id and record.employee_id:
@@ -374,6 +412,14 @@ class HrReimbursement(models.Model):
         return res
 
     def _get_localdict(self):
+        """Build the ``localdict`` used by ``_evaluate_analytic_account``.
+
+        Available variables: ``env`` (the current environment) and
+        ``document`` (this record). Expected output variable when
+        evaluated: ``result``.
+
+        :return: dict with ``env`` and ``document`` keys
+        """
         self.ensure_one()
         return {
             "env": self.env,
@@ -381,6 +427,15 @@ class HrReimbursement(models.Model):
         }
 
     def _evaluate_analytic_account(self):
+        """Evaluate ``type_id.python_code`` to get analytic accounts.
+
+        Runs ``type_id.python_code`` with ``safe_eval`` against
+        ``_get_localdict()``; the script is expected to assign a list
+        of ``account.analytic.account`` ids to ``result``.
+
+        :return: list of analytic account ids, or ``False``
+        :raises UserError: when the Python code raises an exception
+        """
         self.ensure_one()
         res = False
         localdict = self._get_localdict()
@@ -402,10 +457,22 @@ class HrReimbursement(models.Model):
             self.date_due = self.duration_id.get_duration(self.date)
 
     def action_recompute_realization(self):
+        """Re-evaluate the realized/reconciled state of each record.
+
+        Calls ``_recompute_realization`` (with ``sudo``) on every
+        record in the current recordset, which may auto-transition
+        the document between ``open`` and ``done``.
+        """
         for record in self.sudo():
             record._recompute_realization()
 
     def _recompute_realization(self):
+        """Auto-transition state based on ``reconciled``.
+
+        Moves the document to ``done`` when it is ``open`` and fully
+        ``reconciled``, or back to ``open`` when it is ``done`` and
+        no longer ``reconciled``.
+        """
         self.ensure_one()
 
         if self.state == "open" and self.reconciled:
@@ -414,6 +481,11 @@ class HrReimbursement(models.Model):
             self.action_open()
 
     def _get_partner_id(self):
+        """Resolve the partner used for the payable move line.
+
+        :return: id of the employee's home address partner
+        :raises UserError: when the employee has no home address
+        """
         self.ensure_one()
         if not self.employee_id.address_home_id:
             err_msg = _("No home address defined for employee")
@@ -421,11 +493,24 @@ class HrReimbursement(models.Model):
         return self.employee_id.address_home_id.id
 
     def _get_currency(self):
+        """Return the currency used to build the accounting entry.
+
+        :return: the ``res.currency`` set on ``currency_id``
+        """
         self.ensure_one()
         result = self.currency_id
         return result
 
     def _get_reimbursement_payable_amount(self, currency):
+        """Compute debit/credit/foreign amount for the payable line.
+
+        Converts ``amount_total`` to company currency when
+        ``currency`` is set, then splits the result into debit or
+        credit depending on its sign.
+
+        :param currency: foreign ``res.currency``, or falsy
+        :return: tuple ``(debit, credit, amount_currency)``
+        """
         self.ensure_one()
         debit = credit = amount = amount_currency = 0.0
         move_date = self.date
@@ -448,6 +533,13 @@ class HrReimbursement(models.Model):
         return debit, credit, amount_currency
 
     def _prepare_account_move_data(self):
+        """Build the ``account.move`` values for this document.
+
+        Extension point: override in a glue module to add fields
+        (e.g. operating unit) without touching ``_create_account_move``.
+
+        :return: dict of ``account.move`` values
+        """
         self.ensure_one()
         data = {
             "name": self.name,
@@ -458,6 +550,13 @@ class HrReimbursement(models.Model):
         return data
 
     def _prepare_payable_move_line_data(self):
+        """Build the payable ``account.move.line`` values.
+
+        Extension point: override in a glue module to add fields
+        without touching ``_create_payable_reimbursement_move_line``.
+
+        :return: dict of ``account.move.line`` values
+        """
         self.ensure_one()
         currency = self._get_currency()
         debit, credit, amount_currency = self._get_reimbursement_payable_amount(
@@ -478,6 +577,12 @@ class HrReimbursement(models.Model):
         return data
 
     def _create_accounting_entry(self):
+        """Create and post the journal entry for this document.
+
+        Creates ``move_id`` (if missing), the payable move line, an
+        expense move line per detail line, then posts the move. Does
+        nothing when ``move_id`` is already set.
+        """
         self.ensure_one()
         if not self.move_id:
             self._create_account_move()
@@ -487,6 +592,10 @@ class HrReimbursement(models.Model):
             self.move_id.action_post()
 
     def _create_account_move(self):
+        """Create ``move_id`` from ``_prepare_account_move_data``.
+
+        Does nothing when ``move_id`` is already set.
+        """
         self.ensure_one()
         if not self.move_id:
             obj_move = self.env["account.move"].with_context(check_move_validity=False)
@@ -494,6 +603,10 @@ class HrReimbursement(models.Model):
             self.write({"move_id": move.id})
 
     def _create_payable_reimbursement_move_line(self):
+        """Create ``payable_move_line_id`` on ``move_id``.
+
+        Does nothing when ``payable_move_line_id`` is already set.
+        """
         self.ensure_one()
         if not self.payable_move_line_id:
             obj_line = self.env["account.move.line"].with_context(
@@ -503,12 +616,23 @@ class HrReimbursement(models.Model):
             self.write({"payable_move_line_id": line.id})
 
     def action_open(self):
+        """Confirm the document, then create its accounting entry.
+
+        Overridden to call ``_create_accounting_entry`` after the
+        base transition to ``open`` succeeds.
+        """
         _super = super(HrReimbursement, self)
         _super.action_open()
         for document in self.sudo():
             document._create_accounting_entry()
 
     def action_cancel(self, cancel_reason=False):
+        """Cancel the document and remove its accounting entry.
+
+        Overridden to force-delete ``move_id`` (if any) after the
+        base cancel transition succeeds, so a cancelled document
+        leaves no dangling journal entry.
+        """
         _super = super(HrReimbursement, self)
         _super.action_cancel()
         for document in self.sudo():
@@ -553,3 +677,9 @@ class HrReimbursement(models.Model):
     )
     def onchange_pricelist_id(self):
         self.pricelist_id = False
+
+    @ssi_decorator.insert_on_form_view()
+    def _insert_form_element(self, view_arch):
+        if self._automatically_insert_view_element:
+            view_arch = self._reconfigure_statusbar_visible(view_arch)
+        return view_arch
