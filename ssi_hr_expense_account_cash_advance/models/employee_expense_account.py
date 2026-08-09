@@ -26,6 +26,12 @@ class EmployeeExpenseAccount(models.Model):
         "cash_advance_settlement_line_ids.cash_advance_settlement_id.state",
     )
     def _compute_valid_cash_advance_settlement_line_ids(self):
+        """Filter out cash advance settlement lines in dead-end states.
+
+        Excludes lines whose settlement is ``reject``, ``cancel``, or
+        ``terminate``, leaving only the lines still relevant to this
+        expense account.
+        """
         for record in self:
             result = record.cash_advance_settlement_line_ids.filtered(
                 lambda x: x.cash_advance_settlement_id.state
@@ -46,6 +52,12 @@ class EmployeeExpenseAccount(models.Model):
         "cash_advance_settlement_line_ids.cash_advance_settlement_id.state",
     )
     def _compute_cash_advance(self):
+        """Sum settled cash advance amounts applied to this account.
+
+        Adds ``price_subtotal`` of every settlement line whose settlement
+        is not ``terminate``/``cancel``, then triggers
+        ``_compute_amount`` to refresh the account totals accordingly.
+        """
         for record in self:
             result = 0.0
             for line in record.cash_advance_settlement_line_ids.filtered(
@@ -64,6 +76,13 @@ class EmployeeExpenseAccount(models.Model):
     )
 
     def _get_expense_fields(self):
+        """Extend the expense field list with ``amount_cash_advance``.
+
+        Overridden so ``amount_cash_advance`` is included wherever the
+        base expense account totals are aggregated or displayed.
+
+        :return: list of field names
+        """
         _super = super(EmployeeExpenseAccount, self)
         res = _super._get_expense_fields()
         res.append("amount_cash_advance")
