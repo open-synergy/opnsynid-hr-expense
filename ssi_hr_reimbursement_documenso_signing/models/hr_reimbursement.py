@@ -6,6 +6,15 @@ from odoo import models
 
 
 class HrReimbursement(models.Model):
+    """
+    Enables Documenso signing on the reimbursement approval flow.
+
+    Mixes ``mixin.documenso_signing_approval`` into ``hr.reimbursement`` so
+    that, when the active approval template defines a Documenso signing
+    template, approval is driven by a ``documenso.signature.request``
+    instead of the regular ``approval.approval`` records.
+    """
+
     _name = "hr.reimbursement"
     _inherit = [
         "hr.reimbursement",
