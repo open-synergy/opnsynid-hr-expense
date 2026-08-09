@@ -3,8 +3,7 @@
 > **Module:** ssi_hr_expense_account\
 > **Model:** `employee_expense_account`\
 > **Menu:** Human Resource > Expense > Expense Accounts\
-> **Actor:** approver on the approval level that is currently pending (group
-> `Expense Account / Validator`)\
+> **Actor:** approver on the approval level that is currently pending (group `Expense Account / Validator`)\
 > **State:** `confirm` → `open`\
 > **Requires:** `04-confirm`
 
