@@ -1,5 +1,12 @@
 # Restart Employee Expense Account
 
+> **Module:** ssi_hr_expense_account\
+> **Model:** `employee_expense_account`\
+> **Menu:** Human Resource > Expense > Expense Accounts\
+> **Actor:** user in group `Expense Account / Validator`\
+> **State:** `cancel`/`reject` → `draft`\
+> **Requires:** `10-cancel`
+
 ## Pre-Condition
 
 - Record is in **Cancelled**, **Rejected**, or **Terminated** status.

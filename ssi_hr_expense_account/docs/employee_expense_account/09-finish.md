@@ -1,5 +1,12 @@
 # Finish Employee Expense Account
 
+> **Module:** ssi_hr_expense_account\
+> **Model:** `employee_expense_account`\
+> **Menu:** Human Resource > Expense > Expense Accounts\
+> **Actor:** — (triggered automatically, no user action)\
+> **State:** `open` → `done`\
+> **Requires:** `05-approve`
+
 ## Pre-Condition
 
 - Record is in **In Progress** status.
