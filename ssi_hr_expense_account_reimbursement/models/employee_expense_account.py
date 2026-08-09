@@ -26,6 +26,12 @@ class EmployeeExpenseAccount(models.Model):
         "reimbursement_line_ids.reimbursement_id.state",
     )
     def _compute_valid_reimbursement_line_ids(self):
+        """Compute reimbursement lines that are still active.
+
+        Filters ``reimbursement_line_ids`` down to lines whose parent
+        ``hr.reimbursement`` is not in state ``reject``, ``cancel``,
+        or ``terminate``.
+        """
         for record in self:
             result = record.reimbursement_line_ids.filtered(
                 lambda x: x.reimbursement_id.state
@@ -46,6 +52,14 @@ class EmployeeExpenseAccount(models.Model):
         "reimbursement_line_ids.reimbursement_id.state",
     )
     def _compute_reimbursement(self):
+        """Compute the total reimbursement amount for this account.
+
+        Sums ``price_subtotal`` of every reimbursement line whose
+        parent ``hr.reimbursement`` is not rejected, cancelled, or
+        terminated, and stores it on ``amount_reimbursement``. Also
+        triggers ``_compute_amount`` so the account balance reflects
+        the new total.
+        """
         for record in self:
             result = 0.0
             for line in record.reimbursement_line_ids.filtered(
@@ -64,6 +78,11 @@ class EmployeeExpenseAccount(models.Model):
     )
 
     def _get_expense_fields(self):
+        """Extend the list of fields considered part of expense usage.
+
+        :return: field names from the parent implementation, with
+            ``amount_reimbursement`` appended
+        """
         _super = super(EmployeeExpenseAccount, self)
         res = _super._get_expense_fields()
         res.append("amount_reimbursement")
