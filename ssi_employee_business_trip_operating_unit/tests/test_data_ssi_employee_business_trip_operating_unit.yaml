@@ -1,3 +1,6 @@
+options:
+  auto_refresh: true
+
 setup:
   steps:
     - step: "Get payable account type"
@@ -186,11 +189,6 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "Invalidate cache after confirming business trip"
-        action: "call"
-        target: "trip"
-        method: "invalidate_cache"
-
       - step:
           "Approve business trip (auto-transitions to open, posting its journal entry)"
         action: "call"
@@ -201,11 +199,6 @@ scenarios:
           state:
             type: "value"
             expected: "open"
-
-      - step: "Invalidate cache after approving business trip"
-        action: "call"
-        target: "trip"
-        method: "invalidate_cache"
 
       - step: "Move and payable move line both carry the business trip's operating unit"
         action: "assert"
@@ -265,11 +258,6 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "Invalidate cache after confirming business trip"
-        action: "call"
-        target: "trip_no_ou"
-        method: "invalidate_cache"
-
       - step: "Approve business trip, opening it and posting the journal entry"
         action: "call"
         target: "trip_no_ou"
@@ -279,11 +267,6 @@ scenarios:
           state:
             type: "value"
             expected: "open"
-
-      - step: "Invalidate cache after approving business trip"
-        action: "call"
-        target: "trip_no_ou"
-        method: "invalidate_cache"
 
       - step: "Move is created normally, with no operating unit"
         action: "assert"
