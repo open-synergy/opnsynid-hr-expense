@@ -48,11 +48,23 @@ class HrCashAdvanceSettlementLine(models.Model):
         pass
 
     def _create_expense_line(self, move):
+        """Create the expense ``account.move.line`` for this detail.
+
+        :param move: the ``account.move`` this line belongs to
+        :return: the created ``account.move.line`` record
+        """
         self.ensure_one()
         AML = self.env["account.move.line"].with_context(check_move_validity=False)
         return AML.create(self._prepare_create_expense_line_data(move))
 
     def _prepare_create_expense_line_data(self, move):
+        """Build the expense ``account.move.line`` values.
+
+        Extension point: override to customize the expense line.
+
+        :param move: the ``account.move`` this line belongs to
+        :return: dict of ``account.move.line`` values
+        """
         self.ensure_one()
         currency = self.cash_advance_settlement_id._get_currency()
         amount, amount_currency = self._get_amount(currency)
@@ -75,6 +87,12 @@ class HrCashAdvanceSettlementLine(models.Model):
         return data
 
     def _get_amount(self, currency):
+        """Convert the line subtotal to company currency for the entry.
+
+        :param currency: the settlement's currency, or ``False``
+        :return: tuple ``(amount, amount_currency)`` in company currency
+            and settlement currency respectively
+        """
         self.ensure_one()
         amount = amount_currency = 0.0
         move_date = self.cash_advance_settlement_id.date

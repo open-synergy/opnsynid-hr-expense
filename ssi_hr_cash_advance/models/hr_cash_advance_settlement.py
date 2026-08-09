@@ -129,6 +129,10 @@ class HrCashAdvanceSettlement(models.Model):
 
     @api.model
     def _default_currency_id(self):
+        """Return the current user's company currency as the default.
+
+        :return: a single ``res.currency`` record
+        """
         return self.env.user.company_id.currency_id
 
     currency_id = fields.Many2one(
@@ -150,6 +154,10 @@ class HrCashAdvanceSettlement(models.Model):
         "type_id",
     )
     def _compute_allowed_cash_advance_ids(self):
+        """Resolve the open cash advances of the same employee and type.
+
+        :return: None, sets ``allowed_cash_advance_ids`` on each record
+        """
         CA = self.env["hr.cash_advance"]
         for record in self:
             result = []
@@ -226,6 +234,10 @@ class HrCashAdvanceSettlement(models.Model):
         "line_ids.price_subtotal",
     )
     def _compute_amount_total(self):
+        """Sum the ``price_total`` of every detail line into the header.
+
+        :return: None, sets ``amount_total`` on each record
+        """
         for document in self:
             amount_total = 0.0
             for line in document.line_ids:
@@ -245,6 +257,14 @@ class HrCashAdvanceSettlement(models.Model):
         "employee_id",
     )
     def _compute_allowed_analytic_account_ids(self):
+        """Resolve the analytic accounts allowed by the document type.
+
+        Uses a fixed list configured on ``type_id`` when
+        ``analytic_account_method`` is ``fixed``, or evaluates
+        ``type_id.python_code`` when it is ``python``.
+
+        :return: None, sets ``allowed_analytic_account_ids`` on each record
+        """
         for document in self:
             result = []
             if document.type_id:
@@ -268,6 +288,13 @@ class HrCashAdvanceSettlement(models.Model):
 
     @api.depends("type_id", "currency_id", "employee_id")
     def _compute_allowed_pricelist_ids(self):
+        """Resolve the pricelists allowed by the document type.
+
+        Delegates to the m2o configurator on ``type_id`` and keeps only
+        pricelists that share the document's ``currency_id``.
+
+        :return: None, sets ``allowed_pricelist_ids`` on each record
+        """
         for record in self:
             result = False
             if record.type_id and record.currency_id and record.employee_id:
@@ -301,12 +328,23 @@ class HrCashAdvanceSettlement(models.Model):
         return res
 
     def action_done(self):
+        """Complete the settlement and create its accounting entry.
+
+        :return: result of the parent ``action_done``
+        """
         _super = super(HrCashAdvanceSettlement, self)
         _super.action_done()
         for document in self.sudo():
             document._create_accounting_entry()
 
     def _get_localdict(self):
+        """Build the local variables exposed to ``type_id.python_code``.
+
+        The evaluated code can read ``env`` and ``document`` and must set
+        a ``result`` variable with the computed analytic account ids.
+
+        :return: dict with keys ``env`` and ``document``
+        """
         self.ensure_one()
         return {
             "env": self.env,
@@ -314,6 +352,11 @@ class HrCashAdvanceSettlement(models.Model):
         }
 
     def _evaluate_analytic_account(self):
+        """Evaluate ``type_id.python_code`` to get analytic accounts.
+
+        :return: list of ``account.analytic.account`` ids, or ``False``
+        :raises UserError: if the Python code fails to evaluate
+        """
         self.ensure_one()
         res = False
         localdict = self._get_localdict()
@@ -327,6 +370,14 @@ class HrCashAdvanceSettlement(models.Model):
         return res
 
     def _create_accounting_entry(self):
+        """Create, post and reconcile the settlement journal entry.
+
+        Builds the journal entry with a header line and one expense
+        line per detail, posts it, then reconciles the header line
+        against the originating cash advance move line.
+
+        :return: None
+        """
         self.ensure_one()
         move = self._create_account_move()
         header_line = self._create_header_line(move)
@@ -343,11 +394,22 @@ class HrCashAdvanceSettlement(models.Model):
         pair.reconcile()
 
     def _create_account_move(self):
+        """Create the ``account.move`` header for this document.
+
+        :return: the created ``account.move`` record
+        """
         self.ensure_one()
         AccountMove = self.env["account.move"].with_context(check_move_validity=False)
         return AccountMove.create(self._prepare_create_account_move_data())
 
     def _prepare_create_account_move_data(self):
+        """Build the ``account.move`` values for this document.
+
+        Extension point: override to add fields such as analytic or
+        operating unit without touching ``_create_account_move``.
+
+        :return: dict of ``account.move`` values
+        """
         self.ensure_one()
         data = {
             "name": self.name,
@@ -357,16 +419,34 @@ class HrCashAdvanceSettlement(models.Model):
         return data
 
     def _create_header_line(self, move):
+        """Create the header ``account.move.line`` of the entry.
+
+        :param move: the ``account.move`` this line belongs to
+        :return: the created ``account.move.line`` record
+        """
         self.ensure_one()
         AML = self.env["account.move.line"].with_context(check_move_validity=False)
         return AML.create(self._prepare_create_header_line_data(move))
 
     def _get_currency(self):
+        """Return the currency used to build the accounting entry.
+
+        Extension point: override to source the currency differently.
+
+        :return: a single ``res.currency`` record
+        """
         self.ensure_one()
         result = self.company_currency_id
         return result
 
     def _prepare_create_header_line_data(self, move):
+        """Build the header ``account.move.line`` values.
+
+        Extension point: override to customize the header line.
+
+        :param move: the ``account.move`` this line belongs to
+        :return: dict of ``account.move.line`` values
+        """
         self.ensure_one()
         currency = self._get_currency()
         amount, amount_currency = self._get_header_amount(currency)
@@ -385,6 +465,12 @@ class HrCashAdvanceSettlement(models.Model):
         return data
 
     def _get_header_amount(self, currency):
+        """Convert the total amount to company currency for the entry.
+
+        :param currency: the document currency, or ``False``
+        :return: tuple ``(amount, amount_currency)`` in company currency
+            and document currency respectively
+        """
         self.ensure_one()
         amount = amount_currency = 0.0
         move_date = self.date
@@ -401,6 +487,11 @@ class HrCashAdvanceSettlement(models.Model):
         return amount, amount_currency
 
     def _get_partner_id(self):
+        """Resolve the partner used on the accounting entry lines.
+
+        :return: id of the employee's home address partner
+        :raises UserError: if the employee has no home address defined
+        """
         self.ensure_one()
         if not self.employee_id.address_home_id:
             err_msg = _("No home address defined for employee")
@@ -408,12 +499,22 @@ class HrCashAdvanceSettlement(models.Model):
         return self.employee_id.address_home_id.id
 
     def action_cancel(self, cancel_reason=False):
+        """Cancel the settlement and remove its accounting entry.
+
+        :param cancel_reason: optional cancel reason record explaining
+            the cancellation
+        :return: result of the parent ``action_cancel``
+        """
         _super = super(HrCashAdvanceSettlement, self)
         _super.action_cancel(cancel_reason=cancel_reason)
         for document in self.sudo():
             document._delete_accounting_entry()
 
     def _delete_accounting_entry(self):
+        """Undo reconciliation and delete the settlement journal entry.
+
+        :return: ``True`` if there was nothing to delete
+        """
         self.ensure_one()
         if not self.move_id:
             return True
@@ -464,6 +565,14 @@ class HrCashAdvanceSettlement(models.Model):
         return view_arch
 
     def action_reload_cash_advance(self):
+        """Rebuild the detail lines from the linked cash advance lines.
+
+        Only applies to records still in ``draft``; existing detail
+        lines are discarded and replaced with a copy of each line of
+        ``cash_advance_id``.
+
+        :return: None
+        """
         for rec in self.sudo().filtered(lambda s: s.state == "draft"):
             rec.line_ids = False
             line_vals = []
