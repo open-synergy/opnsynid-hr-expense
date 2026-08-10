@@ -1,0 +1,158 @@
+setup:
+  steps:
+    - step: "Get payable account type"
+      action: "ref"
+      xml_id: "account.data_account_type_payable"
+      save_as: "payable_acc_type"
+
+    # `setup:` replays before every scenario in the same transaction (no
+    # rollback in between), so a fixed `code`/`name` would collide with
+    # the previous scenario's record on the 2nd+ replay. Generate a
+    # fresh, never-colliding value on each replay.
+    - step: "Create payable account"
+      action: "create"
+      model: "account.account"
+      save_as: "payable_account"
+      values:
+        code: "EVAL: 'EBTOCP%d' % env['account.account'].search_count([])"
+        name: "Test Onchange Payable"
+        user_type_id: "REC: payable_acc_type.id"
+        reconcile: true
+
+    - step: "Create journal"
+      action: "create"
+      model: "account.journal"
+      save_as: "journal"
+      values:
+        name:
+          "EVAL: 'Test Onchange Journal %d' % env['account.journal'].search_count([])"
+        code: "EVAL: 'EOJ%d' % env['account.journal'].search_count([])"
+        type: "general"
+
+    - step: "Create business trip type"
+      action: "create"
+      model: "employee_business_trip_type"
+      save_as: "trip_type"
+      values:
+        name: "Test Onchange Type"
+        code: "/"
+        journal_id: "REC: journal.id"
+        payable_account_id: "REC: payable_account.id"
+
+    - step: "Get Indonesia country"
+      action: "ref"
+      xml_id: "base.id"
+      save_as: "indonesia"
+
+    - step: "Create origin city"
+      action: "create"
+      model: "res.city"
+      save_as: "origin_city"
+      values:
+        name: "EVAL: 'Test Onchange Origin %d' % env['res.city'].search_count([])"
+        country_id: "REC: indonesia.id"
+
+    - step: "Create destination city"
+      action: "create"
+      model: "res.city"
+      save_as: "destination_city"
+      values:
+        name: "EVAL: 'Test Onchange Destination %d' % env['res.city'].search_count([])"
+        country_id: "REC: indonesia.id"
+
+    - step: "Create pricelist"
+      action: "create"
+      model: "product.pricelist"
+      save_as: "pricelist"
+      values:
+        name:
+          "EVAL: 'Test Onchange Pricelist %d' %
+          env['product.pricelist'].search_count([])"
+
+    - step: "Create employee home address partner"
+      action: "create"
+      model: "res.partner"
+      save_as: "employee_partner"
+      as_user: "base.user_admin"
+      values:
+        name:
+          "EVAL: 'Test Onchange Employee Address %d' %
+          env['res.partner'].search_count([])"
+        is_company: false
+
+    - step: "Create employee"
+      action: "create"
+      model: "hr.employee"
+      save_as: "employee"
+      as_user: "base.user_admin"
+      values:
+        name: "EVAL: 'Test Onchange Employee %d' % env['hr.employee'].search_count([])"
+        address_home_id: "REC: employee_partner.id"
+
+scenarios:
+  - name:
+      "Selecting a business trip Type fills Journal and Payable Account
+      (onchange_journal_id, onchange_payable_account_id)"
+    options: {auto_refresh: true}
+    steps:
+      - step: "Open a new business trip form and select the trip type"
+        action: form
+        model: "employee_business_trip"
+        as_user: "base.user_admin"
+        save: false
+        values:
+          employee_id: "REC: employee"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          date_start: 2026-01-16
+          date_end: 2026-01-18
+          origin_id: "REC: origin_city"
+          destination_id: "REC: destination_city"
+          pricelist_id: "REC: pricelist"
+          type_id: "REC: trip_type"
+        asserts:
+          journal_id:
+            type: "m2o"
+            expected: "REC: journal"
+          payable_account_id:
+            type: "m2o"
+            expected: "REC: payable_account"
+
+  - name:
+      "Clearing the business trip Type resets Journal and Payable Account
+      (onchange_journal_id, onchange_payable_account_id negative path)"
+    options: {auto_refresh: true}
+    steps:
+      - step: "Open a new business trip form, select then clear the type"
+        action: form
+        model: "employee_business_trip"
+        as_user: "base.user_admin"
+        save: false
+        ops:
+          - set: {employee_id: "REC: employee"}
+          - set: {date: 2026-01-15}
+          - set: {date_due: 2026-02-15}
+          - set: {date_start: 2026-01-16}
+          - set: {date_end: 2026-01-18}
+          - set: {origin_id: "REC: origin_city"}
+          - set: {destination_id: "REC: destination_city"}
+          - set: {pricelist_id: "REC: pricelist"}
+          - set: {type_id: "REC: trip_type"}
+          - assert:
+              journal_id:
+                type: "m2o"
+                expected: "REC: journal"
+              payable_account_id:
+                type: "m2o"
+                expected: "REC: payable_account"
+          # Clearing a many2one in `action: form` needs an empty
+          # recordset, not `false` -- the Form API rejects a raw
+          # boolean assignment on a Many2one field.
+          - set: {type_id: "EVAL: env['employee_business_trip_type']"}
+          - assert:
+              journal_id:
+                type: "value"
+                operator: "is_falsy"
+              payable_account_id:
+                type: "value"
+                operator: "is_falsy"
