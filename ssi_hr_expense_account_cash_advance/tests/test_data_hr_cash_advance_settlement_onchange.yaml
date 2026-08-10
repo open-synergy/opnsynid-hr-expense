@@ -170,6 +170,7 @@ scenarios:
         values:
           name: "Settlement Onchange EA CA Type"
           code: "SEAOTYPE"
+          cash_advance_settlement_journal_id: "REC: settlement_journal.id"
           product_ids:
             - - 0
               - 0
