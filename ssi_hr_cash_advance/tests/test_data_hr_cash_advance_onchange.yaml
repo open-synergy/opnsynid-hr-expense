@@ -128,7 +128,11 @@ scenarios:
               pricelist_id:
                 type: "value"
                 operator: "is_falsy"
-          - set: {type_id: false}
+          # `action: form` requires many2one values to be records, and the
+          # Form API itself rejects a bare `False` for a many2one (it only
+          # accepts a recordset). An empty recordset of the right model
+          # clears the field the same way the UI would.
+          - set: {type_id: "EVAL: env['hr.expense_type']"}
           - assert:
               journal_id:
                 type: "value"
