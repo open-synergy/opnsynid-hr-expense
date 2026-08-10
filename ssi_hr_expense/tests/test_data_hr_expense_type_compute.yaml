@@ -1,0 +1,112 @@
+options:
+  auto_refresh: true
+
+scenarios:
+  - name: "hr.expense_type - allowed product/category compute"
+    steps:
+      - step: "Get a demo product"
+        action: "ref"
+        xml_id: "ssi_hr_expense.demo_product2_1"
+        save_as: "product"
+
+      - step: "Get a demo product category"
+        action: "ref"
+        xml_id: "ssi_hr_expense.demo_product_categ2"
+        save_as: "categ"
+
+      - step: "Create a fresh expense type (no lines yet)"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Test Compute Expense Type"
+          code: "TSTCMP01"
+
+      - step: "Negative: no lines yet, allowed product is empty"
+        action: "assert"
+        target: "expense_type"
+        refresh: true
+        asserts:
+          allowed_product_ids:
+            type: "m2m"
+            check: "count"
+            expected_count: 0
+
+      - step: "Negative: no lines yet, allowed category is empty"
+        action: "assert"
+        target: "expense_type"
+        refresh: true
+        asserts:
+          allowed_product_category_ids:
+            type: "m2m"
+            check: "count"
+            expected_count: 0
+
+      - step: "Add a product line to the expense type"
+        action: "create"
+        model: "hr.expense_type_product"
+        save_as: "product_line"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: expense_type.id"
+          product_id: "REC: product.id"
+
+      - step: "Add a product category line to the expense type"
+        action: "create"
+        model: "hr.expense_type_product_category"
+        save_as: "categ_line"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: expense_type.id"
+          categ_id: "REC: categ.id"
+
+      - step: "Positive: allowed product now contains the linked product"
+        action: "assert"
+        target: "expense_type"
+        refresh: true
+        asserts:
+          allowed_product_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: product"
+
+      - step: "Positive: allowed category now contains the linked category"
+        action: "assert"
+        target: "expense_type"
+        refresh: true
+        asserts:
+          allowed_product_category_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: categ"
+
+      - step: "Remove the product line"
+        action: "unlink"
+        target: "product_line"
+
+      - step: "Remove the product category line"
+        action: "unlink"
+        target: "categ_line"
+
+      - step: "Negative: allowed product is empty again, not stale"
+        action: "assert"
+        target: "expense_type"
+        refresh: true
+        asserts:
+          allowed_product_ids:
+            type: "m2m"
+            check: "count"
+            expected_count: 0
+
+      - step: "Negative: allowed category is empty again, not stale"
+        action: "assert"
+        target: "expense_type"
+        refresh: true
+        asserts:
+          allowed_product_category_ids:
+            type: "m2m"
+            check: "count"
+            expected_count: 0
