@@ -3,5 +3,8 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from . import test_hr_cash_advance
+from . import test_hr_cash_advance_line
+from . import test_hr_cash_advance_settlement
+from . import test_hr_cash_advance_settlement_line
 from . import test_ui_hr_cash_advance
 from . import test_ui_hr_cash_advance_settlement
