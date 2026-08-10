@@ -225,7 +225,9 @@ scenarios:
             type: "value"
             expected: "REC: ou.code"
 
-  - name: "Selecting a cash advance on a draft settlement fills in its operating unit"
+  - name:
+      "onchange_operating_unit_id fills the settlement's operating unit from the linked
+      cash advance, and resets it once the cash advance is cleared"
     steps:
       - step: "Get admin user"
         action: "ref"
@@ -245,17 +247,25 @@ scenarios:
             - - 4
               - "REC: ou_group.id"
 
-      - step: "Open a new settlement form and select the open cash advance"
-        action: "form"
+      - step:
+          "Open a new settlement form and select the open cash advance --
+          onchange_operating_unit_id copies its operating unit"
+        action: form
         model: "hr.cash_advance_settlement"
+        save_as: "settlement_onchange"
         as_user: "base.user_admin"
         save: false
-        values:
-          cash_advance_id: "REC: cash_advance"
-        asserts:
-          operating_unit_id:
-            type: "m2o"
-            expected: "REC: ou"
+        ops:
+          - set: {cash_advance_id: "REC: cash_advance"}
+          - assert:
+              operating_unit_id:
+                type: "m2o"
+                expected: "REC: ou"
+          - set: {cash_advance_id: "EVAL: env['hr.cash_advance']"}
+          - assert:
+              operating_unit_id:
+                type: "value"
+                operator: "is_falsy"
 
   - name:
       "Cash advance opened without an operating unit posts normally, with no operating
