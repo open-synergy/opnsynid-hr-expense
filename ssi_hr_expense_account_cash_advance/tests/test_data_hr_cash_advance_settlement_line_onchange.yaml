@@ -1,0 +1,153 @@
+options:
+  auto_refresh: true
+
+scenarios:
+  - name:
+      "onchange_require_expense_account flags only the products configured on the
+      expense type"
+    steps:
+      - step: "Create the product flagged as requiring an expense account"
+        action: "create"
+        model: "product.product"
+        save_as: "product_required"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Line Onchange EA Required Product"
+          type: "consu"
+
+      - step: "Create an ordinary product NOT flagged on the expense type"
+        action: "create"
+        model: "product.product"
+        save_as: "product_other"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Line Onchange EA Other Product"
+          type: "consu"
+
+      - step:
+          "Create expense type flagging only the first product as requiring an expense
+          account"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "hr_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Line Onchange EA Type"
+          code: "SLOEATYPE"
+          product_ids:
+            - - 0
+              - 0
+              - product_id: "REC: product_required.id"
+                require_expense_account: true
+
+      - step: "Get payable account type (system data)"
+        action: "ref"
+        xml_id: "account.data_account_type_payable"
+        save_as: "account_type_payable"
+
+      - step: "Create cash advance account"
+        action: "create"
+        model: "account.account"
+        save_as: "cash_advance_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Line Onchange EA CA Advance Account"
+          code: "SLOEACA1"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create payable account"
+        action: "create"
+        model: "account.account"
+        save_as: "payable_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Line Onchange EA CA Payable Account"
+          code: "SLOEAPAY1"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create cash advance journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "ca_journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Line Onchange EA CA Journal"
+          code: "SLOEAJ1"
+          type: "general"
+
+      - step: "Create settlement journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "settlement_journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Line Onchange EA Journal"
+          code: "SLOEAJ2"
+          type: "general"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Line Onchange EA Employee"
+
+      - step: "Create the underlying (draft) cash advance"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: hr_type.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: cash_advance_account.id"
+          payable_account_id: "REC: payable_account.id"
+          date: 2026-06-01
+          date_due: 2026-07-01
+
+      - step: "Create the header settlement the line will belong to"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "header"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: hr_type.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REC: settlement_journal.id"
+          date: 2026-06-10
+
+      - step:
+          "Set product_id to the flagged product, then to an unflagged one, then clear
+          it -- check require_expense_account each time"
+        action: form
+        model: "hr.cash_advance_settlement_line"
+        save: false
+        as_user: "base.user_admin"
+        ops:
+          - set: {cash_advance_settlement_id: "REC: header"}
+          - set: {product_id: "REC: product_required"}
+          - assert:
+              require_expense_account:
+                type: "value"
+                expected: true
+          - set: {product_id: "REC: product_other"}
+          - assert:
+              require_expense_account:
+                type: "value"
+                operator: "is_falsy"
+          # `action: form` requires many2one values to be records, and the
+          # Form API itself rejects a bare `False` for a many2one (it only
+          # accepts a recordset). An empty recordset of the right model
+          # clears the field the same way the UI would.
+          - set: {product_id: "EVAL: env['product.product']"}
+          - assert:
+              require_expense_account:
+                type: "value"
+                operator: "is_falsy"

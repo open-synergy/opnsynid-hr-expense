@@ -1,0 +1,250 @@
+options:
+  auto_refresh: true
+
+scenarios:
+  - name:
+      "onchange_expense_account fills the line's expense account from a matching open
+      account, and resets it once the line's account no longer matches"
+    steps:
+      - step: "Get payable account type (system data)"
+        action: "ref"
+        xml_id: "account.data_account_type_payable"
+        save_as: "account_type_payable"
+
+      - step: "Create the line's expense account (allowed by the expense account type)"
+        action: "create"
+        model: "account.account"
+        save_as: "line_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Onchange EA Line Account"
+          code: "SEAOLN1"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create a second account NOT allowed by the expense account type"
+        action: "create"
+        model: "account.account"
+        save_as: "other_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Onchange EA Other Account"
+          code: "SEAOLN2"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create expense account type allowing only the line account"
+        action: "create"
+        model: "employee_expense_account_type"
+        save_as: "ea_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Onchange EA Type"
+          code: "/"
+          account_ids:
+            - - 6
+              - 0
+              - - "REC: line_account.id"
+
+      - step: "Create currency for the expense account"
+        action: "create"
+        model: "res.currency"
+        save_as: "ea_currency"
+        as_user: "base.user_admin"
+        values:
+          name: "SEA"
+          symbol: "S$"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Onchange EA Employee"
+
+      - step: "Create the employee expense account covering the settlement date"
+        action: "create"
+        model: "employee_expense_account"
+        save_as: "expense_account"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: ea_type.id"
+          currency_id: "REC: ea_currency.id"
+          employee_id: "REC: employee.id"
+          date_start: 2026-01-01
+          date_end: 2026-12-31
+          amount_limit: 1000.0
+
+      - step: "Confirm the expense account"
+        action: "call"
+        target: "expense_account"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read before approving (T-04)"
+        action: "assert"
+        target: "expense_account"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the expense account (auto-transitions to open)"
+        action: "call"
+        target: "expense_account"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create cash advance account"
+        action: "create"
+        model: "account.account"
+        save_as: "cash_advance_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Onchange EA CA Advance Account"
+          code: "SEAOCA1"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create payable account"
+        action: "create"
+        model: "account.account"
+        save_as: "payable_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Onchange EA CA Payable Account"
+          code: "SEAOPAY1"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create cash advance journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "ca_journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Onchange EA CA Journal"
+          code: "SEAOJ1"
+          type: "general"
+
+      - step: "Create settlement journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "settlement_journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Onchange EA Journal"
+          code: "SEAOJ2"
+          type: "general"
+
+      - step: "Create a product for the settlement line"
+        action: "create"
+        model: "product.product"
+        save_as: "product"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Onchange EA Product"
+          type: "consu"
+
+      - step:
+          "Create expense type for the cash advance/settlement, flagging the product as
+          requiring an expense account"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "hr_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Onchange EA CA Type"
+          code: "SEAOTYPE"
+          cash_advance_settlement_journal_id: "REC: settlement_journal.id"
+          product_ids:
+            - - 0
+              - 0
+              - product_id: "REC: product.id"
+                require_expense_account: true
+
+      - step: "Create the underlying (draft) cash advance"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: hr_type.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: cash_advance_account.id"
+          payable_account_id: "REC: payable_account.id"
+          date: 2026-06-01
+          date_due: 2026-07-01
+
+      - step:
+          "Fill header, add a line whose product is flagged as requiring an expense
+          account -- onchange_require_expense_account sets require_expense_account,
+          which onchange_expense_account then reads"
+        action: form
+        model: "hr.cash_advance_settlement"
+        save_as: "header"
+        as_user: "base.user_admin"
+        ops:
+          - set: {employee_id: "REC: employee"}
+          - set: {cash_advance_id: "REC: cash_advance"}
+          - set: {date: 2026-06-15}
+          - set: {type_id: "REC: hr_type"}
+          - new:
+              field: "line_ids"
+              values:
+                product_id: "REC: product"
+                name: "Settlement Onchange EA Line"
+                uom_id: "REC: product.uom_id"
+                uom_quantity: 1
+                price_unit: 50.0
+                account_id: "REC: line_account"
+        save: true
+
+      - step:
+          "Assert onchange filled the line's expense account from the matching open
+          account"
+        action: "assert"
+        target: "header"
+        refresh: true
+        asserts:
+          line_ids.expense_account_id:
+            type: "m2o"
+            expected: "REC: expense_account"
+
+      - step: "Edit the line's account to one the expense account type doesn't allow"
+        action: form
+        target: "header"
+        as_user: "base.user_admin"
+        ops:
+          - edit:
+              field: "line_ids"
+              index: 0
+              values:
+                account_id: "REC: other_account"
+        save: true
+
+      - step:
+          "Assert onchange reset the expense account once the line account no longer
+          matches"
+        action: "assert"
+        target: "header"
+        refresh: true
+        asserts:
+          line_ids.expense_account_id:
+            type: "value"
+            operator: "is_falsy"
