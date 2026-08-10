@@ -254,7 +254,7 @@ scenarios:
         model: "hr.cash_advance_settlement"
         save_as: "settlement_onchange"
         as_user: "base.user_admin"
-        save: false
+        save: true
         ops:
           - set: {cash_advance_id: "REC: cash_advance"}
           - assert:
