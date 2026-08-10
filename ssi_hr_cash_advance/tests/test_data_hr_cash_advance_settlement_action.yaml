@@ -1,0 +1,523 @@
+options:
+  auto_refresh: true
+
+scenarios:
+  - name: "Action Done -- confirm then action_done reconciles against the cash advance"
+    steps:
+      - step: "Get payable account type (system data)"
+        action: "ref"
+        xml_id: "account.data_account_type_payable"
+        save_as: "account_type_payable"
+
+      - step: "Create cash advance account"
+        action: "create"
+        model: "account.account"
+        save_as: "cash_advance_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Done CA Advance Account"
+          code: "STAD1ADV"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create payable account"
+        action: "create"
+        model: "account.account"
+        save_as: "payable_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Done CA Payable Account"
+          code: "STAD1PAY"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create the settlement line's expense account"
+        action: "create"
+        model: "account.account"
+        save_as: "line_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Done Line Account"
+          code: "STAD1LN"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create cash advance journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "ca_journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Done CA Journal"
+          code: "SADJ1"
+          type: "general"
+
+      - step: "Create settlement journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "settlement_journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Done Journal"
+          code: "SADJ2"
+          type: "general"
+
+      - step: "Create expense type"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Done Type"
+          code: "STAD1TYPE"
+
+      - step: "Create a product for the settlement line"
+        action: "create"
+        model: "product.product"
+        save_as: "product"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Done Product"
+          type: "consu"
+
+      - step: "Create home address partner for the employee"
+        action: "create"
+        model: "res.partner"
+        save_as: "employee_partner"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Done Employee Address"
+          is_company: false
+
+      - step: "Create employee with a home address (required to post either entry)"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Done Employee"
+          address_home_id: "REC: employee_partner.id"
+
+      - step:
+          "Create the cash advance to be settled, with a line matching the settlement's
+          own line total (100.0) -- reconcile() only fully reconciles the pair when both
+          move lines' amounts net to zero"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: cash_advance_account.id"
+          payable_account_id: "REC: payable_account.id"
+          date: 2026-02-01
+          date_due: 2026-03-01
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Settlement Action Done Source Line"
+                account_id: "REC: line_account.id"
+                price_unit: 100.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+
+      - step: "Confirm the cash advance"
+        action: "call"
+        target: "cash_advance"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read before opening (T-04)"
+        action: "assert"
+        target: "cash_advance"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Open the cash advance (posts its own accounting entry)"
+        action: "call"
+        target: "cash_advance"
+        method: "action_open"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create the draft settlement with one detail line"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REC: settlement_journal.id"
+          date: 2026-02-20
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-20
+                product_id: "REC: product.id"
+                name: "Settlement Action Done Line"
+                account_id: "REC: line_account.id"
+                price_unit: 100.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+
+      - step: "Assert created in draft"
+        action: "assert"
+        target: "settlement"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+
+      - step: "Confirm the settlement (prerequisite for Done)"
+        action: "call"
+        target: "settlement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read before calling action_done directly (T-04)"
+        action: "assert"
+        target: "settlement"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step:
+          "Call action_done: transitions to Done, posts and reconciles the settlement
+          entry"
+        action: "call"
+        target: "settlement"
+        method: "action_done"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Assert the settlement's accounting entry is linked and reconciled"
+        action: "assert"
+        target: "settlement"
+        refresh: true
+        asserts:
+          move_id:
+            type: "value"
+            operator: "is_truthy"
+          cash_advance_move_line_id:
+            type: "value"
+            operator: "is_truthy"
+          cash_advance_move_line_id.reconciled:
+            type: "value"
+            expected: true
+
+  - name:
+      "Action Cancel -- draft settlement cancelled through the select-reason wizard
+      (exercises action_cancel)"
+    steps:
+      - step: "Create expense type"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type_cancel"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Cancel Type"
+          code: "STCN1TYPE"
+
+      - step: "Get payable account type (system data)"
+        action: "ref"
+        xml_id: "account.data_account_type_payable"
+        save_as: "account_type_payable_cancel"
+
+      - step: "Create cash advance account"
+        action: "create"
+        model: "account.account"
+        save_as: "cash_advance_account_cancel"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Cancel CA Advance Account"
+          code: "STCN1ADV"
+          user_type_id: "REC: account_type_payable_cancel.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create payable account"
+        action: "create"
+        model: "account.account"
+        save_as: "payable_account_cancel"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Cancel CA Payable Account"
+          code: "STCN1PAY"
+          user_type_id: "REC: account_type_payable_cancel.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create journals"
+        action: "create"
+        model: "account.journal"
+        save_as: "ca_journal_cancel"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Cancel CA Journal"
+          code: "SCNJ1"
+          type: "general"
+
+      - step: "Create settlement journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "settlement_journal_cancel"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Cancel Journal"
+          code: "SCNJ2"
+          type: "general"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_cancel"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Cancel Employee"
+
+      - step: "Create the (draft) cash advance to reference"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance_cancel"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_cancel.id"
+          type_id: "REC: expense_type_cancel.id"
+          journal_id: "REC: ca_journal_cancel.id"
+          cash_advance_account_id: "REC: cash_advance_account_cancel.id"
+          payable_account_id: "REC: payable_account_cancel.id"
+          date: 2026-02-01
+          date_due: 2026-03-01
+
+      - step:
+          "Create draft settlement (no move yet, so cancel needs no accounting cleanup)"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement_cancel"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_cancel.id"
+          type_id: "REC: expense_type_cancel.id"
+          cash_advance_id: "REC: cash_advance_cancel.id"
+          journal_id: "REC: settlement_journal_cancel.id"
+          date: 2026-02-05
+
+      - step: "Create a global cancel reason"
+        action: "create"
+        model: "base.cancel_reason"
+        save_as: "cancel_reason"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Cancel Reason"
+          code: "STCN1REASON"
+          global_use: true
+
+      - step: "Cancel via select-reason wizard (exercises action_cancel)"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "settlement_cancel"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: cancel_reason"
+        method: "action_confirm"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+  - name:
+      "Action Reload Cash Advance -- rebuilds detail lines from the linked cash advance"
+    steps:
+      - step: "Create expense type"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type_reload"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Reload Type"
+          code: "STRL1TYPE"
+
+      - step: "Get payable account type (system data)"
+        action: "ref"
+        xml_id: "account.data_account_type_payable"
+        save_as: "account_type_payable_reload"
+
+      - step: "Create cash advance account"
+        action: "create"
+        model: "account.account"
+        save_as: "cash_advance_account_reload"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Reload CA Advance Account"
+          code: "STRL1ADV"
+          user_type_id: "REC: account_type_payable_reload.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create payable account"
+        action: "create"
+        model: "account.account"
+        save_as: "payable_account_reload"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Reload CA Payable Account"
+          code: "STRL1PAY"
+          user_type_id: "REC: account_type_payable_reload.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create the cash advance detail lines' account"
+        action: "create"
+        model: "account.account"
+        save_as: "line_account_reload"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Reload Line Account"
+          code: "STRL1LN"
+          user_type_id: "REC: account_type_payable_reload.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create journals"
+        action: "create"
+        model: "account.journal"
+        save_as: "ca_journal_reload"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Reload CA Journal"
+          code: "SRLJ1"
+          type: "general"
+
+      - step: "Create settlement journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "settlement_journal_reload"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Reload Journal"
+          code: "SRLJ2"
+          type: "general"
+
+      - step: "Create two products for the cash advance's two lines"
+        action: "create"
+        model: "product.product"
+        save_as: "product_1"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Reload Product 1"
+          type: "consu"
+
+      - step: "Create second product"
+        action: "create"
+        model: "product.product"
+        save_as: "product_2"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Reload Product 2"
+          type: "consu"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_reload"
+        as_user: "base.user_admin"
+        values:
+          name: "Settlement Action Reload Employee"
+
+      - step: "Create the cash advance with two detail lines"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance_reload"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_reload.id"
+          type_id: "REC: expense_type_reload.id"
+          journal_id: "REC: ca_journal_reload.id"
+          cash_advance_account_id: "REC: cash_advance_account_reload.id"
+          payable_account_id: "REC: payable_account_reload.id"
+          date: 2026-02-01
+          date_due: 2026-03-01
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product_1.id"
+                name: "Reload Source Line 1"
+                account_id: "REC: line_account_reload.id"
+                price_unit: 50.0
+                uom_quantity: 1.0
+                uom_id: "REC: product_1.uom_id.id"
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product_2.id"
+                name: "Reload Source Line 2"
+                account_id: "REC: line_account_reload.id"
+                price_unit: 75.0
+                uom_quantity: 1.0
+                uom_id: "REC: product_2.uom_id.id"
+
+      - step: "Create the draft settlement referencing it, with no lines of its own"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement_reload"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_reload.id"
+          type_id: "REC: expense_type_reload.id"
+          cash_advance_id: "REC: cash_advance_reload.id"
+          journal_id: "REC: settlement_journal_reload.id"
+          date: 2026-02-05
+
+      - step: "Assert the settlement starts with no lines"
+        action: "assert"
+        target: "settlement_reload"
+        asserts:
+          line_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 0
+
+      - step: "Call action_reload_cash_advance"
+        action: "call"
+        target: "settlement_reload"
+        method: "action_reload_cash_advance"
+        as_user: "base.user_admin"
+
+      - step: "Assert the settlement now carries a copy of the cash advance's two lines"
+        action: "assert"
+        target: "settlement_reload"
+        refresh: true
+        asserts:
+          line_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 2
