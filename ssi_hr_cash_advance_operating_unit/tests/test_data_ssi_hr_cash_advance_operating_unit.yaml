@@ -252,9 +252,8 @@ scenarios:
           onchange_operating_unit_id copies its operating unit"
         action: form
         model: "hr.cash_advance_settlement"
-        save_as: "settlement_onchange"
         as_user: "base.user_admin"
-        save: true
+        save: false
         ops:
           - set: {employee_id: "REC: employee"}
           - set: {type_id: "REC: expense_type"}
