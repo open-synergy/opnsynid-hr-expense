@@ -39,7 +39,7 @@ addon | version | maintainers | summary
 [ssi_hr_expense_account](ssi_hr_expense_account/) | 14.0.1.5.2 |  | Employee Expense Account
 [ssi_hr_expense_account_cash_advance](ssi_hr_expense_account_cash_advance/) | 14.0.1.3.2 |  | Employee Expense Account - Cash Advance Integration
 [ssi_hr_expense_account_documenso_signing](ssi_hr_expense_account_documenso_signing/) | 14.0.1.0.0 |  | HR Expense Account - Documenso Signing Integration
-[ssi_hr_expense_account_reimbursement](ssi_hr_expense_account_reimbursement/) | 14.0.1.4.1 |  | Employee Expense Account - Reimbursement Integration
+[ssi_hr_expense_account_reimbursement](ssi_hr_expense_account_reimbursement/) | 14.0.1.4.2 |  | Employee Expense Account - Reimbursement Integration
 [ssi_hr_expense_account_work_log](ssi_hr_expense_account_work_log/) | 14.0.1.1.0 |  | Employee Expense Account - Work Log Integration
 [ssi_hr_reimbursement](ssi_hr_reimbursement/) | 14.0.3.2.2 |  | Employee Reimbursement
 [ssi_hr_reimbursement_documenso_signing](ssi_hr_reimbursement_documenso_signing/) | 14.0.1.0.1 |  | HR Reimbursement - Documenso Signing Integration
