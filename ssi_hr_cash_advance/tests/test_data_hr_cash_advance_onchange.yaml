@@ -67,10 +67,14 @@ scenarios:
           default_product_usage_id: "REC: usage_type.id"
 
       - step: "Create an analytic account to prove the line reset"
+        # No `as_user:` here (unlike the other fixtures in this scenario):
+        # creating account.analytic.account requires the
+        # analytic.group_analytic_accounting group, which base.user_admin
+        # does not carry by default. Omitting `as_user:` runs this step
+        # in the transaction's own (superuser) environment instead.
         action: "create"
         model: "account.analytic.account"
         save_as: "analytic_account"
-        as_user: "base.user_admin"
         values:
           name: "Onchange CA Analytic Account"
 
