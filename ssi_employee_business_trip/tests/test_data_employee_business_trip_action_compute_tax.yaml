@@ -1,0 +1,267 @@
+setup:
+  steps:
+    - step: "Get payable account type"
+      action: "ref"
+      xml_id: "account.data_account_type_payable"
+      save_as: "payable_acc_type"
+
+    - step: "Get expense account type"
+      action: "ref"
+      xml_id: "account.data_account_type_expenses"
+      save_as: "expense_acc_type"
+
+    # `setup:` replays before every scenario in the same transaction (no
+    # rollback in between), so a fixed `code`/`name` would collide with
+    # the previous scenario's record on the 2nd+ replay. Generate a
+    # fresh, never-colliding value on each replay.
+    - step: "Create payable account"
+      action: "create"
+      model: "account.account"
+      save_as: "payable_account"
+      values:
+        code: "EVAL: 'EBTCTP%d' % env['account.account'].search_count([])"
+        name: "Test Compute Tax Payable"
+        user_type_id: "REC: payable_acc_type.id"
+        reconcile: true
+
+    - step: "Create per diem expense account"
+      action: "create"
+      model: "account.account"
+      save_as: "per_diem_account"
+      values:
+        code: "EVAL: 'EBTCTE%d' % env['account.account'].search_count([])"
+        name: "Test Compute Tax Per Diem Expense"
+        user_type_id: "REC: expense_acc_type.id"
+
+    - step: "Create tax account"
+      action: "create"
+      model: "account.account"
+      save_as: "tax_account"
+      values:
+        code: "EVAL: 'EBTCTT%d' % env['account.account'].search_count([])"
+        name: "Test Compute Tax VAT Account"
+        user_type_id: "REC: expense_acc_type.id"
+
+    - step: "Create journal"
+      action: "create"
+      model: "account.journal"
+      save_as: "journal"
+      values:
+        name:
+          "EVAL: 'Test Compute Tax Journal %d' % env['account.journal'].search_count([])"
+        code: "EVAL: 'CTJ%d' % env['account.journal'].search_count([])"
+        type: "general"
+
+    - step: "Create business trip type"
+      action: "create"
+      model: "employee_business_trip_type"
+      save_as: "trip_type"
+      values:
+        name: "Test Compute Tax Type"
+        code: "/"
+        journal_id: "REC: journal.id"
+        payable_account_id: "REC: payable_account.id"
+
+    - step: "Create per diem product"
+      action: "create"
+      model: "product.product"
+      save_as: "product"
+      values:
+        name:
+          "EVAL: 'Test Compute Tax Product %d' % env['product.product'].search_count([])"
+
+    # `account_id` on the tax's own "tax" repartition line is what ends
+    # up populating `employee_business_trip.tax.account_id`
+    # (required=True) when `action_compute_tax` calls
+    # `_recompute_standard_tax()` -- without it, `compute_all()` returns
+    # no account and the auto-created tax row violates the NOT NULL
+    # constraint.
+    - step: "Create a 10% purchase tax"
+      action: "create"
+      model: "account.tax"
+      save_as: "tax10"
+      values:
+        name:
+          "EVAL: 'Test Compute Tax VAT 10pct %d' % env['account.tax'].search_count([])"
+        amount_type: "percent"
+        amount: 10.0
+        type_tax_use: "purchase"
+        invoice_repartition_line_ids:
+          - - 0
+            - 0
+            - factor_percent: 100
+              repartition_type: "base"
+          - - 0
+            - 0
+            - factor_percent: 100
+              repartition_type: "tax"
+              account_id: "REC: tax_account.id"
+        refund_repartition_line_ids:
+          - - 0
+            - 0
+            - factor_percent: 100
+              repartition_type: "base"
+          - - 0
+            - 0
+            - factor_percent: 100
+              repartition_type: "tax"
+              account_id: "REC: tax_account.id"
+
+    - step: "Get Indonesia country"
+      action: "ref"
+      xml_id: "base.id"
+      save_as: "indonesia"
+
+    - step: "Create origin city"
+      action: "create"
+      model: "res.city"
+      save_as: "origin_city"
+      values:
+        name: "EVAL: 'Test Compute Tax Origin %d' % env['res.city'].search_count([])"
+        country_id: "REC: indonesia.id"
+
+    - step: "Create destination city"
+      action: "create"
+      model: "res.city"
+      save_as: "destination_city"
+      values:
+        name:
+          "EVAL: 'Test Compute Tax Destination %d' % env['res.city'].search_count([])"
+        country_id: "REC: indonesia.id"
+
+    - step: "Create pricelist"
+      action: "create"
+      model: "product.pricelist"
+      save_as: "pricelist"
+      values:
+        name:
+          "EVAL: 'Test Compute Tax Pricelist %d' %
+          env['product.pricelist'].search_count([])"
+
+    - step: "Create employee home address partner"
+      action: "create"
+      model: "res.partner"
+      save_as: "employee_partner"
+      as_user: "base.user_admin"
+      values:
+        name:
+          "EVAL: 'Test Compute Tax Employee Address %d' %
+          env['res.partner'].search_count([])"
+        is_company: false
+
+    - step: "Create employee"
+      action: "create"
+      model: "hr.employee"
+      save_as: "employee"
+      as_user: "base.user_admin"
+      values:
+        name:
+          "EVAL: 'Test Compute Tax Employee %d' % env['hr.employee'].search_count([])"
+        address_home_id: "REC: employee_partner.id"
+
+scenarios:
+  - name: "Compute Tax recalculates trip tax lines from Per Diem taxes"
+    options: {auto_refresh: true}
+    steps:
+      - step: "Create business trip"
+        action: "create"
+        model: "employee_business_trip"
+        save_as: "trip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: trip_type.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          date_start: 2026-01-16
+          date_end: 2026-01-18
+          origin_id: "REC: origin_city.id"
+          destination_id: "REC: destination_city.id"
+          currency_id: "EVAL: env.company.currency_id.id"
+          pricelist_id: "REC: pricelist.id"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+
+      - step: "Create a taxed Per Diem line"
+        action: "create"
+        model: "employee_business_trip.per_diem"
+        save_as: "per_diem"
+        as_user: "base.user_admin"
+        values:
+          employee_business_trip_id: "REC: trip.id"
+          name: "Test Compute Tax Per Diem Line"
+          product_id: "REC: product.id"
+          account_id: "REC: per_diem_account.id"
+          uom_quantity: 1
+          price_unit: 1000000.0
+          tax_ids:
+            - - 6
+              - 0
+              - - "REC: tax10.id"
+
+      - step: "No tax line exists before Compute Tax is called"
+        action: "assert"
+        target: "trip"
+        asserts:
+          tax_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 0
+
+      - step: "Call action_compute_tax"
+        action: "call"
+        target: "trip"
+        method: "action_compute_tax"
+        as_user: "base.user_admin"
+
+      - step: "One tax line is created from the Per Diem tax"
+        action: "assert"
+        target: "trip"
+        asserts:
+          tax_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+          amount_tax:
+            type: "value"
+            expected: 100000.0
+          amount_total:
+            type: "value"
+            expected: 1100000.0
+
+      - step: "Get the computed tax line"
+        action: "search"
+        model: "employee_business_trip.tax"
+        domain:
+          - ["employee_business_trip_id", "=", "REC: trip.id"]
+        save_as: "tax_line"
+        expect_count: 1
+
+      - step: "The computed tax line matches the Per Diem tax"
+        action: "assert"
+        target: "tax_line"
+        asserts:
+          tax_id:
+            type: "m2o"
+            expected: "REC: tax10"
+          base_amount:
+            type: "value"
+            expected: 1000000.0
+          tax_amount:
+            type: "value"
+            expected: 100000.0
+
+      - step: "Calling action_compute_tax again does not duplicate lines"
+        action: "call"
+        target: "trip"
+        method: "action_compute_tax"
+        as_user: "base.user_admin"
+
+      - step: "Tax line count stays at one after recompute"
+        action: "assert"
+        target: "trip"
+        asserts:
+          tax_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
