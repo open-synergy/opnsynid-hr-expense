@@ -1,0 +1,118 @@
+options:
+  auto_refresh: true
+
+scenarios:
+  - name:
+      "onchange_require_expense_account flags only the products configured on the
+      expense type"
+    steps:
+      - step: "Create the product flagged as requiring an expense account"
+        action: "create"
+        model: "product.product"
+        save_as: "product_required"
+        as_user: "base.user_admin"
+        values:
+          name: "Reimb Line Onchange EA Required Product"
+          type: "consu"
+
+      - step: "Create an ordinary product NOT flagged on the expense type"
+        action: "create"
+        model: "product.product"
+        save_as: "product_other"
+        as_user: "base.user_admin"
+        values:
+          name: "Reimb Line Onchange EA Other Product"
+          type: "consu"
+
+      - step:
+          "Create expense type flagging only the first product as requiring an expense
+          account"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "hr_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Reimb Line Onchange EA Type"
+          code: "RBLOEATYPE"
+          product_ids:
+            - - 0
+              - 0
+              - product_id: "REC: product_required.id"
+                require_expense_account: true
+
+      - step: "Get payable account type (system data)"
+        action: "ref"
+        xml_id: "account.data_account_type_payable"
+        save_as: "account_type_payable"
+
+      - step: "Create reimbursement account"
+        action: "create"
+        model: "account.account"
+        save_as: "reimb_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Reimb Line Onchange EA Reimb Account"
+          code: "RBLOEARB1"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create reimbursement journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "reimb_journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Reimb Line Onchange EA Journal"
+          code: "RBLOEAJ1"
+          type: "general"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Reimb Line Onchange EA Employee"
+
+      - step: "Create the header reimbursement the line will belong to"
+        action: "create"
+        model: "hr.reimbursement"
+        save_as: "header"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: hr_type.id"
+          journal_id: "REC: reimb_journal.id"
+          account_id: "REC: reimb_account.id"
+          date: 2026-06-10
+          date_due: 2026-07-10
+
+      - step:
+          "Set product_id to the flagged product, then to an unflagged one, then clear
+          it -- check require_expense_account each time"
+        action: form
+        model: "hr.reimbursement_line"
+        save: false
+        as_user: "base.user_admin"
+        ops:
+          - set: {reimbursement_id: "REC: header"}
+          - set: {product_id: "REC: product_required"}
+          - assert:
+              require_expense_account:
+                type: "value"
+                expected: true
+          - set: {product_id: "REC: product_other"}
+          - assert:
+              require_expense_account:
+                type: "value"
+                operator: "is_falsy"
+          # `action: form` requires many2one values to be records, and the
+          # Form API itself rejects a bare `False` for a many2one (it only
+          # accepts a recordset). An empty recordset of the right model
+          # clears the field the same way the UI would.
+          - set: {product_id: "EVAL: env['product.product']"}
+          - assert:
+              require_expense_account:
+                type: "value"
+                operator: "is_falsy"
