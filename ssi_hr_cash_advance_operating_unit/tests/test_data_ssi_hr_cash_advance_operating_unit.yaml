@@ -256,6 +256,10 @@ scenarios:
         as_user: "base.user_admin"
         save: true
         ops:
+          - set: {employee_id: "REC: employee"}
+          - set: {type_id: "REC: expense_type"}
+          - set: {journal_id: "REC: settlement_journal"}
+          - set: {date: 2026-02-01}
           - set: {cash_advance_id: "REC: cash_advance"}
           - assert:
               operating_unit_id:
