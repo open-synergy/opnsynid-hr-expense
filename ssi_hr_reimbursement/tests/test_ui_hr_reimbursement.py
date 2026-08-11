@@ -11,8 +11,13 @@ class TestUiHrReimbursement(HttpSavepointCase):
 
     Covers the base create/confirm/approve/cancel flow
     (``docs/hr_reimbursement/01-create.md``, ``04-confirm.md``,
-    ``05-approve.md``, ``10-cancel.md``). All master data is built from
-    scratch in ``setUpClass`` -- no demo data is relied upon.
+    ``05-approve.md``, ``10-cancel.md``) plus the edit/delete/reject/
+    start/finish/restart/reset-number flows added by issue
+    open-synergy/opnsynid-hr-expense#193
+    (``02-edit.md``, ``03-delete.md``, ``06-reject.md``,
+    ``07-start.md``, ``09-finish.md``, ``12-restart.md``,
+    ``13-reset-number.md``). All master data is built from scratch in
+    ``setUpClass`` -- no demo data is relied upon.
     """
 
     @classmethod
@@ -24,7 +29,7 @@ class TestUiHrReimbursement(HttpSavepointCase):
         ``security/res_group_data.xml``, repeated here so the tour does
         not depend on that implication chain), then builds the
         accounting, product, and expense-type master data shared by all
-        four tours, and one ``hr.reimbursement`` record per tour with a
+        tours, and one ``hr.reimbursement`` record per tour with a
         unique employee name used as the list-row marker (Keputusan
         Desain, issue open-synergy/opnsynid-hr-expense#130).
         """
@@ -164,6 +169,118 @@ class TestUiHrReimbursement(HttpSavepointCase):
             employee_cancel, bank_cancel
         )
 
+        # Fixture for the edit tour -- Pre-Condition: Draft status.
+        employee_edit, bank_edit = cls._create_employee_with_bank(
+            "Tour Reimbursement Edit Employee", "TOURRMBEDITBANK"
+        )
+        cls.reimbursement_edit = cls._create_reimbursement(employee_edit, bank_edit)
+
+        # Fixture for the delete tour -- Pre-Condition: Draft status,
+        # document number still "/".
+        employee_delete, bank_delete = cls._create_employee_with_bank(
+            "Tour Reimbursement Delete Employee", "TOURRMBDELETEBANK"
+        )
+        cls.reimbursement_delete = cls._create_reimbursement(
+            employee_delete, bank_delete
+        )
+
+        # Fixture for the reject tour -- Pre-Condition: Waiting for
+        # Approval status, reached in Python via ``action_confirm()``,
+        # not by clicking through the UI -- the reject tour itself
+        # clicks Reject.
+        employee_reject, bank_reject = cls._create_employee_with_bank(
+            "Tour Reimbursement Reject Employee", "TOURRMBREJECTBANK"
+        )
+        cls.reimbursement_reject = cls._create_reimbursement(
+            employee_reject, bank_reject
+        )
+        cls.reimbursement_reject.action_confirm()
+
+        # Fixture for the restart tour -- Pre-Condition: Cancelled or
+        # Rejected status; Rejected is used, reached in Python via
+        # ``action_confirm()`` then ``action_reject_approval()``.
+        employee_restart, bank_restart = cls._create_employee_with_bank(
+            "Tour Reimbursement Restart Employee", "TOURRMBRESTARTBANK"
+        )
+        cls.reimbursement_restart = cls._create_reimbursement(
+            employee_restart, bank_restart
+        )
+        cls.reimbursement_restart.action_confirm()
+        # invalidate_cache() is required because reject_ok's
+        # additional_python_code reads active_approver_user_ids, which is
+        # computed from the approval.approval records action_confirm()
+        # just created; without it the stale cached value from record
+        # creation (still Draft) is reused (mirrors
+        # ssi_employee_business_trip/tests/test_ui_employee_business_trip.py,
+        # issue open-synergy/opnsynid-hr-expense#191).
+        cls.reimbursement_restart.invalidate_cache()
+        cls.reimbursement_restart.action_reject_approval()
+
+        # Fixture for the reset-number tour -- Pre-Condition: Draft
+        # status.
+        employee_reset_number, bank_reset_number = cls._create_employee_with_bank(
+            "Tour Reimbursement Reset Number Employee", "TOURRMBRESETBANK"
+        )
+        cls.reimbursement_reset_number = cls._create_reimbursement(
+            employee_reset_number, bank_reset_number
+        )
+
+        # Fixture for the finish and start tours -- Pre-Condition: In
+        # Progress status, reached in Python via ``action_confirm()``
+        # then ``action_open()`` directly (mirrors
+        # ``tests/test_data_hr_reimbursement_action.yaml`` "Action
+        # Recompute Realization" scenario). The computed+stored
+        # ``reconciled`` field is then written directly and
+        # ``action_recompute_realization`` is called -- exactly the
+        # path the real ``reimbursement_ready_2_done`` /
+        # ``reimbursement_ready_2_open`` ``base.automation`` records
+        # take, per Keputusan Desain (issue #193, mirrors issue #192
+        # for ``ssi_hr_cash_advance``): "Tour untuk IK
+        # base.automation menyiapkan kondisi di Python, lalu hanya
+        # memverifikasi tampilannya."
+        employee_finish, bank_finish = cls._create_employee_with_bank(
+            "Tour Reimbursement Finish Employee", "TOURRMBFINISHBANK"
+        )
+        cls.reimbursement_finish = cls._create_open_reimbursement(
+            employee_finish, bank_finish
+        )
+        cls.reimbursement_finish.write({"reconciled": True})
+        cls.reimbursement_finish.action_recompute_realization()
+
+        employee_start, bank_start = cls._create_employee_with_bank(
+            "Tour Reimbursement Start Employee", "TOURRMBSTARTBANK"
+        )
+        cls.reimbursement_start = cls._create_open_reimbursement(
+            employee_start, bank_start
+        )
+        cls.reimbursement_start.write({"reconciled": True})
+        cls.reimbursement_start.action_recompute_realization()
+        cls.reimbursement_start.write({"reconciled": False})
+        cls.reimbursement_start.action_recompute_realization()
+
+    @classmethod
+    def _create_open_reimbursement(cls, employee, bank):
+        """Create and open an ``hr.reimbursement`` for the given employee.
+
+        Pushed to **In Progress** in Python via ``action_confirm()``
+        then ``action_open()`` directly -- not via
+        ``action_approve_approval()`` nor by clicking through the UI,
+        mirroring the already-passing sequence in
+        ``tests/test_data_hr_reimbursement_action.yaml`` ("Action
+        Recompute Realization" scenario), per the create-in-Python
+        convention (Keputusan Desain, issue
+        open-synergy/opnsynid-hr-expense#130).
+
+        :param employee: ``hr.employee`` the record is submitted for
+        :param bank: ``res.partner.bank`` used as the payment account
+        :return: the created ``hr.reimbursement``, in In Progress
+            status
+        """
+        reimbursement = cls._create_reimbursement(employee, bank)
+        reimbursement.action_confirm()
+        reimbursement.action_open()
+        return reimbursement
+
     @classmethod
     def _create_employee_with_bank(cls, name, bank_acc_number):
         """Create an employee and a bank account tied to its address.
@@ -294,5 +411,98 @@ class TestUiHrReimbursement(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_hr_reimbursement_hr_reimbursement_cancel",
+            login="admin",
+        )
+
+    def test_edit(self):
+        """Run the edit tour for ``hr.reimbursement``.
+
+        IK: docs/hr_reimbursement/02-edit.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_reimbursement_hr_reimbursement_edit",
+            login="admin",
+        )
+
+    def test_delete(self):
+        """Run the delete tour for ``hr.reimbursement``.
+
+        IK: docs/hr_reimbursement/03-delete.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_reimbursement_hr_reimbursement_delete",
+            login="admin",
+        )
+
+    def test_reject(self):
+        """Run the reject tour for ``hr.reimbursement``.
+
+        IK: docs/hr_reimbursement/06-reject.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_reimbursement_hr_reimbursement_reject",
+            login="admin",
+        )
+
+    def test_start(self):
+        """Run the start (revert to In Progress) tour for ``hr.reimbursement``.
+
+        The Done -> In Progress transition itself is automatic
+        (``base.automation`` ``reimbursement_ready_2_open``); the
+        fixture is already In Progress before this tour starts,
+        reached in Python exactly as the automation would run it
+        (odoo-development-ui-test, scope-and-boundaries.md §1 aturan
+        6). This tour observes the result and exercises the inline
+        Recompute Realization action hosted on this IK.
+
+        IK: docs/hr_reimbursement/07-start.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_reimbursement_hr_reimbursement_start",
+            login="admin",
+        )
+
+    def test_finish(self):
+        """Run the finish tour for ``hr.reimbursement``.
+
+        The In Progress -> Done transition itself is automatic
+        (``base.automation`` ``reimbursement_ready_2_done``); the
+        fixture is already Done before this tour starts, reached in
+        Python exactly as the automation would run it
+        (odoo-development-ui-test, scope-and-boundaries.md §1 aturan
+        6). This tour observes the result and exercises the inline
+        Recompute Realization action hosted on this IK.
+
+        IK: docs/hr_reimbursement/09-finish.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_reimbursement_hr_reimbursement_finish",
+            login="admin",
+        )
+
+    def test_restart(self):
+        """Run the restart tour for ``hr.reimbursement``.
+
+        IK: docs/hr_reimbursement/12-restart.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_reimbursement_hr_reimbursement_restart",
+            login="admin",
+        )
+
+    def test_reset_number(self):
+        """Run the reset document number tour for ``hr.reimbursement``.
+
+        IK: docs/hr_reimbursement/13-reset-number.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_reimbursement_hr_reimbursement_reset_number",
             login="admin",
         )

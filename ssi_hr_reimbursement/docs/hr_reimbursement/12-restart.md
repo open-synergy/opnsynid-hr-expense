@@ -9,8 +9,8 @@
 
 ## Pre-Condition
 
-- Record is in **Cancelled** or **Rejected** status.
-- User has _Can Restart_ access right.
+- **Record:** Record is in **Cancelled** or **Rejected** status.
+- **Access:** User has _Can Restart_ access right.
 
 ## Flow
 
