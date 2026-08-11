@@ -188,40 +188,45 @@ odoo.define("ssi_hr_expense.hr_expense_type_tour", function (require) {
                 run: "text TOUR-EDIT-EXPENSE-TYPE UPDATED",
             },
 
-            // ── Flow 5 — Click the Generate Code button (Code is still
-            // "/" from the fixture, so this inline action has
-            // something to do)
+            // ── Flow 5 — Click Save. Done *before* Generate Code
+            // (Flow 6) so the object-type button below runs on an
+            // already-saved, readonly record with nothing else
+            // dirty -- the same order already proven safe in the
+            // create tour above. Chaining an explicit Save right
+            // after an object button's own save+reload cycle was
+            // observed in CI to leave the form stuck in edit mode
+            // indefinitely (odoo-development-ui-test,
+            // patterns.md §P); the IK's Flow order was corrected to
+            // match (docs/hr_expense_type/02-edit.md).
             {
-                content: "Click the Generate Code button",
-                trigger: ".o_statusbar_buttons button[name='action_generate_code']",
-                extra_trigger: ".o_form_view.o_form_editable",
+                content: "Save the record",
+                trigger: ".o_form_button_save",
             },
             {
-                // Gerbang: sama seperti tour create — tunggu Code field
-                // tak lagi menampilkan literal "/" yang diset di
-                // setUpClass, baru benar setelah Generate Code selesai
-                // jalan. Nilai hasil generate sendiri bukan wilayah
-                // tour. Tombol ini menyimpan lewat auto-save dengan
-                // `stayInEdit: true` (form_controller.js), jadi form
-                // tetap dalam mode edit sesudah step ini.
-                content: "Code is generated automatically",
-                trigger: ".o_field_widget[name='code']:not(:contains(/))",
+                content: "Record is saved",
+                trigger: ".o_form_view.o_form_readonly",
                 run: function () {
                     // Assertion only.
                 },
             },
 
-            // ── Flow 7 — Click Save
+            // ── Flow 6 — Click the Generate Code button (Code is
+            // still "/" from the fixture, so this inline action has
+            // something to do). Clicked from the readonly record
+            // saved above, matching the create tour's pattern.
             {
-                content: "Save the record",
-                trigger: ".o_form_button_save",
+                content: "Click the Generate Code button",
+                trigger: ".o_statusbar_buttons button[name='action_generate_code']",
+                extra_trigger: ".o_form_view.o_form_readonly",
             },
-
-            // ── Post-Condition — The record is updated with the new
-            // values
             {
-                content: "Record is saved",
-                trigger: ".o_form_view.o_form_readonly",
+                // Gerbang: same as the create tour -- wait for the
+                // Code field to no longer show the literal "/" set at
+                // Flow 4/setUpClass, true only after Generate Code has
+                // actually run. The generated value itself is not
+                // asserted; that is unit-test territory.
+                content: "Code is generated automatically",
+                trigger: ".o_field_widget[name='code']:not(:contains(/))",
                 run: function () {
                     // Assertion only.
                 },
