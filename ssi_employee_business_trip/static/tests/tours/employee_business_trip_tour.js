@@ -512,25 +512,15 @@ odoo.define("ssi_employee_business_trip.employee_business_trip_tour", function (
                 },
             },
 
-            // Flow 4 — Change the required fields: switch Type to a
-            // value different from the fixture's, so the Post-Condition
-            // reopen-and-read below actually proves the change landed
-            // (odoo-development-ui-test, patterns.md §L).
-            {
-                content: "Select a different Type",
-                trigger: ".o_field_many2one[name='type_id'] input",
-                run: "text Tour EBT Edit Type 2",
-            },
-            {
-                content: "Pick the Type from the dropdown",
-                trigger:
-                    ".ui-autocomplete .ui-menu-item a:contains(Tour EBT Edit Type 2)",
-                in_modal: false,
-            },
-
             // Flow 5 — Inline Action: click Compute Tax to recompute the
             // Taxes table from the Per Diem line's tax (the fixture's
-            // Per Diem line already has one tax selected).
+            // Per Diem line already has one tax selected). IK step 5
+            // marks this "Optionally" -- run it here, on the still-clean
+            // record, so its own implicit save (Odoo 14 `type="object"`
+            // buttons always save-then-execute-then-reload, see
+            // form_controller.js `_onButtonClicked` /
+            // basic_controller.js `_saveRecord`) has nothing to persist
+            // and completes as a cheap no-write round trip.
             {
                 content: "Open the Accounting tab",
                 trigger: ".o_notebook .nav-link:contains(Accounting)",
@@ -553,25 +543,39 @@ odoo.define("ssi_employee_business_trip.employee_business_trip_tour", function (
                 },
             },
 
+            // Flow 4 — Change the required fields: switch Type to a
+            // value different from the fixture's, so the Post-Condition
+            // reopen-and-read below actually proves the change landed
+            // (odoo-development-ui-test, patterns.md §L). Done *after*
+            // Compute Tax so the explicit Save below is the only save
+            // with real changes to persist -- chaining two back-to-back
+            // save+reload cycles (Compute Tax's implicit one immediately
+            // followed by this explicit one) was observed in CI to leave
+            // the form stuck in edit mode indefinitely (reproduced with
+            // a 30s wait, well above the tour engine's 10s default), a
+            // known class of Odoo 14 client race between overlapping
+            // reloads; not chaining them removes the race instead of
+            // papering over it with a longer timeout.
+            {
+                content: "Select a different Type",
+                trigger: ".o_field_many2one[name='type_id'] input",
+                run: "text Tour EBT Edit Type 2",
+            },
+            {
+                content: "Pick the Type from the dropdown",
+                trigger:
+                    ".ui-autocomplete .ui-menu-item a:contains(Tour EBT Edit Type 2)",
+                in_modal: false,
+            },
+
             // Flow 6 — Click Save.
             {
                 content: "Save the record",
                 trigger: ".o_form_button_save",
             },
             {
-                // This step chains right after the Compute Tax cycle's
-                // own save+reload (Flow 5), so the client has two
-                // save/reload round-trips plus a full chatter re-render
-                // (read_followers, get_suggested_recipients,
-                // thread/data, activity_format) to finish before the
-                // form settles into readonly. That is reliably slower
-                // than the tour engine's 10s default step timeout
-                // (RUNNING_TOUR_TIMEOUT, web_tour/static/src/js/
-                // tour_manager.js) under CI parallel-test load, so this
-                // step gets extra time instead of a tighter assertion.
                 content: "Record is saved",
                 trigger: ".o_form_view.o_form_readonly",
-                timeout: 30000,
                 run: function () {
                     // Assertion only; do not trigger the default click.
                 },
