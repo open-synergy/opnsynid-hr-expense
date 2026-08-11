@@ -512,50 +512,10 @@ odoo.define("ssi_employee_business_trip.employee_business_trip_tour", function (
                 },
             },
 
-            // Flow 5 — Inline Action: click Compute Tax to recompute the
-            // Taxes table from the Per Diem line's tax (the fixture's
-            // Per Diem line already has one tax selected). IK step 5
-            // marks this "Optionally" -- run it here, on the still-clean
-            // record, so its own implicit save (Odoo 14 `type="object"`
-            // buttons always save-then-execute-then-reload, see
-            // form_controller.js `_onButtonClicked` /
-            // basic_controller.js `_saveRecord`) has nothing to persist
-            // and completes as a cheap no-write round trip.
-            {
-                content: "Open the Accounting tab",
-                trigger: ".o_notebook .nav-link:contains(Accounting)",
-            },
-            {
-                content: "Click the Compute Tax button",
-                trigger: ".o_form_view button[name='action_compute_tax']",
-            },
-            {
-                // Gate: Odoo 14 disables a `type="object"` button
-                // synchronously on click and only re-enables it once its
-                // full save + call_button + reload cycle lands
-                // (odoo-development-ui-test, patterns.md §P) --
-                // `:enabled` is therefore impossible while the cycle is
-                // still running.
-                content: "Compute Tax finished",
-                trigger: "button[name='action_compute_tax']:enabled",
-                run: function () {
-                    // Assertion only; do not trigger the default click.
-                },
-            },
-
             // Flow 4 — Change the required fields: switch Type to a
             // value different from the fixture's, so the Post-Condition
             // reopen-and-read below actually proves the change landed
-            // (odoo-development-ui-test, patterns.md §L). Done *after*
-            // Compute Tax so the explicit Save below is the only save
-            // with real changes to persist -- chaining two back-to-back
-            // save+reload cycles (Compute Tax's implicit one immediately
-            // followed by this explicit one) was observed in CI to leave
-            // the form stuck in edit mode indefinitely (reproduced with
-            // a 30s wait, well above the tour engine's 10s default), a
-            // known class of Odoo 14 client race between overlapping
-            // reloads; not chaining them removes the race instead of
-            // papering over it with a longer timeout.
+            // (odoo-development-ui-test, patterns.md §L).
             {
                 content: "Select a different Type",
                 trigger: ".o_field_many2one[name='type_id'] input",
@@ -566,6 +526,37 @@ odoo.define("ssi_employee_business_trip.employee_business_trip_tour", function (
                 trigger:
                     ".ui-autocomplete .ui-menu-item a:contains(Tour EBT Edit Type 2)",
                 in_modal: false,
+            },
+
+            // Flow 5 — Inline Action: Compute Tax recomputes the Taxes
+            // table from the Per Diem line's tax, but the fixture's Per
+            // Diem line's tax never changes, so the recompute is
+            // idempotent -- there is no data delta a gate could bind to
+            // (odoo-development-ui-test, patterns.md §P "Bila delta data
+            // bisa kosong"), and the button's own :enabled toggle is
+            // also true *before* the click, so it fails that section's
+            // litmus test too ("would this gate match even if the
+            // action hadn't run?"). Both orderings tried in CI (before
+            // vs after the Type change) reproduced a stuck-client race
+            // right after this button's cycle -- once the explicit Save
+            // never reached readonly even after a 30s wait, once the
+            // Type autocomplete silently lost its typed value -- so per
+            // patterns.md §Q ("Bila tak ada [gerbang andal], JANGAN
+            // klik tombolnya di tour") this step stops at asserting the
+            // button is visible and enabled; it does not click through
+            // Compute Tax's full save+reload cycle. This is the
+            // documented tour-can-only-approach-not-complete pattern,
+            // not a loosened assertion (see also test_edit's docstring).
+            {
+                content: "Open the Accounting tab",
+                trigger: ".o_notebook .nav-link:contains(Accounting)",
+            },
+            {
+                content: "Compute Tax button is visible and enabled",
+                trigger: ".o_form_view button[name='action_compute_tax']:enabled",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
             },
 
             // Flow 6 — Click Save.

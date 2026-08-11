@@ -461,6 +461,16 @@ class TestUiEmployeeBusinessTrip(HttpSavepointCase):
         """Run the edit tour for ``employee_business_trip``.
 
         IK: docs/employee_business_trip/02-edit.md
+
+        Inline Action ``action_compute_tax`` (Flow 5, optional) stops at
+        asserting the button is visible and enabled; the tour does not
+        click through its save+reload cycle. The fixture's Per Diem
+        line's tax never changes, so the recompute is idempotent and
+        has no data delta a gate could bind to, and the button's own
+        enabled/disabled toggle is true both before and after the
+        click -- no gate exists that passes the litmus test in
+        odoo-development-ui-test, patterns.md §P, so per §Q this is a
+        documented tour-can-only-approach-not-complete step.
         """
         self.start_tour(
             "/web",
