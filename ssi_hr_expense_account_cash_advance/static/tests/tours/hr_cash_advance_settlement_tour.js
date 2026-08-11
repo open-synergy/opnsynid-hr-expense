@@ -8,28 +8,14 @@ odoo.define(
 
         var tour = require("web_tour.tour");
 
-        // IK: docs/hr_cash_advance_settlement/01-create.md
-        // (E1 delta — Additional Fields). Navigation up to the New form is
-        // taken from the base IK
-        // (ssi_hr_cash_advance/docs/hr_cash_advance_settlement/01-
-        // create.md, Flow steps 1-2 and the "Add a line" step); the
-        // assertions are the delta added by this module. The tour stops
-        // right after the delta assertions -- it does not fill any field,
-        // does not Save, and does not continue to confirm
-        // (odoo-development-ui-test, scope-and-boundaries.md §3, arketipe
-        // E1).
-        tour.register(
-            "ssi_hr_expense_account_cash_advance_hr_cash_advance_settlement_create",
-            {
-                test: true,
-                url: "/web",
-            },
-            [
-                // Base Flow 1 — Open the Human Resource > Expense > Cash
-                // Advance Settlements menu. "Expense" is a section
-                // menuitem with its own data-menu-xmlid (not a grouping
-                // header), so it is its own step
-                // (odoo-development-ui-test, patterns.md §A).
+        // Shared navigation block -- Flow step 1 of both base IKs
+        // (docs/hr_cash_advance_settlement/01-create.md and
+        // 04-confirm.md): "Open the Human Resource > Expense > Cash
+        // Advance Settlements menu." "Expense" is a section menuitem
+        // (has its own data-menu-xmlid, not a grouping header), so it is
+        // its own step (odoo-development-ui-test, patterns.md §A).
+        function openCashAdvanceSettlementsList() {
+            return [
                 tour.stepUtils.showAppsMenuItem(),
                 {
                     content: "Open the Human Resource app",
@@ -58,7 +44,26 @@ odoo.define(
                         // Assertion only; do not trigger the default click.
                     },
                 },
+            ];
+        }
 
+        // IK: docs/hr_cash_advance_settlement/01-create.md
+        // (E1 delta — Additional Fields). Navigation up to the New form is
+        // taken from the base IK
+        // (ssi_hr_cash_advance/docs/hr_cash_advance_settlement/01-
+        // create.md, Flow steps 1-2 and the "Add a line" step); the
+        // assertions are the delta added by this module. The tour stops
+        // right after the delta assertions -- it does not fill any field,
+        // does not Save, and does not continue to confirm
+        // (odoo-development-ui-test, scope-and-boundaries.md §3, arketipe
+        // E1).
+        tour.register(
+            "ssi_hr_expense_account_cash_advance_hr_cash_advance_settlement_create",
+            {
+                test: true,
+                url: "/web",
+            },
+            [].concat(openCashAdvanceSettlementsList(), [
                 // Base Flow 2 — Click the New button. (14.0: "Create")
                 {
                     content: "Click Create",
@@ -152,7 +157,81 @@ odoo.define(
                         // Assertion only; do not trigger the default click.
                     },
                 },
-            ]
+            ])
+        );
+
+        // IK: docs/hr_cash_advance_settlement/04-confirm.md
+        // (E2b delta — Additional Validation). Flow and Post-Condition are
+        // taken verbatim from the base IK
+        // (ssi_hr_cash_advance/docs/hr_cash_advance_settlement/
+        // 04-confirm.md) -- this module does not add any UI step to
+        // Confirm, only a pre-confirm check
+        // (models/hr_cash_advance_settlement.py
+        // ``_check_expense_account``). The fixture record's line already
+        // satisfies that check (Required = True, Expense Account filled
+        // with a non-negative-residual account), so this tour proves the
+        // base Flow still completes once the extra check is installed.
+        // The negative path (missing/insufficient Expense Account
+        // blocking Confirm) is a value/error-message assertion and stays
+        // with unit test ``expect_error``, not this tour
+        // (odoo-development-ui-test, scope-and-boundaries.md, arketipe
+        // E2b).
+        tour.register(
+            "ssi_hr_expense_account_cash_advance_hr_cash_advance_settlement_confirm",
+            {
+                test: true,
+                url: "/web",
+            },
+            [].concat(openCashAdvanceSettlementsList(), [
+                // Base Flow 2 — Open the record to confirm.
+                {
+                    content: "Open the record",
+                    trigger:
+                        ".o_data_row:contains(Tour Expense Account Settlement Confirm Employee) .o_data_cell:first",
+                    extra_trigger: ".o_list_view",
+                },
+                {
+                    content: "Record form is displayed",
+                    trigger: ".o_form_view",
+                    run: function () {
+                        // Assertion only; do not trigger the default click.
+                    },
+                },
+
+                // Base Flow 3 — Click the Confirm button.
+                {
+                    content: "Click the Confirm button",
+                    trigger: ".o_statusbar_buttons button[name='action_confirm']",
+                    extra_trigger: ".o_form_view",
+                },
+
+                // Base Flow 4 — Click OK on the confirmation dialog.
+                {
+                    content: "Confirm the dialog",
+                    trigger: ".modal-footer button.btn-primary",
+                    in_modal: true,
+                },
+
+                // Base Post-Condition — Status changes to Waiting for
+                // Approval. Reaching this step proves the Additional
+                // Validation this module adds did not block Confirm.
+                {
+                    content: "Status is Waiting for Approval",
+                    trigger:
+                        ".o_statusbar_status .o_arrow_button[data-value='confirm'].btn-primary",
+                    run: function () {
+                        // Assertion only; do not trigger the default click.
+                    },
+                },
+                {
+                    content: "The Confirm button is no longer shown",
+                    trigger:
+                        ".o_statusbar_buttons:not(:has(button[name='action_confirm']:visible))",
+                    run: function () {
+                        // Assertion only; do not trigger the default click.
+                    },
+                },
+            ])
         );
     }
 );
