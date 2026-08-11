@@ -8,7 +8,7 @@
 
 ## Pre-Condition
 
-- Record is in **Draft** status.
+- **Record:** Record is in **Draft** status.
 
 ## Flow
 

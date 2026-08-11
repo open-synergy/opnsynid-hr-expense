@@ -8,8 +8,8 @@
 
 ## Pre-Condition
 
-- Record is in **Draft** status.
-- User has _Can Input Manual Document Number_ access right.
+- **Record:** Record is in **Draft** status.
+- **Access:** User has _Can Input Manual Document Number_ access right.
 
 ## Flow
 

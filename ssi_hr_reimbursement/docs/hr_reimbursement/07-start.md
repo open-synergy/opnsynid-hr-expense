@@ -6,7 +6,8 @@
 > **Actor:** System — triggered automatically by `base.automation` (`reimbursement_ready_2_open`),
 > no user action\
 > **State:** `done` → `open`\
-> **Requires:** `09-finish`
+> **Requires:** `09-finish`\
+> **Inline Actions:** `action_recompute_realization` (Recompute Realization)
 
 ---
 
@@ -17,22 +18,25 @@
 
 ## Pre-Condition
 
-- Record is in **Done** status.
-- The associated accounting journal entry exists and was previously reconciled.
+- **Record:** Record is in **Done** status.
+- **Data:** The associated accounting journal entry exists and was previously
+  reconciled.
 
 ## Flow
 
-This transition is automatic. No user action is required in the Reimbursement form.
+This transition is triggered automatically by the system. No user action is required.
 
-The system monitors the `reconciled` field. When it changes from `True` to `False`
-(i.e., the payable move line reconciliation is reversed — e.g., payment is deleted or
-unapplied), the automation `reimbursement_ready_2_open` triggers `action_open`
-automatically.
-
-To reverse the reconciliation, cancel or delete the payment through the accounting
+The system automatically changes the status back to **In Progress** when the payable
+move line reconciliation is reversed (i.e., the `reconciled` field changes from `True`
+to `False` — e.g., payment is deleted or unapplied). This typically occurs when a
+payment linked to the reimbursement is cancelled or unmatched through the accounting
 module (**Accounting > Vendors > Payments** or bank statement reconciliation).
+
+Additionally, once the record is in **In Progress** or **Done** status, the user may
+click the **Recompute Realization** button (**Inline Action**,
+`action_recompute_realization`) on the record's header to manually re-evaluate its
+realized/reconciled state, instead of waiting for the triggering event above.
 
 ## Post-Condition
 
-- Status returns to **In Progress** automatically once the journal entry reconciliation
-  is reversed.
+- Status returns to **In Progress**.

@@ -6,7 +6,8 @@
 > **Actor:** System — triggered automatically by `base.automation` (`reimbursement_ready_2_done`),
 > no user action\
 > **State:** `open` → `done`\
-> **Requires:** `05-approve`
+> **Requires:** `05-approve`\
+> **Inline Actions:** `action_recompute_realization` (Recompute Realization)
 
 ---
 
@@ -17,20 +18,24 @@
 
 ## Pre-Condition
 
-- Record is in **In Progress** status.
-- The associated accounting journal entry exists.
+- **Record:** Record is in **In Progress** status.
+- **Data:** The associated accounting journal entry exists.
 
 ## Flow
 
-This transition is automatic. No user action is required in the Reimbursement form.
+This transition is triggered automatically by the system. No user action is required.
 
-The system monitors the `reconciled` field. When it changes from `False` to `True`
-(i.e., the payable move line is fully matched against a payment), the automation
-`reimbursement_ready_2_done` triggers `action_done` automatically.
+The system automatically changes the status to **Done** when the payable move line is
+fully reconciled (i.e., the `reconciled` field changes from `False` to `True`). This
+typically occurs when a payment for this reimbursement is processed through the
+accounting module (**Accounting > Vendors > Payments** or bank statement
+reconciliation).
 
-To trigger reconciliation, process the payment through the accounting module
-(**Accounting > Vendors > Payments** or bank statement reconciliation).
+Additionally, once the record is in **In Progress** or **Done** status, the user may
+click the **Recompute Realization** button (**Inline Action**,
+`action_recompute_realization`) on the record's header to manually re-evaluate its
+realized/reconciled state, instead of waiting for the triggering event above.
 
 ## Post-Condition
 
-- Status changes to **Done** automatically once the journal entry is fully reconciled.
+- Status changes to **Done**.
