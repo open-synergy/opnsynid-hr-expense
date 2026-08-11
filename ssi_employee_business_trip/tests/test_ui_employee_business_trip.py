@@ -334,6 +334,13 @@ class TestUiEmployeeBusinessTrip(HttpSavepointCase):
         )
         cls.trip_done = cls._create_business_trip(cls.employee_done, with_per_diem=True)
         cls.trip_done.with_user(cls.admin).action_confirm()
+        # invalidate_cache() is required because approve_ok's
+        # additional_python_code reads active_approver_user_ids, which is
+        # computed from the approval.approval records action_confirm()
+        # just created; without it the stale cached value from record
+        # creation (still Draft) is reused (mirrors
+        # ssi_hr_expense_account/tests/test_ui_employee_expense_account.py).
+        cls.trip_done.invalidate_cache()
         cls.trip_done.with_user(cls.admin).action_approve_approval()
         cls.trip_done.with_context(bypass_policy_check=True).action_done()
 
@@ -347,6 +354,9 @@ class TestUiEmployeeBusinessTrip(HttpSavepointCase):
         )
         cls.trip_restart = cls._create_business_trip(cls.employee_restart)
         cls.trip_restart.with_user(cls.admin).action_confirm()
+        # Same stale-cache reason as trip_done above, for reject_ok this
+        # time.
+        cls.trip_restart.invalidate_cache()
         cls.trip_restart.with_user(cls.admin).action_reject_approval()
 
         # Fixture for the reset document number tour -- Pre-Condition:
