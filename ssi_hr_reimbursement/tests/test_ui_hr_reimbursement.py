@@ -206,6 +206,14 @@ class TestUiHrReimbursement(HttpSavepointCase):
             employee_restart, bank_restart
         )
         cls.reimbursement_restart.action_confirm()
+        # invalidate_cache() is required because reject_ok's
+        # additional_python_code reads active_approver_user_ids, which is
+        # computed from the approval.approval records action_confirm()
+        # just created; without it the stale cached value from record
+        # creation (still Draft) is reused (mirrors
+        # ssi_employee_business_trip/tests/test_ui_employee_business_trip.py,
+        # issue open-synergy/opnsynid-hr-expense#191).
+        cls.reimbursement_restart.invalidate_cache()
         cls.reimbursement_restart.action_reject_approval()
 
         # Fixture for the reset-number tour -- Pre-Condition: Draft
