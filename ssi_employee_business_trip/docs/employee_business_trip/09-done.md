@@ -14,8 +14,9 @@ as reference documentation only.
 
 ## Pre-Condition
 
-- Record is in **In Progress** status.
-- The associated payable accounting journal entry line (`payable_move_line_id`) exists.
+- **Record:** Record is in **In Progress** status.
+- **Data:** The associated payable accounting journal entry line
+  (`payable_move_line_id`) exists.
 
 ## Flow
 

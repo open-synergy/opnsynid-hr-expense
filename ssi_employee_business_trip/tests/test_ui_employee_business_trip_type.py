@@ -14,9 +14,10 @@ class TestUiEmployeeBusinessTripType(HttpSavepointCase):
         """Prepare the group, journal, account, and sequence template.
 
         Grants the admin user the configurator group the menu is gated
-        by, then creates the Journal/Payable Account picked by the tour
-        and the ``sequence.template`` the Generate Code inline action
-        needs to succeed.
+        by, then creates the Journal/Payable Account picked by the
+        create/edit tours, the ``sequence.template`` the Generate Code
+        inline action needs to succeed, and one fixture record per
+        delete/deactivate/activate tour.
         """
         super().setUpClass()
         # Pre-Condition: the "Business Trip Types" menu is gated by the
@@ -80,6 +81,54 @@ class TestUiEmployeeBusinessTripType(HttpSavepointCase):
             }
         )
 
+        # Fixture for the edit tour -- a record whose Name the tour
+        # changes to a distinct value (odoo-development-ui-test,
+        # patterns.md §L).
+        cls.type_edit = cls.env["employee_business_trip_type"].create(
+            {
+                "name": "Tour EBT Type Edit",
+                "code": "TOUREBTTYPEEDIT",
+                "journal_id": cls.journal.id,
+                "payable_account_id": cls.payable_account.id,
+            }
+        )
+
+        # Fixture for the delete tour -- Pre-Condition: not referenced
+        # by any Employee Business Trip record. This record is never
+        # picked as Type anywhere, so it always qualifies.
+        cls.type_delete = cls.env["employee_business_trip_type"].create(
+            {
+                "name": "Tour EBT Type Delete",
+                "code": "TOUREBTTYPEDEL",
+                "journal_id": cls.journal.id,
+                "payable_account_id": cls.payable_account.id,
+            }
+        )
+
+        # Fixture for the deactivate tour -- Pre-Condition: active
+        # (``mixin.master_data`` default).
+        cls.type_deactivate = cls.env["employee_business_trip_type"].create(
+            {
+                "name": "Tour EBT Type Deactivate",
+                "code": "TOUREBTTYPEDEACT",
+                "journal_id": cls.journal.id,
+                "payable_account_id": cls.payable_account.id,
+            }
+        )
+
+        # Fixture for the activate tour -- Pre-Condition: archived,
+        # reached in Python by writing ``active=False`` directly rather
+        # than through the deactivate tour's own UI flow.
+        cls.type_activate = cls.env["employee_business_trip_type"].create(
+            {
+                "name": "Tour EBT Type Activate",
+                "code": "TOUREBTTYPEACT",
+                "journal_id": cls.journal.id,
+                "payable_account_id": cls.payable_account.id,
+            }
+        )
+        cls.type_activate.write({"active": False})
+
     def test_create(self):
         """Run the create tour for ``employee_business_trip_type``.
 
@@ -88,5 +137,49 @@ class TestUiEmployeeBusinessTripType(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_employee_business_trip_employee_business_trip_type_create",
+            login="admin",
+        )
+
+    def test_edit(self):
+        """Run the edit tour for ``employee_business_trip_type``.
+
+        IK: docs/employee_business_trip_type/02-edit.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_employee_business_trip_employee_business_trip_type_edit",
+            login="admin",
+        )
+
+    def test_delete(self):
+        """Run the delete tour for ``employee_business_trip_type``.
+
+        IK: docs/employee_business_trip_type/03-delete.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_employee_business_trip_employee_business_trip_type_delete",
+            login="admin",
+        )
+
+    def test_deactivate(self):
+        """Run the deactivate tour for ``employee_business_trip_type``.
+
+        IK: docs/employee_business_trip_type/04-deactivate.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_employee_business_trip_employee_business_trip_type_deactivate",
+            login="admin",
+        )
+
+    def test_activate(self):
+        """Run the activate tour for ``employee_business_trip_type``.
+
+        IK: docs/employee_business_trip_type/05-activate.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_employee_business_trip_employee_business_trip_type_activate",
             login="admin",
         )

@@ -8,8 +8,8 @@
 
 ## Pre-Condition
 
-- Record is in **Draft** status.
-- User has _Can Input Manual Document Number_ access right.
+- **Record:** Record is in **Draft** status.
+- **Access:** User has _Can Input Manual Document Number_ access right.
 
 ## Flow
 
@@ -17,6 +17,7 @@
 2. Open the record whose document number will be reset.
 3. Click the **Reset Document Number** button (or edit the number field and change it to
    **/**).
+4. Click **OK** on the confirmation dialog.
 
 ## Post-Condition
 
