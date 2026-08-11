@@ -9,13 +9,16 @@ from odoo.tests import HttpSavepointCase, tagged
 class TestUiEmployeeBusinessTrip(HttpSavepointCase):
     """Tour tests for the ``employee_business_trip`` work instructions.
 
-    Covers the base create/confirm/approve/cancel flow
-    (``docs/employee_business_trip/01-create.md``, ``04-confirm.md``,
-    ``05-approve.md``, ``10-cancel.md``). All master data is built from
-    scratch in ``setUpClass`` -- no demo data is relied upon. There is no
-    tour for ``09-done.md``: the Done transition is purely automatic
-    (``base.automation`` triggered by the ``realized`` field), so no
-    button exists to drive from the UI.
+    Covers create/edit/delete/confirm/approve/reject/cancel/restart/
+    reset-number (``docs/employee_business_trip/01-create.md`` through
+    ``13-reset-number.md``). All master data is built from scratch in
+    ``setUpClass`` -- no demo data is relied upon.
+
+    ``09-done.md`` is the one exception: the Done transition is purely
+    automatic (``base.automation`` triggered by the ``realized`` field),
+    so its tour drives no button -- it only prepares the Done state in
+    Python and observes the result (odoo-development-ui-test,
+    scope-and-boundaries.md §1 aturan 6).
     """
 
     @classmethod
@@ -209,8 +212,164 @@ class TestUiEmployeeBusinessTrip(HttpSavepointCase):
         )
         cls.trip_cancel = cls._create_business_trip(cls.employee_cancel)
 
+        # Fixture for the edit tour -- Pre-Condition: Draft status. A
+        # second Type is the value the tour switches to; the model's
+        # only ``type_id`` onchange touches Journal/Payable Account
+        # (Config: Selection Method stays "Domain" with an empty "[]"
+        # domain on every other Type field, so Origin/Destination/
+        # Currency/Pricelist stay valid across the switch -- see
+        # ``onchange_journal_id``/``onchange_payable_account_id`` in
+        # models/employee_business_trip.py). The Per Diem line carries a
+        # tax so the inline Compute Tax action
+        # (docs/employee_business_trip/02-edit.md step 5) has something
+        # to recompute.
+        cls.trip_type_2 = (
+            cls.env["employee_business_trip_type"]
+            .with_user(cls.admin)
+            .create(
+                {
+                    "name": "Tour EBT Edit Type 2",
+                    "code": "TOUREBTTYPE2",
+                    "journal_id": cls.journal.id,
+                    "payable_account_id": cls.payable_account.id,
+                }
+            )
+        )
+        tax_account = (
+            cls.env["account.account"]
+            .with_user(cls.admin)
+            .create(
+                {
+                    "name": "Tour EBT Tax Account",
+                    "code": "TOUREBTTAX",
+                    "user_type_id": account_type_expenses.id,
+                }
+            )
+        )
+        # ``account_id`` on the tax's own "tax" repartition line is what
+        # ends up populating ``employee_business_trip.tax.account_id``
+        # (required=True) when ``action_compute_tax`` calls
+        # ``_recompute_standard_tax()`` -- without it, ``compute_all()``
+        # returns no account and the auto-created tax row violates the
+        # NOT NULL constraint (mirrors
+        # tests/test_data_employee_business_trip_action_compute_tax.yaml).
+        cls.tax = (
+            cls.env["account.tax"]
+            .with_user(cls.admin)
+            .create(
+                {
+                    "name": "Tour EBT VAT 10%",
+                    "amount_type": "percent",
+                    "amount": 10.0,
+                    "type_tax_use": "purchase",
+                    "invoice_repartition_line_ids": [
+                        (0, 0, {"factor_percent": 100, "repartition_type": "base"}),
+                        (
+                            0,
+                            0,
+                            {
+                                "factor_percent": 100,
+                                "repartition_type": "tax",
+                                "account_id": tax_account.id,
+                            },
+                        ),
+                    ],
+                    "refund_repartition_line_ids": [
+                        (0, 0, {"factor_percent": 100, "repartition_type": "base"}),
+                        (
+                            0,
+                            0,
+                            {
+                                "factor_percent": 100,
+                                "repartition_type": "tax",
+                                "account_id": tax_account.id,
+                            },
+                        ),
+                    ],
+                }
+            )
+        )
+        cls.employee_edit = (
+            cls.env["hr.employee"]
+            .with_user(cls.admin)
+            .create({"name": "Tour EBT Edit Employee"})
+        )
+        cls.trip_edit = cls._create_business_trip(
+            cls.employee_edit, with_per_diem=True, tax_id=cls.tax.id
+        )
+
+        # Fixture for the delete tour -- Pre-Condition: Draft status,
+        # document number still "/".
+        cls.employee_delete = (
+            cls.env["hr.employee"]
+            .with_user(cls.admin)
+            .create({"name": "Tour EBT Delete Employee"})
+        )
+        cls.trip_delete = cls._create_business_trip(cls.employee_delete)
+
+        # Fixture for the reject tour -- Pre-Condition: Waiting for
+        # Approval status, reached in Python via ``action_confirm()``,
+        # same as the approve fixture above.
+        cls.employee_reject = (
+            cls.env["hr.employee"]
+            .with_user(cls.admin)
+            .create({"name": "Tour EBT Reject Employee"})
+        )
+        cls.trip_reject = cls._create_business_trip(cls.employee_reject)
+        cls.trip_reject.with_user(cls.admin).action_confirm()
+
+        # Fixture for the done tour -- Pre-Condition: In Progress status
+        # with an accounting entry line. The Done transition itself is
+        # reached exactly as the ``employee_business_trip_ready_2_done``
+        # automation runs it (data/ir_actions_server_data.xml
+        # ``employee_business_trip_action_done``): ``action_done()``
+        # under ``bypass_policy_check`` context, no UI action drives it.
+        # One Per Diem line is required so ``_10_skip_open`` does not
+        # auto-finish the trip to Done on its own during approval
+        # (mirrors the approve fixture above).
+        cls.employee_done = (
+            cls.env["hr.employee"]
+            .with_user(cls.admin)
+            .create({"name": "Tour EBT Done Employee"})
+        )
+        cls.trip_done = cls._create_business_trip(cls.employee_done, with_per_diem=True)
+        cls.trip_done.with_user(cls.admin).action_confirm()
+        # invalidate_cache() is required because approve_ok's
+        # additional_python_code reads active_approver_user_ids, which is
+        # computed from the approval.approval records action_confirm()
+        # just created; without it the stale cached value from record
+        # creation (still Draft) is reused (mirrors
+        # ssi_hr_expense_account/tests/test_ui_employee_expense_account.py).
+        cls.trip_done.invalidate_cache()
+        cls.trip_done.with_user(cls.admin).action_approve_approval()
+        cls.trip_done.with_context(bypass_policy_check=True).action_done()
+
+        # Fixture for the restart tour -- Pre-Condition: Cancelled or
+        # Rejected status; Rejected is used, reached in Python via
+        # ``action_confirm()`` then ``action_reject_approval()``.
+        cls.employee_restart = (
+            cls.env["hr.employee"]
+            .with_user(cls.admin)
+            .create({"name": "Tour EBT Restart Employee"})
+        )
+        cls.trip_restart = cls._create_business_trip(cls.employee_restart)
+        cls.trip_restart.with_user(cls.admin).action_confirm()
+        # Same stale-cache reason as trip_done above, for reject_ok this
+        # time.
+        cls.trip_restart.invalidate_cache()
+        cls.trip_restart.with_user(cls.admin).action_reject_approval()
+
+        # Fixture for the reset document number tour -- Pre-Condition:
+        # Draft status.
+        cls.employee_reset_number = (
+            cls.env["hr.employee"]
+            .with_user(cls.admin)
+            .create({"name": "Tour EBT Reset Number Employee"})
+        )
+        cls.trip_reset_number = cls._create_business_trip(cls.employee_reset_number)
+
     @classmethod
-    def _create_business_trip(cls, employee, with_per_diem=False):
+    def _create_business_trip(cls, employee, with_per_diem=False, tax_id=None):
         """Create a draft ``employee_business_trip`` for ``employee``.
 
         Built entirely in Python (Pre-Condition setup), not by clicking
@@ -220,6 +379,9 @@ class TestUiEmployeeBusinessTrip(HttpSavepointCase):
         :param employee: ``hr.employee`` the record is submitted for
         :param with_per_diem: when ``True``, add one Per Diem line
             using the shared product/usage/account fixtures
+        :param tax_id: when given together with ``with_per_diem``, set
+            it as the Per Diem line's ``tax_ids`` so the Compute Tax
+            inline action has a tax to recompute from
         :return: the created ``employee_business_trip`` record, in Draft
         """
         values = {
@@ -237,21 +399,18 @@ class TestUiEmployeeBusinessTrip(HttpSavepointCase):
             "payable_account_id": cls.payable_account.id,
         }
         if with_per_diem:
-            values["per_diem_ids"] = [
-                (
-                    0,
-                    0,
-                    {
-                        "product_id": cls.product.id,
-                        "name": "Tour EBT Per Diem Line",
-                        "usage_id": cls.usage_type.id,
-                        "account_id": cls.line_account.id,
-                        "uom_quantity": 1.0,
-                        "uom_id": cls.product.uom_id.id,
-                        "price_unit": 100.0,
-                    },
-                )
-            ]
+            per_diem_values = {
+                "product_id": cls.product.id,
+                "name": "Tour EBT Per Diem Line",
+                "usage_id": cls.usage_type.id,
+                "account_id": cls.line_account.id,
+                "uom_quantity": 1.0,
+                "uom_id": cls.product.uom_id.id,
+                "price_unit": 100.0,
+            }
+            if tax_id:
+                per_diem_values["tax_ids"] = [(6, 0, [tax_id])]
+            values["per_diem_ids"] = [(0, 0, per_diem_values)]
         return cls.env["employee_business_trip"].with_user(cls.admin).create(values)
 
     def test_create(self):
@@ -295,5 +454,81 @@ class TestUiEmployeeBusinessTrip(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_employee_business_trip_employee_business_trip_cancel",
+            login="admin",
+        )
+
+    def test_edit(self):
+        """Run the edit tour for ``employee_business_trip``.
+
+        IK: docs/employee_business_trip/02-edit.md
+
+        Inline Action ``action_compute_tax`` (Flow 5, optional) stops at
+        asserting the button is visible and enabled; the tour does not
+        click through its save+reload cycle. The fixture's Per Diem
+        line's tax never changes, so the recompute is idempotent and
+        has no data delta a gate could bind to, and the button's own
+        enabled/disabled toggle is true both before and after the
+        click -- no gate exists that passes the litmus test in
+        odoo-development-ui-test, patterns.md §P, so per §Q this is a
+        documented tour-can-only-approach-not-complete step.
+        """
+        self.start_tour(
+            "/web",
+            "ssi_employee_business_trip_employee_business_trip_edit",
+            login="admin",
+        )
+
+    def test_delete(self):
+        """Run the delete tour for ``employee_business_trip``.
+
+        IK: docs/employee_business_trip/03-delete.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_employee_business_trip_employee_business_trip_delete",
+            login="admin",
+        )
+
+    def test_reject(self):
+        """Run the reject tour for ``employee_business_trip``.
+
+        IK: docs/employee_business_trip/06-reject.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_employee_business_trip_employee_business_trip_reject",
+            login="admin",
+        )
+
+    def test_done(self):
+        """Run the done tour for ``employee_business_trip``.
+
+        IK: docs/employee_business_trip/09-done.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_employee_business_trip_employee_business_trip_done",
+            login="admin",
+        )
+
+    def test_restart(self):
+        """Run the restart tour for ``employee_business_trip``.
+
+        IK: docs/employee_business_trip/12-restart.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_employee_business_trip_employee_business_trip_restart",
+            login="admin",
+        )
+
+    def test_reset_number(self):
+        """Run the reset document number tour for ``employee_business_trip``.
+
+        IK: docs/employee_business_trip/13-reset-number.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_employee_business_trip_employee_business_trip_reset_number",
             login="admin",
         )

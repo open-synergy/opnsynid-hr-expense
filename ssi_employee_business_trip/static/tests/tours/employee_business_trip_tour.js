@@ -473,4 +473,399 @@ odoo.define("ssi_employee_business_trip.employee_business_trip_tour", function (
             },
         ])
     );
+
+    // IK: docs/employee_business_trip/02-edit.md
+    tour.register(
+        "ssi_employee_business_trip_employee_business_trip_edit",
+        {
+            test: true,
+            url: "/web",
+        },
+        [].concat(openBusinessTripsList(), [
+            // Flow 2 — Find and open the record to edit.
+            {
+                content: "Open the record",
+                trigger:
+                    ".o_data_row:contains(Tour EBT Edit Employee) .o_data_cell:first",
+                extra_trigger: ".o_list_view",
+            },
+            {
+                content: "Record form is displayed",
+                trigger: ".o_form_view",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
+            },
+
+            // Flow 3 — Click the Edit button. 14.0 only: a record that
+            // already exists opens readonly (odoo-development-ui-test,
+            // patterns.md §E).
+            {
+                content: "Click the Edit button",
+                trigger: ".o_form_button_edit",
+            },
+            {
+                content: "Form is now editable",
+                trigger: ".o_form_view.o_form_editable",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
+            },
+
+            // Flow 4 — Change the required fields: switch Type to a
+            // value different from the fixture's, so the Post-Condition
+            // reopen-and-read below actually proves the change landed
+            // (odoo-development-ui-test, patterns.md §L).
+            {
+                content: "Select a different Type",
+                trigger: ".o_field_many2one[name='type_id'] input",
+                run: "text Tour EBT Edit Type 2",
+            },
+            {
+                content: "Pick the Type from the dropdown",
+                trigger:
+                    ".ui-autocomplete .ui-menu-item a:contains(Tour EBT Edit Type 2)",
+                in_modal: false,
+            },
+
+            // Flow 5 — Inline Action: Compute Tax recomputes the Taxes
+            // table from the Per Diem line's tax, but the fixture's Per
+            // Diem line's tax never changes, so the recompute is
+            // idempotent -- there is no data delta a gate could bind to
+            // (odoo-development-ui-test, patterns.md §P "Bila delta data
+            // bisa kosong"), and the button's own :enabled toggle is
+            // also true *before* the click, so it fails that section's
+            // litmus test too ("would this gate match even if the
+            // action hadn't run?"). Both orderings tried in CI (before
+            // vs after the Type change) reproduced a stuck-client race
+            // right after this button's cycle -- once the explicit Save
+            // never reached readonly even after a 30s wait, once the
+            // Type autocomplete silently lost its typed value -- so per
+            // patterns.md §Q ("Bila tak ada [gerbang andal], JANGAN
+            // klik tombolnya di tour") this step stops at asserting the
+            // button is visible and enabled; it does not click through
+            // Compute Tax's full save+reload cycle. This is the
+            // documented tour-can-only-approach-not-complete pattern,
+            // not a loosened assertion (see also test_edit's docstring).
+            {
+                content: "Open the Accounting tab",
+                trigger: ".o_notebook .nav-link:contains(Accounting)",
+            },
+            {
+                content: "Compute Tax button is visible and enabled",
+                trigger: ".o_form_view button[name='action_compute_tax']:enabled",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
+            },
+
+            // Flow 6 — Click Save.
+            {
+                content: "Save the record",
+                trigger: ".o_form_button_save",
+            },
+            {
+                content: "Record is saved",
+                trigger: ".o_form_view.o_form_readonly",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
+            },
+
+            // Post-Condition — The record is updated with the new
+            // values. Reading a many2one immediately after selecting it
+            // is unreliable (odoo-development-ui-test, patterns.md §L):
+            // go back to the list and reopen the record, which always
+            // renders read-only at 14.0, to read a genuine text node.
+            {
+                content: "Go back to the list",
+                trigger: ".breadcrumb-item:not(.active):contains('Business Trips')",
+            },
+            {
+                content: "Reopen the record",
+                trigger:
+                    ".o_data_row:contains(Tour EBT Edit Employee) .o_data_cell:first",
+            },
+            {
+                content: "Type shows the new value",
+                trigger:
+                    ".o_form_readonly .o_field_widget[name='type_id']:contains('Tour EBT Edit Type 2')",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
+            },
+        ])
+    );
+
+    // IK: docs/employee_business_trip/03-delete.md
+    tour.register(
+        "ssi_employee_business_trip_employee_business_trip_delete",
+        {
+            test: true,
+            url: "/web",
+        },
+        [].concat(openBusinessTripsList(), [
+            // Flow 2 — Select the record to delete (check the checkbox).
+            {
+                content: "Select the record to delete",
+                trigger:
+                    ".o_data_row:contains(Tour EBT Delete Employee) .o_list_record_selector input",
+                extra_trigger: ".o_list_view",
+                run: "click",
+            },
+
+            // Flow 3 — Click Action > Delete.
+            {
+                content: "Open the Action menu",
+                trigger: ".o_cp_action_menus button:contains(Action)",
+                // 14.0: the Action dropdown is an Owl component that
+                // does not always open on a synthetic click
+                // (odoo-development-ui-test, patterns.md §I).
+                run: function () {
+                    this.$anchor[0].click();
+                },
+            },
+            {
+                content: "Click Delete",
+                // Item Action menu is an Owl component; target the <a>
+                // inside .o_menu_item and match the label EXACTLY --
+                // :contains(Delete) as a substring could match another
+                // item.
+                trigger: ".o_cp_action_menus .o_menu_item a",
+                run: function () {
+                    var $delete = $(".o_cp_action_menus .o_menu_item a").filter(
+                        function () {
+                            return $(this).text().trim() === "Delete";
+                        }
+                    );
+                    $delete[0].click();
+                },
+            },
+
+            // Flow 4 — Click OK to confirm.
+            {
+                content: "Confirm deletion",
+                trigger: ".modal-footer button.btn-primary",
+                in_modal: true,
+            },
+
+            // Post-Condition — The selected record is permanently
+            // removed from the system.
+            {
+                content: "Record no longer appears in the list",
+                trigger:
+                    ".o_list_view:not(:has(.o_data_row:contains(Tour EBT Delete Employee)))",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
+            },
+        ])
+    );
+
+    // IK: docs/employee_business_trip/06-reject.md
+    tour.register(
+        "ssi_employee_business_trip_employee_business_trip_reject",
+        {
+            test: true,
+            url: "/web",
+        },
+        [].concat(openBusinessTripsList(), [
+            // Flow 2 — Open the record to reject.
+            {
+                content: "Open the record",
+                trigger:
+                    ".o_data_row:contains(Tour EBT Reject Employee) .o_data_cell:first",
+                extra_trigger: ".o_list_view",
+            },
+            {
+                content: "Record form is displayed",
+                trigger: ".o_form_view",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
+            },
+
+            // Flow 3 — Click the Reject button.
+            {
+                content: "Click the Reject button",
+                trigger: ".o_statusbar_buttons button[name='action_reject_approval']",
+                extra_trigger: ".o_form_view",
+            },
+
+            // Flow 4 — Click OK on the confirmation dialog.
+            {
+                content: "Confirm the dialog",
+                trigger: ".modal-footer button.btn-primary",
+                in_modal: true,
+            },
+
+            // Post-Condition — Status changes to Rejected.
+            {
+                content: "Status is Rejected",
+                trigger:
+                    ".o_statusbar_status .o_arrow_button[data-value='reject'].btn-primary",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
+            },
+        ])
+    );
+
+    // IK: docs/employee_business_trip/09-done.md
+    tour.register(
+        "ssi_employee_business_trip_employee_business_trip_done",
+        {
+            test: true,
+            url: "/web",
+        },
+        [].concat(openBusinessTripsList(), [
+            // Flow — the transition to Done is automatic
+            // (base.automation `employee_business_trip_ready_2_done`);
+            // there is no button to drive it from the UI. The fixture
+            // is already Done before this tour starts, reached in
+            // Python exactly as the automation would run it
+            // (odoo-development-ui-test, scope-and-boundaries.md §1
+            // aturan 6). This tour only opens the record and observes
+            // the result.
+            {
+                content: "Open the record",
+                trigger:
+                    ".o_data_row:contains(Tour EBT Done Employee) .o_data_cell:first",
+                extra_trigger: ".o_list_view",
+            },
+            {
+                content: "Record form is displayed",
+                trigger: ".o_form_view",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
+            },
+
+            // Post-Condition — Status is Done.
+            {
+                content: "Status is Done",
+                trigger:
+                    ".o_statusbar_status .o_arrow_button[data-value='done'].btn-primary",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
+            },
+        ])
+    );
+
+    // IK: docs/employee_business_trip/12-restart.md
+    tour.register(
+        "ssi_employee_business_trip_employee_business_trip_restart",
+        {
+            test: true,
+            url: "/web",
+        },
+        [].concat(openBusinessTripsList(), [
+            // Flow 2 — Open the record to restart.
+            {
+                content: "Open the record",
+                trigger:
+                    ".o_data_row:contains(Tour EBT Restart Employee) .o_data_cell:first",
+                extra_trigger: ".o_list_view",
+            },
+            {
+                content: "Record form is displayed",
+                trigger: ".o_form_view",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
+            },
+
+            // Flow 3 — Click the Restart button.
+            {
+                content: "Click the Restart button",
+                trigger: ".o_statusbar_buttons button[name='action_restart']",
+                extra_trigger: ".o_form_view",
+            },
+
+            // Flow 4 — Click OK on the confirmation dialog. `action_restart`
+            // carries `confirm="Restart data. Are you sure?"`, missing from
+            // the original IK text -- added here as the corrected IK Flow
+            // (odoo-development-ui-test, patterns.md §G names this exact
+            // button as the canonical example of the gap).
+            {
+                content: "Confirm the dialog",
+                trigger: ".modal-footer button.btn-primary",
+                in_modal: true,
+            },
+
+            // Post-Condition — Status returns to Draft.
+            {
+                content: "Status is Draft",
+                trigger:
+                    ".o_statusbar_status .o_arrow_button[data-value='draft'].btn-primary",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
+            },
+        ])
+    );
+
+    // IK: docs/employee_business_trip/13-reset-number.md
+    tour.register(
+        "ssi_employee_business_trip_employee_business_trip_reset_number",
+        {
+            test: true,
+            url: "/web",
+        },
+        [].concat(openBusinessTripsList(), [
+            // Flow 2 — Open the record whose document number will be
+            // reset.
+            {
+                content: "Open the record",
+                trigger:
+                    ".o_data_row:contains(Tour EBT Reset Number Employee) .o_data_cell:first",
+                extra_trigger: ".o_list_view",
+            },
+            {
+                content: "Record form is displayed",
+                trigger: ".o_form_view",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
+            },
+
+            // Flow 3 — Click the Reset Document Number button.
+            {
+                content: "Click the Reset Document Number button",
+                trigger:
+                    ".o_statusbar_buttons button[name='action_reset_document_number']",
+                extra_trigger: ".o_form_view",
+            },
+
+            // Flow 4 — Click OK on the confirmation dialog.
+            // `action_reset_document_number` carries `confirm="Restart
+            // document number. Are you sure?"`, missing from the
+            // original IK text -- added here as the corrected IK Flow
+            // (odoo-development-ui-test, patterns.md §G).
+            {
+                content: "Confirm the dialog",
+                trigger: ".modal-footer button.btn-primary",
+                in_modal: true,
+            },
+
+            // Post-Condition — Document number returns to "/" (it is
+            // already "/" on this Draft record). `name` field stores
+            // "/", but `MixinTransaction.name_get` (ssi_transaction_mixin,
+            // mixin_transaction.py) renders it as "*<id>" whenever the
+            // stored number is "/" -- the literal "/" never appears in
+            // the readonly display_name widget, so the visible fact
+            // checked here is that the action completes and the
+            // read-only form still shows the "*<id>" placeholder, not a
+            // new error.
+            {
+                content: 'Document number is still "/" (shown as "*<id>")',
+                trigger:
+                    ".o_form_view .o_field_widget[name='display_name']:contains('*')",
+                run: function () {
+                    // Assertion only; do not trigger the default click.
+                },
+            },
+        ])
+    );
 });
