@@ -1,3 +1,5 @@
+options:
+  auto_refresh: true
 scenarios:
   - name: "Create Employee Expense Account"
     steps:
@@ -202,11 +204,6 @@ scenarios:
           state:
             type: "value"
             expected: "confirm"
-
-      - step: "Invalidate cache after confirming first expense account"
-        action: "call"
-        target: "first"
-        method: "invalidate_cache"
 
       - step: "Approve first expense account (auto-transitions to open)"
         action: "call"
