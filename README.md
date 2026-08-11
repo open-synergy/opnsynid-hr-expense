@@ -27,7 +27,7 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
-[ssi_employee_business_trip](ssi_employee_business_trip/) | 14.0.2.5.3 |  | Employee Business Trip
+[ssi_employee_business_trip](ssi_employee_business_trip/) | 14.0.2.5.4 |  | Employee Business Trip
 [ssi_employee_business_trip_documenso_signing](ssi_employee_business_trip_documenso_signing/) | 14.0.1.0.0 |  | Employee Business Trip - Documenso Signing Integration
 [ssi_employee_business_trip_operating_unit](ssi_employee_business_trip_operating_unit/) | 14.0.1.0.0 |  | Employee Business Trip + Operating Unit
 [ssi_employee_business_trip_work_log](ssi_employee_business_trip_work_log/) | 14.0.1.0.0 |  | Employee Business Trip - Work Log Integration
