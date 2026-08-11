@@ -15,16 +15,20 @@ class TestUiEmployeeExpenseAccountType(HttpSavepointCase):
 
         Grants the admin user the configurator group the menu is gated
         by, creates the Account record picked by the tour on the
-        Accounts field, and creates the ``sequence.template`` the
-        Generate Code inline action needs to succeed.
+        Accounts field, creates the ``sequence.template`` the Generate
+        Code inline action needs to succeed, and creates one uniquely
+        named record per tour already sitting at the Pre-Condition
+        state its IK expects (edit, delete, deactivate already active,
+        activate already archived).
         """
         super().setUpClass()
         # Pre-Condition: the "Expense Account Types" menu is gated by
         # the configurator group. Without it the tour dies on its first
         # step because the menu is never rendered.
+        admin = cls.env.ref("base.user_admin")
         cls.env.ref(
             "ssi_hr_expense_account.employee_expense_account_type_group"
-        ).sudo().write({"users": [(4, cls.env.ref("base.user_admin").id)]})
+        ).sudo().write({"users": [(4, admin.id)]})
         cls.account = cls.env["account.account"].create(
             {
                 "name": "Tour Expense Type Account",
@@ -72,6 +76,39 @@ class TestUiEmployeeExpenseAccountType(HttpSavepointCase):
             }
         )
 
+        # Pre-Condition (02-edit.md): record exists, code entered
+        # manually so the optional Reset code / Generate Code branch
+        # does not need to be exercised.
+        cls.type_edit = (
+            cls.env["employee_expense_account_type"]
+            .with_user(admin)
+            .create({"name": "Tour EEAT Edit", "code": "TOUREDIT"})
+        )
+
+        # Pre-Condition (03-delete.md): record exists, not referenced by
+        # any Employee Expense Account record.
+        cls.type_delete = (
+            cls.env["employee_expense_account_type"]
+            .with_user(admin)
+            .create({"name": "Tour EEAT Delete", "code": "TOURDEL"})
+        )
+
+        # Pre-Condition (04-deactivate.md): record is currently active
+        # (the default state on creation).
+        cls.type_deactivate = (
+            cls.env["employee_expense_account_type"]
+            .with_user(admin)
+            .create({"name": "Tour EEAT Deactivate", "code": "TOURDEACT"})
+        )
+
+        # Pre-Condition (05-activate.md): record is currently archived.
+        cls.type_activate = (
+            cls.env["employee_expense_account_type"]
+            .with_user(admin)
+            .create({"name": "Tour EEAT Activate", "code": "TOURACT"})
+        )
+        cls.type_activate.with_user(admin).write({"active": False})
+
     def test_create(self):
         """Run the create tour for ``employee_expense_account_type``.
 
@@ -80,5 +117,49 @@ class TestUiEmployeeExpenseAccountType(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_hr_expense_account_employee_expense_account_type_create",
+            login="admin",
+        )
+
+    def test_edit(self):
+        """Run the edit tour for ``employee_expense_account_type``.
+
+        IK: docs/employee_expense_account_type/02-edit.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_expense_account_employee_expense_account_type_edit",
+            login="admin",
+        )
+
+    def test_delete(self):
+        """Run the delete tour for ``employee_expense_account_type``.
+
+        IK: docs/employee_expense_account_type/03-delete.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_expense_account_employee_expense_account_type_delete",
+            login="admin",
+        )
+
+    def test_deactivate(self):
+        """Run the deactivate tour for ``employee_expense_account_type``.
+
+        IK: docs/employee_expense_account_type/04-deactivate.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_expense_account_employee_expense_account_type_deactivate",
+            login="admin",
+        )
+
+    def test_activate(self):
+        """Run the activate tour for ``employee_expense_account_type``.
+
+        IK: docs/employee_expense_account_type/05-activate.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_expense_account_employee_expense_account_type_activate",
             login="admin",
         )

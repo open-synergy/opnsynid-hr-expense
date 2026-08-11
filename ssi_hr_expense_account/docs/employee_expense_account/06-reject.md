@@ -9,9 +9,9 @@
 
 ## Pre-Condition
 
-- Record is in **Waiting for Approval** status.
-- User is registered as an approver on the active approval template.
-- User has _Can Reject_ access right.
+- **Record:** Record is in **Waiting for Approval** status.
+- **Access:** User is registered as an approver on the active approval template.
+- **Access:** User has _Can Reject_ access right.
 
 ## Flow
 

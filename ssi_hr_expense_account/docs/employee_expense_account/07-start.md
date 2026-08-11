@@ -9,9 +9,9 @@
 
 ## Pre-Condition
 
-- Record is in **Done** status.
-- The **Residual** amount on the expense account returns to above **0.00**, for example
-  because a linked expense transaction has been cancelled or reversed.
+- **Record:** Record is in **Done** status.
+- **Data:** The **Residual** amount on the expense account returns to above **0.00**,
+  for example because a linked expense transaction has been cancelled or reversed.
 
 ## Flow
 

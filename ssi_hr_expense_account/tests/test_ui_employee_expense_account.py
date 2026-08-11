@@ -15,11 +15,11 @@ class TestUiEmployeeExpenseAccount(HttpSavepointCase):
 
         Creates the expense account type, currency, cancel/terminate
         reasons, and one uniquely named employee per tour (used as the
-        row marker in the list). The confirm, approve, cancel, and
-        terminate tours each get their own record already sitting at
-        the Pre-Condition state their IK expects, reached by calling
-        the workflow actions directly instead of clicking through the
-        UI.
+        row marker in the list). The confirm, approve, reject, cancel,
+        terminate, restart, and finish/start tours each get their own
+        record already sitting at the Pre-Condition state their IK
+        expects, reached by calling the workflow actions directly
+        instead of clicking through the UI.
         """
         super().setUpClass()
         admin = cls.env.ref("base.user_admin")
@@ -85,6 +85,41 @@ class TestUiEmployeeExpenseAccount(HttpSavepointCase):
             .with_user(admin)
             .create({"name": "Tour EEA Employee Terminate"})
         )
+        cls.employee_edit = (
+            cls.env["hr.employee"]
+            .with_user(admin)
+            .create({"name": "Tour EEA Employee Edit"})
+        )
+        cls.employee_delete = (
+            cls.env["hr.employee"]
+            .with_user(admin)
+            .create({"name": "Tour EEA Employee Delete"})
+        )
+        cls.employee_reject = (
+            cls.env["hr.employee"]
+            .with_user(admin)
+            .create({"name": "Tour EEA Employee Reject"})
+        )
+        cls.employee_finish = (
+            cls.env["hr.employee"]
+            .with_user(admin)
+            .create({"name": "Tour EEA Employee Finish"})
+        )
+        cls.employee_start = (
+            cls.env["hr.employee"]
+            .with_user(admin)
+            .create({"name": "Tour EEA Employee Start"})
+        )
+        cls.employee_restart = (
+            cls.env["hr.employee"]
+            .with_user(admin)
+            .create({"name": "Tour EEA Employee Restart"})
+        )
+        cls.employee_reset_number = (
+            cls.env["hr.employee"]
+            .with_user(admin)
+            .create({"name": "Tour EEA Employee Reset Number"})
+        )
         # The create tour picks this employee from the UI, so it does
         # not need a matching employee_expense_account fixture.
         cls.env["hr.employee"].with_user(admin).create(
@@ -139,6 +174,82 @@ class TestUiEmployeeExpenseAccount(HttpSavepointCase):
         cls.terminate_record.invalidate_cache()
         cls.terminate_record.with_user(admin).action_approve_approval()
 
+        # Pre-Condition (02-edit.md): record is in Draft.
+        cls.edit_record = (
+            cls.env["employee_expense_account"]
+            .with_user(admin)
+            .create(dict(common_values, employee_id=cls.employee_edit.id))
+        )
+
+        # Pre-Condition (03-delete.md): record is Draft, document number
+        # still "/" (not yet generated).
+        cls.delete_record = (
+            cls.env["employee_expense_account"]
+            .with_user(admin)
+            .create(dict(common_values, employee_id=cls.employee_delete.id))
+        )
+
+        # Pre-Condition (06-reject.md): record is Waiting for Approval.
+        cls.reject_record = (
+            cls.env["employee_expense_account"]
+            .with_user(admin)
+            .create(dict(common_values, employee_id=cls.employee_reject.id))
+        )
+        cls.reject_record.with_user(admin).action_confirm()
+
+        # Pre-Condition (13-reset-number.md): record is Draft.
+        cls.reset_number_record = (
+            cls.env["employee_expense_account"]
+            .with_user(admin)
+            .create(dict(common_values, employee_id=cls.employee_reset_number.id))
+        )
+
+        # Pre-Condition (12-restart.md): record is Cancelled. Reached
+        # directly via ``action_cancel()`` from Draft (mixin.transaction
+        # allows cancelling from Draft), no approval chain involved so
+        # no ``invalidate_cache()`` is needed here.
+        cls.restart_record = (
+            cls.env["employee_expense_account"]
+            .with_user(admin)
+            .create(dict(common_values, employee_id=cls.employee_restart.id))
+        )
+        cls.restart_record.with_user(admin).action_cancel(cls.cancel_reason)
+
+        # Pre-Condition (09-finish.md): record is In Progress (Open),
+        # then transitioned to Done exactly as the
+        # ``employee_expense_account_to_done`` automation would run it
+        # (data/base_automation_data.xml / data/ir_actions_server_data.xml):
+        # ``action_done()`` under ``bypass_policy_check`` context, no UI
+        # action drives it (odoo-development-ui-test,
+        # scope-and-boundaries.md §1 aturan 6).
+        cls.finish_record = (
+            cls.env["employee_expense_account"]
+            .with_user(admin)
+            .create(dict(common_values, employee_id=cls.employee_finish.id))
+        )
+        cls.finish_record.with_user(admin).action_confirm()
+        cls.finish_record.invalidate_cache()
+        cls.finish_record.with_user(admin).action_approve_approval()
+        cls.finish_record.with_context(bypass_policy_check=True).action_done()
+
+        # Pre-Condition (07-start.md): record is Done, then transitioned
+        # back to In Progress exactly as the
+        # ``employee_expense_account_to_open`` automation would run it,
+        # under ``bypass_policy_check`` context (same reasoning as
+        # ``finish_record`` above -- ``open_ok`` has no policy template
+        # detail configured for this model, so calling ``action_open()``
+        # would otherwise always be rejected regardless of user).
+        cls.start_record = (
+            cls.env["employee_expense_account"]
+            .with_user(admin)
+            .create(dict(common_values, employee_id=cls.employee_start.id))
+        )
+        cls.start_record.with_user(admin).action_confirm()
+        cls.start_record.invalidate_cache()
+        cls.start_record.with_user(admin).action_approve_approval()
+        cls.start_record.with_context(bypass_policy_check=True).action_done()
+        cls.start_record.with_context(bypass_policy_check=True).action_open()
+
     def test_create(self):
         """Run the create tour for ``employee_expense_account``.
 
@@ -191,5 +302,82 @@ class TestUiEmployeeExpenseAccount(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_hr_expense_account_employee_expense_account_terminate",
+            login="admin",
+        )
+
+    def test_edit(self):
+        """Run the edit tour for ``employee_expense_account``.
+
+        IK: docs/employee_expense_account/02-edit.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_expense_account_employee_expense_account_edit",
+            login="admin",
+        )
+
+    def test_delete(self):
+        """Run the delete tour for ``employee_expense_account``.
+
+        IK: docs/employee_expense_account/03-delete.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_expense_account_employee_expense_account_delete",
+            login="admin",
+        )
+
+    def test_reject(self):
+        """Run the reject tour for ``employee_expense_account``.
+
+        IK: docs/employee_expense_account/06-reject.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_expense_account_employee_expense_account_reject",
+            login="admin",
+        )
+
+    def test_start(self):
+        """Run the start tour for ``employee_expense_account``.
+
+        IK: docs/employee_expense_account/07-start.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_expense_account_employee_expense_account_start",
+            login="admin",
+        )
+
+    def test_finish(self):
+        """Run the finish tour for ``employee_expense_account``.
+
+        IK: docs/employee_expense_account/09-finish.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_expense_account_employee_expense_account_finish",
+            login="admin",
+        )
+
+    def test_restart(self):
+        """Run the restart tour for ``employee_expense_account``.
+
+        IK: docs/employee_expense_account/12-restart.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_expense_account_employee_expense_account_restart",
+            login="admin",
+        )
+
+    def test_reset_number(self):
+        """Run the reset document number tour for ``employee_expense_account``.
+
+        IK: docs/employee_expense_account/13-reset-number.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_expense_account_employee_expense_account_reset_number",
             login="admin",
         )
