@@ -245,8 +245,16 @@ odoo.define("ssi_hr_expense_account_reimbursement.hr_reimbursement_tour", functi
             // screen at all until then) -- not on the message text,
             // which stays unit-test territory.
             {
+                // Generous timeout: the rejection round-trips through
+                // the server (_check_expense_account pre_confirm_action
+                // hook + CrashManager error rendering) and can exceed
+                // the tour engine's default RUNNING_TOUR_TIMEOUT
+                // (10000ms, web_tour/static/src/js/tour_manager.js)
+                // under CI load. The gate itself (selector + content)
+                // is unchanged -- only the margin is extended.
                 content: "A validation warning dialog is displayed",
                 trigger: ".modal .o_dialog_warning",
+                timeout: 20000,
                 run: function () {
                     // Assertion only; do not trigger the default
                     // click.
