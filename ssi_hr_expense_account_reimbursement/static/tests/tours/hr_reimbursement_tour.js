@@ -17,9 +17,7 @@ odoo.define("ssi_hr_expense_account_reimbursement.hr_reimbursement_tour", functi
     // after the delta assertions -- it does not fill any field,
     // does not Save, and does not continue to confirm
     // (odoo-development-ui-test, scope-and-boundaries.md §3,
-    // arketipe E1). There is no tour for
-    // docs/hr_reimbursement/04-confirm.md: it only documents
-    // additional confirm validation, which is unit test territory.
+    // arketipe E1).
     tour.register(
         "ssi_hr_expense_account_reimbursement_hr_reimbursement_create",
         {
@@ -134,6 +132,148 @@ odoo.define("ssi_hr_expense_account_reimbursement.hr_reimbursement_tour", functi
             {
                 content: "# Expense Account field label is displayed",
                 trigger: ".o_form_label:contains(# Expense Account)",
+                run: function () {
+                    // Assertion only; do not trigger the default
+                    // click.
+                },
+            },
+        ]
+    );
+
+    // IK: docs/hr_reimbursement/04-confirm.md
+    // (E2b delta -- Additional Validation). scope-and-boundaries.md §3
+    // normally excludes a pure validation-gate delta like this one from
+    // getting a tour at all (it has no kasatmata Flow of its own, only
+    // a server-side gate) -- but issue
+    // open-synergy/opnsynid-hr-expense#197's Keputusan Desain asks for
+    // a paired tour anyway, to close the mechanical "IK without a
+    // tour" finding from validate-ik.sh. Resolved by exercising the
+    // delta's VISIBLE failure outcome instead of the specific error
+    // text: navigation (open menu, open the record, click Confirm,
+    // click OK on the confirmation dialog) is taken verbatim from the
+    // base IK (ssi_hr_reimbursement/docs/hr_reimbursement/04-confirm.md,
+    // Flow steps 1-4); the assertion is this module's delta -- the
+    // fixture line is flagged Require Expense Account with no matching
+    // expense account, so models/hr_reimbursement.py::
+    // _check_expense_account (a pre_confirm_action hook, runs before
+    // the state-changing write per
+    // ssi_transaction_confirm_mixin::action_confirm) rejects Confirm
+    // with "No expense account" before the state transition lands.
+    // The tour asserts only that a warning dialog appears
+    // (.o_dialog_warning -- the CrashManager.warning template's fixed
+    // class, rendered regardless of the message) and that the record
+    // stays in Draft; it does not read the specific error text, which
+    // stays odoo-development-unit-test territory (expect_error).
+    tour.register(
+        "ssi_hr_expense_account_reimbursement_hr_reimbursement_confirm",
+        {
+            test: true,
+            url: "/web",
+        },
+        [
+            // Base Flow 1 -- Open the Human Resource > Expense >
+            // Reimbursements menu.
+            tour.stepUtils.showAppsMenuItem(),
+            {
+                content: "Open the Human Resource app",
+                trigger: '.o_app[data-menu-xmlid="ssi_hr.menu_root_human_resource"]',
+            },
+            {
+                content: "Open the Expense menu",
+                trigger:
+                    '.o_menu_sections [data-menu-xmlid="ssi_hr_expense.expense_menu"]',
+            },
+            {
+                content: "Open the Reimbursements menu",
+                trigger:
+                    '.o_menu_sections [data-menu-xmlid="ssi_hr_reimbursement.hr_reimbursement_menu"]',
+            },
+            {
+                // Gate: wait for the Reimbursements action to
+                // actually be mounted, not just any list view left
+                // over from the landing action (patterns.md §A).
+                content: "Reimbursements list is displayed",
+                trigger:
+                    ".o_control_panel .breadcrumb-item.active:contains(Reimbursements)",
+                extra_trigger: ".o_list_view",
+                run: function () {
+                    // Assertion only; do not trigger the default
+                    // click.
+                },
+            },
+
+            // Base Flow 2 -- Open the record to confirm.
+            {
+                content: "Open the record",
+                trigger:
+                    ".o_data_row:contains(Tour Confirm Reimbursement Employee) .o_data_cell:first",
+                extra_trigger: ".o_list_view",
+            },
+            {
+                content: "Record form is displayed",
+                trigger: ".o_form_view",
+                run: function () {
+                    // Assertion only; do not trigger the default
+                    // click.
+                },
+            },
+
+            // Base Flow 3 -- Click the Confirm button.
+            {
+                content: "Click the Confirm button",
+                trigger: ".o_statusbar_buttons button[name='action_confirm']",
+                extra_trigger: ".o_form_view",
+            },
+
+            // Base Flow 4 -- Click OK on the confirmation dialog
+            // ("Confirm data. Are you sure?",
+            // ssi_transaction_confirm_mixin, button_confirm template).
+            // This is a client-side Dialog.confirm -- accepting it
+            // dispatches the action_confirm RPC that this module's
+            // pre_confirm_action hook rejects before the state
+            // changes.
+            {
+                content: "Confirm the dialog",
+                trigger: ".modal-footer button.btn-primary",
+                in_modal: true,
+            },
+
+            // Additional Validation (delta) -- the rejection surfaces
+            // as a warning dialog. Anchored on the template's fixed
+            // class (o_dialog_warning, CrashManager.warning), which
+            // cannot be true before the Confirm click (no modal is on
+            // screen at all until then) -- not on the message text,
+            // which stays unit-test territory.
+            {
+                content: "A validation warning dialog is displayed",
+                trigger: ".modal .o_dialog_warning",
+                run: function () {
+                    // Assertion only; do not trigger the default
+                    // click.
+                },
+            },
+            {
+                content: "Close the warning dialog",
+                trigger: ".modal-footer button.btn-primary",
+                in_modal: true,
+            },
+
+            // Post-Condition (delta) -- Confirm did not succeed: the
+            // status stays Draft and the Confirm button is still
+            // shown, unlike the base Post-Condition (Waiting for
+            // Approval).
+            {
+                content: "Status is still Draft",
+                trigger:
+                    ".o_statusbar_status .o_arrow_button[data-value='draft'].btn-primary",
+                run: function () {
+                    // Assertion only; do not trigger the default
+                    // click.
+                },
+            },
+            {
+                content: "The Confirm button is still shown",
+                trigger: ".o_statusbar_buttons button[name='action_confirm']:enabled",
                 run: function () {
                     // Assertion only; do not trigger the default
                     // click.
