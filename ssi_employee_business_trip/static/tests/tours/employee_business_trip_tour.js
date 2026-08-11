@@ -559,8 +559,19 @@ odoo.define("ssi_employee_business_trip.employee_business_trip_tour", function (
                 trigger: ".o_form_button_save",
             },
             {
+                // This step chains right after the Compute Tax cycle's
+                // own save+reload (Flow 5), so the client has two
+                // save/reload round-trips plus a full chatter re-render
+                // (read_followers, get_suggested_recipients,
+                // thread/data, activity_format) to finish before the
+                // form settles into readonly. That is reliably slower
+                // than the tour engine's 10s default step timeout
+                // (RUNNING_TOUR_TIMEOUT, web_tour/static/src/js/
+                // tour_manager.js) under CI parallel-test load, so this
+                // step gets extra time instead of a tighter assertion.
                 content: "Record is saved",
                 trigger: ".o_form_view.o_form_readonly",
+                timeout: 30000,
                 run: function () {
                     // Assertion only; do not trigger the default click.
                 },
@@ -844,13 +855,18 @@ odoo.define("ssi_employee_business_trip.employee_business_trip_tour", function (
             },
 
             // Post-Condition — Document number returns to "/" (it is
-            // already "/" on this Draft record; the visible fact
+            // already "/" on this Draft record). `name` field stores
+            // "/", but `MixinTransaction.name_get` (ssi_transaction_mixin,
+            // mixin_transaction.py) renders it as "*<id>" whenever the
+            // stored number is "/" -- the literal "/" never appears in
+            // the readonly display_name widget, so the visible fact
             // checked here is that the action completes and the
-            // read-only form still shows "/", not a new error).
+            // read-only form still shows the "*<id>" placeholder, not a
+            // new error.
             {
-                content: 'Document number is still "/"',
+                content: 'Document number is still "/" (shown as "*<id>")',
                 trigger:
-                    ".o_form_view .o_field_widget[name='display_name']:contains('/')",
+                    ".o_form_view .o_field_widget[name='display_name']:contains('*')",
                 run: function () {
                     // Assertion only; do not trigger the default click.
                 },
