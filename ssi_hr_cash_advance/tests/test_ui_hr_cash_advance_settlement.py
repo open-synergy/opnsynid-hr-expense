@@ -11,11 +11,15 @@ class TestUiHrCashAdvanceSettlement(HttpSavepointCase):
 
     Covers the base create/confirm/approve/cancel flow
     (``docs/hr_cash_advance_settlement/01-create.md``, ``04-confirm.md``,
-    ``05-approve.md``, ``10-cancel.md``). All master data is built from
-    scratch in ``setUpClass`` -- no demo data is relied upon, except the
-    employee ``base.user_admin`` already resolves to via
-    ``mixin.employee_document._default_employee_id`` (Keputusan Desain,
-    issue open-synergy/opnsynid-hr-expense#136).
+    ``05-approve.md``, ``10-cancel.md``) plus the edit/delete/reject/
+    restart/reset-number flows added by issue
+    open-synergy/opnsynid-hr-expense#192
+    (``02-edit.md``, ``03-delete.md``, ``06-reject.md``,
+    ``12-restart.md``, ``13-reset-number.md``). All master data is
+    built from scratch in ``setUpClass`` -- no demo data is relied
+    upon, except the employee ``base.user_admin`` already resolves to
+    via ``mixin.employee_document._default_employee_id`` (Keputusan
+    Desain, issue open-synergy/opnsynid-hr-expense#136).
     """
 
     @classmethod
@@ -222,6 +226,104 @@ class TestUiHrCashAdvanceSettlement(HttpSavepointCase):
             "Tour Cash Advance Settlement Cancel Line",
         )
 
+        # Fixture for the delete tour -- Pre-Condition: Draft status,
+        # document number still "/".
+        employee_delete = cls._create_employee(
+            "Tour Cash Advance Settlement Delete Employee"
+        )
+        cash_advance_delete = cls._create_open_cash_advance(employee_delete)
+        cls.settlement_delete = cls._create_settlement(
+            employee_delete,
+            cash_advance_delete,
+            "Tour Cash Advance Settlement Delete Line",
+        )
+
+        # Fixture for the reject tour -- Pre-Condition: Waiting for
+        # Approval status, reached in Python via action_confirm(), not
+        # by clicking through the UI -- the reject tour itself clicks
+        # Reject.
+        employee_reject = cls._create_employee(
+            "Tour Cash Advance Settlement Reject Employee"
+        )
+        cash_advance_reject = cls._create_open_cash_advance(employee_reject)
+        cls.settlement_reject = cls._create_settlement(
+            employee_reject,
+            cash_advance_reject,
+            "Tour Cash Advance Settlement Reject Line",
+        )
+        cls.settlement_reject.action_confirm()
+
+        # Fixture for the restart tour -- Pre-Condition: Cancelled or
+        # Rejected status; Rejected is used, reached in Python via
+        # action_confirm() then action_reject_approval() (mirrors the
+        # confirm->approve refresh dance above, T-04).
+        employee_restart = cls._create_employee(
+            "Tour Cash Advance Settlement Restart Employee"
+        )
+        cash_advance_restart = cls._create_open_cash_advance(employee_restart)
+        cls.settlement_restart = cls._create_settlement(
+            employee_restart,
+            cash_advance_restart,
+            "Tour Cash Advance Settlement Restart Line",
+        )
+        cls.settlement_restart.action_confirm()
+        cls.settlement_restart.flush()
+        cls.settlement_restart.invalidate_cache(ids=cls.settlement_restart.ids)
+        cls.settlement_restart.action_reject_approval()
+
+        # Fixture for the reset-number tour -- Pre-Condition: Draft
+        # status.
+        employee_reset_number = cls._create_employee(
+            "Tour Cash Advance Settlement Reset Number Employee"
+        )
+        cash_advance_reset_number = cls._create_open_cash_advance(employee_reset_number)
+        cls.settlement_reset_number = cls._create_settlement(
+            employee_reset_number,
+            cash_advance_reset_number,
+            "Tour Cash Advance Settlement Reset Number Line",
+        )
+
+        # Fixture for the edit tour -- Pre-Condition: Draft status.
+        # The settlement itself starts with NO lines while its cash
+        # advance carries exactly one, distinctly-named line, so the
+        # Reload from Cash Advance inline action
+        # (docs/hr_cash_advance_settlement/02-edit.md "Inline
+        # Actions:") produces a real, deterministic delta a tour gate
+        # can bind to -- impossible to match before the click, certain
+        # to match after (odoo-development-ui-test, patterns.md §P
+        # uji lakmus), unlike an idempotent action with no delta to
+        # gate on.
+        employee_edit = cls._create_employee(
+            "Tour Cash Advance Settlement Edit Employee"
+        )
+        cash_advance_edit = cls._create_open_cash_advance(employee_edit)
+        cls.env["hr.cash_advance_line"].with_user(cls.admin).create(
+            {
+                "cash_advance_id": cash_advance_edit.id,
+                "date_expense": "2026-01-01",
+                "product_id": cls.product.id,
+                "name": "Tour Cash Advance Settlement Edit Reload Marker",
+                "usage_id": cls.usage_type.id,
+                "account_id": cls.line_account.id,
+                "price_unit": 50.0,
+                "uom_quantity": 1.0,
+                "uom_id": cls.product.uom_id.id,
+            }
+        )
+        cls.settlement_edit = (
+            cls.env["hr.cash_advance_settlement"]
+            .with_user(cls.admin)
+            .create(
+                {
+                    "employee_id": employee_edit.id,
+                    "type_id": cls.expense_type.id,
+                    "cash_advance_id": cash_advance_edit.id,
+                    "journal_id": cls.settlement_journal.id,
+                    "date": "2026-01-15",
+                }
+            )
+        )
+
     @classmethod
     def _create_employee(cls, name):
         """Create an employee with a home-address partner.
@@ -375,5 +477,61 @@ class TestUiHrCashAdvanceSettlement(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_hr_cash_advance_hr_cash_advance_settlement_cancel",
+            login="admin",
+        )
+
+    def test_edit(self):
+        """Run the edit tour for ``hr.cash_advance_settlement``.
+
+        IK: docs/hr_cash_advance_settlement/02-edit.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_cash_advance_hr_cash_advance_settlement_edit",
+            login="admin",
+        )
+
+    def test_delete(self):
+        """Run the delete tour for ``hr.cash_advance_settlement``.
+
+        IK: docs/hr_cash_advance_settlement/03-delete.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_cash_advance_hr_cash_advance_settlement_delete",
+            login="admin",
+        )
+
+    def test_reject(self):
+        """Run the reject tour for ``hr.cash_advance_settlement``.
+
+        IK: docs/hr_cash_advance_settlement/06-reject.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_cash_advance_hr_cash_advance_settlement_reject",
+            login="admin",
+        )
+
+    def test_restart(self):
+        """Run the restart tour for ``hr.cash_advance_settlement``.
+
+        IK: docs/hr_cash_advance_settlement/12-restart.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_cash_advance_hr_cash_advance_settlement_restart",
+            login="admin",
+        )
+
+    def test_reset_number(self):
+        """Run the reset document number tour for
+        ``hr.cash_advance_settlement``.
+
+        IK: docs/hr_cash_advance_settlement/13-reset-number.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_cash_advance_hr_cash_advance_settlement_reset_number",
             login="admin",
         )

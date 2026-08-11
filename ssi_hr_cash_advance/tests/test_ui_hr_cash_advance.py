@@ -11,8 +11,13 @@ class TestUiHrCashAdvance(HttpSavepointCase):
 
     Covers the base create/confirm/approve/cancel flow
     (``docs/hr_cash_advance/01-create.md``, ``04-confirm.md``,
-    ``05-approve.md``, ``10-cancel.md``). All master data is built
-    from scratch in ``setUpClass`` -- no demo data is relied upon.
+    ``05-approve.md``, ``10-cancel.md``) plus the edit/delete/reject/
+    reopen/done/restart/reset-number flows added by issue
+    open-synergy/opnsynid-hr-expense#192
+    (``02-edit.md``, ``03-delete.md``, ``06-reject.md``,
+    ``07-reopen.md``, ``09-done.md``, ``12-restart.md``,
+    ``13-reset-number.md``). All master data is built from scratch in
+    ``setUpClass`` -- no demo data is relied upon.
     """
 
     @classmethod
@@ -141,6 +146,97 @@ class TestUiHrCashAdvance(HttpSavepointCase):
         employee_cancel = cls._create_employee("Tour Cash Advance Cancel Employee")
         cls.cash_advance_cancel = cls._create_cash_advance(employee_cancel)
 
+        # Fixture for the edit tour -- Pre-Condition: Draft status.
+        employee_edit = cls._create_employee("Tour Cash Advance Edit Employee")
+        cls.cash_advance_edit = cls._create_cash_advance(employee_edit)
+
+        # Fixture for the delete tour -- Pre-Condition: Draft status,
+        # document number still "/".
+        employee_delete = cls._create_employee("Tour Cash Advance Delete Employee")
+        cls.cash_advance_delete = cls._create_cash_advance(employee_delete)
+
+        # Fixture for the reject tour -- Pre-Condition: Waiting for
+        # Approval status, reached in Python via action_confirm(), not
+        # by clicking through the UI -- the reject tour itself clicks
+        # Reject.
+        employee_reject = cls._create_employee("Tour Cash Advance Reject Employee")
+        cls.cash_advance_reject = cls._create_cash_advance(employee_reject)
+        cls.cash_advance_reject.action_confirm()
+
+        # Fixture for the restart tour -- Pre-Condition: Cancelled or
+        # Rejected status; Rejected is used, reached in Python via
+        # action_confirm() then action_reject_approval() (mirrors the
+        # confirm->approve refresh dance below, T-04).
+        employee_restart = cls._create_employee("Tour Cash Advance Restart Employee")
+        cls.cash_advance_restart = cls._create_cash_advance(employee_restart)
+        cls.cash_advance_restart.action_confirm()
+        cls.cash_advance_restart.flush()
+        cls.cash_advance_restart.invalidate_cache(ids=cls.cash_advance_restart.ids)
+        cls.cash_advance_restart.action_reject_approval()
+
+        # Fixture for the reset-number tour -- Pre-Condition: Draft
+        # status.
+        employee_reset_number = cls._create_employee(
+            "Tour Cash Advance Reset Number Employee"
+        )
+        cls.cash_advance_reset_number = cls._create_cash_advance(employee_reset_number)
+
+        # Fixture for the done and reopen tours -- Pre-Condition: Open
+        # status reached via the confirm->approve refresh dance (T-04),
+        # then `realized`/`settled` are written directly (mirrors
+        # tests/test_data_hr_cash_advance_action.yaml "Action Recompute
+        # Realization" scenario) and `action_recompute_realization` is
+        # called in Python -- exactly the path the real
+        # `cash_advance_open_2_done` / `cash_advance_done_2_open`
+        # `base.automation` records take, per Keputusan Desain (issue
+        # #192): "Tour untuk IK base.automation menyiapkan kondisi di
+        # Python, lalu hanya memverifikasi tampilannya."
+        employee_done = cls._create_employee(
+            "Tour Cash Advance Done Employee", with_address=True
+        )
+        cls.cash_advance_done = cls._create_open_cash_advance(employee_done)
+        cls.cash_advance_done.write({"realized": True, "settled": True})
+        cls.cash_advance_done.action_recompute_realization()
+
+        employee_reopen = cls._create_employee(
+            "Tour Cash Advance Reopen Employee", with_address=True
+        )
+        cls.cash_advance_reopen = cls._create_open_cash_advance(employee_reopen)
+        cls.cash_advance_reopen.write({"realized": True, "settled": True})
+        cls.cash_advance_reopen.action_recompute_realization()
+        cls.cash_advance_reopen.write({"realized": False})
+        cls.cash_advance_reopen.action_recompute_realization()
+
+    @classmethod
+    def _create_open_cash_advance(cls, employee):
+        """Create and open an ``hr.cash_advance`` for the given employee.
+
+        Pushed to **Open** in Python via ``action_confirm()`` then
+        ``action_approve_approval()`` -- not by clicking through the
+        UI (Keputusan Desain, issue
+        open-synergy/opnsynid-hr-expense#131).
+
+        Between the two calls the record is flushed and its cache
+        invalidated (scoped to its own ids) -- without the refresh,
+        ``action_approve_approval()`` reads a stale cached
+        ``approve_ok`` and raises "Document is not allowed to
+        approve" nondeterministically (T-04, mirrors
+        ``test_ui_hr_cash_advance_settlement.py``
+        ``_create_open_cash_advance``).
+
+        :param employee: ``hr.employee`` the record is submitted for,
+            requires a home address (``action_open`` ->
+            ``_create_accounting_entry`` -> ``_get_partner_id`` raises
+            without one)
+        :return: the created ``hr.cash_advance``, in Open status
+        """
+        cash_advance = cls._create_cash_advance(employee)
+        cash_advance.action_confirm()
+        cash_advance.flush()
+        cash_advance.invalidate_cache(ids=cash_advance.ids)
+        cash_advance.action_approve_approval()
+        return cash_advance
+
     @classmethod
     def _create_employee(cls, name, with_address=False):
         """Create an employee, optionally with a home-address partner.
@@ -231,5 +327,98 @@ class TestUiHrCashAdvance(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_hr_cash_advance_hr_cash_advance_cancel",
+            login="admin",
+        )
+
+    def test_edit(self):
+        """Run the edit tour for ``hr.cash_advance``.
+
+        IK: docs/hr_cash_advance/02-edit.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_cash_advance_hr_cash_advance_edit",
+            login="admin",
+        )
+
+    def test_delete(self):
+        """Run the delete tour for ``hr.cash_advance``.
+
+        IK: docs/hr_cash_advance/03-delete.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_cash_advance_hr_cash_advance_delete",
+            login="admin",
+        )
+
+    def test_reject(self):
+        """Run the reject tour for ``hr.cash_advance``.
+
+        IK: docs/hr_cash_advance/06-reject.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_cash_advance_hr_cash_advance_reject",
+            login="admin",
+        )
+
+    def test_reopen(self):
+        """Run the reopen tour for ``hr.cash_advance``.
+
+        The Done -> Open transition itself is automatic
+        (``base.automation`` ``cash_advance_done_2_open``); the
+        fixture is already Open before this tour starts, reached in
+        Python exactly as the automation would run it
+        (odoo-development-ui-test, scope-and-boundaries.md §1 aturan
+        6). This tour observes the result and exercises the inline
+        Recompute Realization action hosted on this IK.
+
+        IK: docs/hr_cash_advance/07-reopen.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_cash_advance_hr_cash_advance_reopen",
+            login="admin",
+        )
+
+    def test_done(self):
+        """Run the done tour for ``hr.cash_advance``.
+
+        The Open -> Done transition itself is automatic
+        (``base.automation`` ``cash_advance_open_2_done``); the
+        fixture is already Done before this tour starts, reached in
+        Python exactly as the automation would run it
+        (odoo-development-ui-test, scope-and-boundaries.md §1 aturan
+        6). This tour observes the result and exercises the inline
+        Recompute Realization action hosted on this IK.
+
+        IK: docs/hr_cash_advance/09-done.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_cash_advance_hr_cash_advance_done",
+            login="admin",
+        )
+
+    def test_restart(self):
+        """Run the restart tour for ``hr.cash_advance``.
+
+        IK: docs/hr_cash_advance/12-restart.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_cash_advance_hr_cash_advance_restart",
+            login="admin",
+        )
+
+    def test_reset_number(self):
+        """Run the reset document number tour for ``hr.cash_advance``.
+
+        IK: docs/hr_cash_advance/13-reset-number.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_hr_cash_advance_hr_cash_advance_reset_number",
             login="admin",
         )
