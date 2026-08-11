@@ -8,7 +8,7 @@
 
 ## Pre-Condition
 
-- At least one Cash Advance record in **Open** status exists for the employee.
+- **Data:** At least one Cash Advance record in **Open** status exists for the employee.
 
 ## Flow
 

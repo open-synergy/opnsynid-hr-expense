@@ -9,9 +9,9 @@
 
 ## Pre-Condition
 
-- Record is in a status that allows cancellation (**Draft**, **Waiting for Approval**,
-  or **Open**).
-- User has _Can Cancel_ access right.
+- **Record:** Record is in a status that allows cancellation (**Draft**, **Waiting for
+  Approval**, or **Open**).
+- **Access:** User has _Can Cancel_ access right.
 
 ## Flow
 
