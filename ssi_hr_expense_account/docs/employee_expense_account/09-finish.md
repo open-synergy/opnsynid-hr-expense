@@ -9,9 +9,9 @@
 
 ## Pre-Condition
 
-- Record is in **In Progress** status.
-- The **Residual** amount on the expense account is **0.00**, meaning the full budget
-  has been utilized by linked expense transactions.
+- **Record:** Record is in **In Progress** status.
+- **Data:** The **Residual** amount on the expense account is **0.00**, meaning the full
+  budget has been utilized by linked expense transactions.
 
 ## Flow
 

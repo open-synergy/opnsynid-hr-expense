@@ -8,8 +8,8 @@
 
 ## Pre-Condition
 
-- Record is in **Draft** status.
-- Document number is still **/** (not yet generated).
+- **Record:** Record is in **Draft** status.
+- **Record:** Document number is still **/** (not yet generated).
 
 ## Flow
 

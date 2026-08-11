@@ -9,8 +9,8 @@
 
 ## Pre-Condition
 
-- Record is in a status that allows termination.
-- User has _Can Terminate_ access right.
+- **Record:** Record is in a status that allows termination.
+- **Access:** User has _Can Terminate_ access right.
 
 ## Flow
 
