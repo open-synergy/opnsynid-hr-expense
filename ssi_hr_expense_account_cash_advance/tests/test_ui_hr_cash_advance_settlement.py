@@ -162,10 +162,26 @@ class TestUiHrCashAdvanceSettlement(HttpSavepointCase):
                 }
             )
         )
+        # ``address_home_id`` is required: the underlying cash advance's
+        # ``action_open`` -> ``_create_accounting_entry`` ->
+        # ``_get_partner_id`` raises "No home address defined for
+        # employee" without one (mirrors the base module's own
+        # ``_create_employee`` tour fixture helper,
+        # ``ssi_hr_cash_advance/tests/test_ui_hr_cash_advance_settlement.py``).
+        confirm_home = (
+            cls.env["res.partner"]
+            .with_user(cls.admin)
+            .create({"name": "Tour Expense Account Settlement Confirm Home"})
+        )
         employee_confirm = (
             cls.env["hr.employee"]
             .with_user(cls.admin)
-            .create({"name": "Tour Expense Account Settlement Confirm Employee"})
+            .create(
+                {
+                    "name": "Tour Expense Account Settlement Confirm Employee",
+                    "address_home_id": confirm_home.id,
+                }
+            )
         )
         cls.expense_account_confirm = (
             cls.env["employee_expense_account"]
