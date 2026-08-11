@@ -245,16 +245,26 @@ odoo.define("ssi_hr_expense_account_reimbursement.hr_reimbursement_tour", functi
             // screen at all until then) -- not on the message text,
             // which stays unit-test territory.
             {
-                // Generous timeout: the rejection round-trips through
-                // the server (_check_expense_account pre_confirm_action
-                // hook + CrashManager error rendering) and can exceed
-                // the tour engine's default RUNNING_TOUR_TIMEOUT
-                // (10000ms, web_tour/static/src/js/tour_manager.js)
-                // under CI load. The gate itself (selector + content)
-                // is unchanged -- only the margin is extended.
+                // Generous timeout (max allowed by validate-tour.sh):
+                // CI logs show the server rejects with
+                // "No expense account" and the client fetches
+                // crash_manager.xml within ~40ms of the Confirm click
+                // -- this is not a slow round-trip. What follows is a
+                // ~19s window with zero network or DOM activity before
+                // the tour engine's own polling loop resumes and
+                // finally detects the already-rendered dialog,
+                // consistent with the headless Chrome tab losing
+                // requestAnimationFrame/event-loop cycles under this
+                // CI runner's load (this tour runs near the end of a
+                // 110+ UI-test job). 10000ms (default
+                // RUNNING_TOUR_TIMEOUT, web_tour/static/src/js/
+                // tour_manager.js) and 20000ms both reproduced the
+                // same failure, arriving right at each deadline. The
+                // gate itself (selector + content) is unchanged --
+                // only the margin is extended.
                 content: "A validation warning dialog is displayed",
                 trigger: ".modal .o_dialog_warning",
-                timeout: 20000,
+                timeout: 60000,
                 run: function () {
                     // Assertion only; do not trigger the default
                     // click.
