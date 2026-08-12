@@ -54,6 +54,13 @@ class HrCashAdvanceSettlementLineInherit(models.Model):
         "type_id",
     )
     def onchange_require_expense_account(self):
+        """Set ``require_expense_account`` from the line's expense type.
+
+        ``True`` when ``product_id`` is among the products flagged as
+        requiring an expense account on the selected ``type_id``
+        (``hr.expense_type._get_require_expense_products``);
+        ``False`` otherwise.
+        """
         result = False
         ExpType = self.env["hr.expense_type"]
 
