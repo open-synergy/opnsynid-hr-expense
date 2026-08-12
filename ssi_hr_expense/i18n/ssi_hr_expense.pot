@@ -77,13 +77,30 @@ msgid "Analytic Account"
 msgstr ""
 
 #. module: ssi_hr_expense
-#: model:ir.model.fields,field_description:ssi_hr_expense.field_hr_expense_type__analytic_account_method
+#: model:ir.model.fields,field_description:ssi_hr_expense.field_hr_expense_type__analytic_account_domain
+msgid "Analytic Account Domain"
+msgstr ""
+
+#. module: ssi_hr_expense
+#: model:ir.model.fields,field_description:ssi_hr_expense.field_hr_expense_type__analytic_account_python_code
+msgid "Analytic Account Python Code"
+msgstr ""
+
+#. module: ssi_hr_expense
+#: model:ir.model.fields,field_description:ssi_hr_expense.field_hr_expense_type__analytic_account_selection_method
 msgid "Analytic Account Selection Method"
 msgstr ""
 
 #. module: ssi_hr_expense
 #: model:ir.model.fields,field_description:ssi_hr_expense.field_hr_expense_type__analytic_account_ids
 msgid "Analytic Accounts"
+msgstr ""
+
+#. module: ssi_hr_expense
+#: model:ir.model.fields,help:ssi_hr_expense.field_hr_expense_type__analytic_account_ids
+msgid ""
+"Analytic accounts allowed on documents using this expense type. Used only "
+"when 'Analytic Account Selection Method' is set to Manual."
 msgstr ""
 
 #. module: ssi_hr_expense
@@ -140,6 +157,19 @@ msgid "Doctor - (test)"
 msgstr ""
 
 #. module: ssi_hr_expense
+#: model:ir.model.fields.selection,name:ssi_hr_expense.selection__hr_expense_type__analytic_account_selection_method__domain
+msgid "Domain"
+msgstr ""
+
+#. module: ssi_hr_expense
+#: model:ir.model.fields,help:ssi_hr_expense.field_hr_expense_type__analytic_account_domain
+msgid ""
+"Domain expression evaluated against account.analytic.account to resolve the "
+"analytic accounts allowed on documents using this expense type. Used only "
+"when 'Analytic Account Selection Method' is set to Domain."
+msgstr ""
+
+#. module: ssi_hr_expense
 #: model:hr.expense_type,name:ssi_hr_expense.demo_expense_type1
 msgid "Employee Benefit - (test)"
 msgstr ""
@@ -181,11 +211,6 @@ msgid "Expenses"
 msgstr ""
 
 #. module: ssi_hr_expense
-#: model:ir.model.fields.selection,name:ssi_hr_expense.selection__hr_expense_type__analytic_account_method__fixed
-msgid "Fixed"
-msgstr ""
-
-#. module: ssi_hr_expense
 #: model:ir.model.fields,field_description:ssi_hr_expense.field_hr_expense_type__message_follower_ids
 msgid "Followers"
 msgstr ""
@@ -209,6 +234,15 @@ msgstr ""
 #: model:product.product,name:ssi_hr_expense.demo_product3_3
 #: model:product.template,name:ssi_hr_expense.demo_product3_3_product_template
 msgid "Hotel - (test)"
+msgstr ""
+
+#. module: ssi_hr_expense
+#: model:ir.model.fields,help:ssi_hr_expense.field_hr_expense_type__analytic_account_selection_method
+msgid ""
+"How the analytic accounts allowed on documents using this expense type are "
+"resolved: Manual picks from 'Analytic Accounts' below, Domain filters "
+"account.analytic.account with the domain expression below, Python Code runs "
+"the Python snippet below and reads its 'result' variable."
 msgstr ""
 
 #. module: ssi_hr_expense
@@ -280,6 +314,11 @@ msgstr ""
 #: model:product.product,name:ssi_hr_expense.demo_product2_4
 #: model:product.template,name:ssi_hr_expense.demo_product2_4_product_template
 msgid "Major Medical Procedure - (test)"
+msgstr ""
+
+#. module: ssi_hr_expense
+#: model:ir.model.fields.selection,name:ssi_hr_expense.selection__hr_expense_type__analytic_account_selection_method__manual
+msgid "Manual"
 msgstr ""
 
 #. module: ssi_hr_expense
@@ -437,9 +476,17 @@ msgid "Project - (test)"
 msgstr ""
 
 #. module: ssi_hr_expense
-#: model:ir.model.fields,field_description:ssi_hr_expense.field_hr_expense_type__python_code
-#: model:ir.model.fields.selection,name:ssi_hr_expense.selection__hr_expense_type__analytic_account_method__python
+#: model:ir.model.fields.selection,name:ssi_hr_expense.selection__hr_expense_type__analytic_account_selection_method__code
 msgid "Python Code"
+msgstr ""
+
+#. module: ssi_hr_expense
+#: model:ir.model.fields,help:ssi_hr_expense.field_hr_expense_type__analytic_account_python_code
+msgid ""
+"Python snippet evaluated to resolve the analytic accounts allowed on "
+"documents using this expense type; must assign a list of "
+"account.analytic.account ids to the 'result' variable. Used only when "
+"'Analytic Account Selection Method' is set to Python Code."
 msgstr ""
 
 #. module: ssi_hr_expense
