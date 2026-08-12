@@ -24,3 +24,16 @@ class TestHrCashAdvanceSettlement(YamlTransactionCase):
         select-reason wizard), and ``action_reload_cash_advance``.
         """
         self.run_yaml_scenario("test_data_hr_cash_advance_settlement_action.yaml")
+
+    def test_hr_cash_advance_settlement_analytic_account(self):
+        """Run the ``allowed_analytic_account_ids`` m2o configurator
+        scenario (issue open-synergy/opnsynid-hr-expense#227).
+
+        Covers the manual/domain/code selection methods, the
+        ``search([])`` fallback when the type's own configurator
+        fields are at their defaults, an empty manual selection, and
+        a Python code that raises.
+        """
+        self.run_yaml_scenario(
+            "test_data_hr_cash_advance_settlement_analytic_account.yaml"
+        )

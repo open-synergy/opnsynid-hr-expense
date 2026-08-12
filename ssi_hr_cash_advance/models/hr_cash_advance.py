@@ -4,7 +4,6 @@
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools.safe_eval import safe_eval
 
 from odoo.addons.ssi_decorator import ssi_decorator
 
@@ -377,23 +376,28 @@ class HrCashAdvance(models.Model):
     def _compute_allowed_analytic_account_ids(self):
         """Resolve the analytic accounts allowed by the document type.
 
-        Uses a fixed list configured on ``type_id`` when
-        ``analytic_account_method`` is ``fixed``, or evaluates
-        ``type_id.python_code`` when it is ``python``.
+        Delegates to the m2o configurator on ``type_id``
+        (``analytic_account_selection_method``: manual/domain/code).
+        When ``type_id`` is empty, falls back to ``search([])`` on
+        ``account.analytic.account`` (every analytic account),
+        matching the "no restriction" default of a fresh
+        ``hr.expense_type`` (``selection_method="domain"``,
+        ``domain="[]"``) rather than an empty result.
 
         :return: None, sets ``allowed_analytic_account_ids`` on each record
         """
+        AnalyticAccount = self.env["account.analytic.account"]
         for document in self:
-            result = []
+            result = AnalyticAccount.search([])
             if document.type_id:
                 type_id = document.type_id
-                if type_id.analytic_account_method == "fixed":
-                    if type_id.analytic_account_ids:
-                        result = type_id.analytic_account_ids.ids
-                elif type_id.analytic_account_method == "python":
-                    analytic_account_ids = document._evaluate_analytic_account()
-                    if analytic_account_ids:
-                        result = analytic_account_ids
+                result = document._m2o_configurator_get_filter(
+                    object_name="account.analytic.account",
+                    method_selection=type_id.analytic_account_selection_method,
+                    manual_recordset=type_id.analytic_account_ids,
+                    domain=type_id.analytic_account_domain,
+                    python_code=type_id.analytic_account_python_code,
+                )
             document.allowed_analytic_account_ids = result
 
     allowed_analytic_account_ids = fields.Many2many(
@@ -444,38 +448,6 @@ class HrCashAdvance(models.Model):
             "manual_number_ok",
         ]
         res += policy_field
-        return res
-
-    def _get_localdict(self):
-        """Build the local variables exposed to ``type_id.python_code``.
-
-        The evaluated code can read ``env`` and ``document`` and must set
-        a ``result`` variable with the computed analytic account ids.
-
-        :return: dict with keys ``env`` and ``document``
-        """
-        self.ensure_one()
-        return {
-            "env": self.env,
-            "document": self,
-        }
-
-    def _evaluate_analytic_account(self):
-        """Evaluate ``type_id.python_code`` to get analytic accounts.
-
-        :return: list of ``account.analytic.account`` ids, or ``False``
-        :raises UserError: if the Python code fails to evaluate
-        """
-        self.ensure_one()
-        res = False
-        localdict = self._get_localdict()
-        try:
-            safe_eval(self.type_id.python_code, localdict, mode="exec", nocopy=True)
-            if "result" in localdict:
-                res = localdict["result"]
-        except Exception as error:
-            msg_err = _("Error evaluating conditions.\n %s") % error
-            raise UserError(msg_err)
         return res
 
     @api.onchange(
@@ -731,6 +703,10 @@ class HrCashAdvance(models.Model):
         "date",
     )
     def onchange_date_due(self):
+        """Recompute ``date_due`` from ``duration_id`` and ``date``.
+
+        :return: None, sets ``date_due`` when ``duration_id`` is set
+        """
         if self.duration_id:
             self.date_due = self.duration_id.get_duration(self.date)
 
