@@ -1,0 +1,290 @@
+options:
+  auto_refresh: true
+
+setup:
+  steps:
+    - step: "Get reimbursement journal"
+      action: "ref"
+      xml_id: "ssi_hr_reimbursement.demo_journal1"
+      save_as: "journal"
+
+    - step: "Get reimbursement payable account"
+      action: "ref"
+      xml_id: "ssi_hr_reimbursement.demo_account1"
+      save_as: "account"
+
+    - step: "Create employee"
+      action: "create"
+      model: "hr.employee"
+      save_as: "employee"
+      as_user: "base.user_admin"
+      values:
+        name: "Analytic Account Reimb Employee"
+
+scenarios:
+  - name: "Manual selection: allowed_analytic_account_ids is exactly the m2m list"
+    steps:
+      - step: "Create two analytic accounts"
+        # No `as_user:` here: creating account.analytic.account requires
+        # the analytic.group_analytic_accounting group, which
+        # base.user_admin does not carry by default. Omitting `as_user:`
+        # runs this step in the transaction's own (superuser)
+        # environment instead.
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_manual_1"
+        values:
+          name: "Manual Reimb Analytic Account 1"
+
+      - step: "Create the second analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_manual_2"
+        values:
+          name: "Manual Reimb Analytic Account 2"
+
+      - step: "Create expense type with manual selection listing both accounts"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "type_manual"
+        as_user: "base.user_admin"
+        values:
+          name: "Manual Reimb AA Type"
+          code: "RAAT001"
+          reimbursement_journal_id: "REC: journal.id"
+          reimbursement_account_id: "REC: account.id"
+          analytic_account_selection_method: "manual"
+          analytic_account_ids:
+            - - 6
+              - 0
+              - - "REC: aa_manual_1.id"
+                - "REC: aa_manual_2.id"
+
+      - step: "Create reimbursement with that type"
+        action: "create"
+        model: "hr.reimbursement"
+        save_as: "reimbursement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_manual.id"
+          journal_id: "REC: journal.id"
+          account_id: "REC: account.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+
+      - step: "Assert allowed_analytic_account_ids is exactly both accounts"
+        action: "assert"
+        target: "reimbursement"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: aa_manual_1"
+              - "REC: aa_manual_2"
+
+  - name:
+      "Domain selection: allowed_analytic_account_ids matches only the filtered account"
+    steps:
+      - step: "Create the analytic account the domain will match"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_domain_match"
+        values:
+          name: "Domain Reimb Analytic Account Match RAAT2"
+
+      - step: "Create a second analytic account the domain must exclude"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_domain_other"
+        values:
+          name: "Domain Reimb Analytic Account Other RAAT2"
+
+      - step: "Create expense type with a domain matching only the first account"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "type_domain"
+        as_user: "base.user_admin"
+        values:
+          name: "Domain Reimb AA Type"
+          code: "RAAT002"
+          reimbursement_journal_id: "REC: journal.id"
+          reimbursement_account_id: "REC: account.id"
+          analytic_account_selection_method: "domain"
+          analytic_account_domain:
+            "[('name', '=', 'Domain Reimb Analytic Account Match RAAT2')]"
+
+      - step: "Create reimbursement with that type"
+        action: "create"
+        model: "hr.reimbursement"
+        save_as: "reimbursement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_domain.id"
+          journal_id: "REC: journal.id"
+          account_id: "REC: account.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+
+      - step: "Assert allowed_analytic_account_ids is exactly the matched account"
+        action: "assert"
+        target: "reimbursement"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: aa_domain_match"
+
+  - name:
+      "Code selection: allowed_analytic_account_ids matches the script's search result"
+    steps:
+      - step: "Create the analytic account the script will search for"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_code_match"
+        values:
+          name: "Code Reimb Analytic Account Match RAAT3"
+
+      - step: "Create expense type with a Python code selection"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "type_code"
+        as_user: "base.user_admin"
+        values:
+          name: "Code Reimb AA Type"
+          code: "RAAT003"
+          reimbursement_journal_id: "REC: journal.id"
+          reimbursement_account_id: "REC: account.id"
+          analytic_account_selection_method: "code"
+          analytic_account_python_code:
+            "result = env['account.analytic.account'].search([('name', '=', 'Code Reimb
+            Analytic Account Match RAAT3')]).ids"
+
+      - step: "Create reimbursement with that type"
+        action: "create"
+        model: "hr.reimbursement"
+        save_as: "reimbursement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_code.id"
+          journal_id: "REC: journal.id"
+          account_id: "REC: account.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+
+      - step: "Assert allowed_analytic_account_ids is exactly the script's result"
+        action: "assert"
+        target: "reimbursement"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: aa_code_match"
+
+  - name: "No type_id: allowed_analytic_account_ids falls back to search([]), not empty"
+    steps:
+      - step: "Create a demo-independent analytic account to prove the fallback"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_fallback"
+        values:
+          name: "Fallback Reimb Analytic Account RAAT4"
+
+      - step: "Build the form without ever setting type_id"
+        # `type_id` is required=True, so a saved record cannot exist
+        # without it -- an unsaved Form (`save: false`) still runs the
+        # compute for its dependent fields, which is exactly the case
+        # this scenario proves (see integrations/m2o-configurator.md
+        # "Kenapa ini hampir selalu meledak di form create").
+        action: "form"
+        model: "hr.reimbursement"
+        save: false
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "m2m"
+            check: "contains"
+            expected_records:
+              - "REC: aa_fallback"
+
+  - name: "Manual selection with an empty m2m: allowed_analytic_account_ids is empty"
+    steps:
+      - step: "Create expense type with manual selection and no analytic accounts"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "type_manual_empty"
+        as_user: "base.user_admin"
+        values:
+          name: "Manual Empty Reimb AA Type"
+          code: "RAAT005"
+          reimbursement_journal_id: "REC: journal.id"
+          reimbursement_account_id: "REC: account.id"
+          analytic_account_selection_method: "manual"
+
+      - step: "Create reimbursement with that type"
+        action: "create"
+        model: "hr.reimbursement"
+        save_as: "reimbursement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_manual_empty.id"
+          journal_id: "REC: journal.id"
+          account_id: "REC: account.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+
+      - step: "Assert allowed_analytic_account_ids has no records"
+        action: "assert"
+        target: "reimbursement"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "m2m"
+            check: "count"
+            expected_count: 0
+
+  - name: "Code selection whose script raises: compute call fails with UserError"
+    steps:
+      - step: "Create expense type with a Python code that raises"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "type_code_error"
+        as_user: "base.user_admin"
+        values:
+          name: "Code Error Reimb AA Type"
+          code: "RAAT006"
+          reimbursement_journal_id: "REC: journal.id"
+          reimbursement_account_id: "REC: account.id"
+          analytic_account_selection_method: "code"
+          analytic_account_python_code: "result = 1 / 0"
+
+      - step: "Create reimbursement with that type"
+        action: "create"
+        model: "hr.reimbursement"
+        save_as: "reimbursement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_code_error.id"
+          journal_id: "REC: journal.id"
+          account_id: "REC: account.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+
+      - step: "Forcing the compute must fail with UserError"
+        # `assert` cannot carry `expect_error` -- reading a non-stored
+        # compute field through `assert` cannot be made to fail on
+        # demand, so the compute method is called directly instead.
+        action: "call"
+        target: "reimbursement"
+        method: "_compute_allowed_analytic_account_ids"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"

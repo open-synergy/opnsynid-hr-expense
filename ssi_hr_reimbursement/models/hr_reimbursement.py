@@ -3,7 +3,6 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools.safe_eval import safe_eval
 
 from odoo.addons.ssi_decorator import ssi_decorator
 
@@ -328,22 +327,26 @@ class HrReimbursement(models.Model):
     def _compute_allowed_analytic_account_ids(self):
         """Compute ``allowed_analytic_account_ids`` from ``type_id``.
 
-        Resolves the allowed analytic accounts using the expense
-        type's ``analytic_account_method``: a fixed manual list, or
-        the result of ``_evaluate_analytic_account`` when the method
-        is ``python``.
+        Delegates to the m2o configurator on ``type_id``
+        (``analytic_account_selection_method``: manual/domain/code).
+        When ``type_id`` is empty, falls back to ``search([])`` on
+        ``account.analytic.account`` (every analytic account),
+        matching the "no restriction" default of a fresh
+        ``hr.expense_type`` (``selection_method="domain"``,
+        ``domain="[]"``) rather than an empty result.
         """
+        AnalyticAccount = self.env["account.analytic.account"]
         for document in self:
-            result = []
+            result = AnalyticAccount.search([])
             if document.type_id:
                 type_id = document.type_id
-                if type_id.analytic_account_method == "fixed":
-                    if type_id.analytic_account_ids:
-                        result = type_id.analytic_account_ids.ids
-                elif type_id.analytic_account_method == "python":
-                    analytic_account_ids = document._evaluate_analytic_account()
-                    if analytic_account_ids:
-                        result = analytic_account_ids
+                result = document._m2o_configurator_get_filter(
+                    object_name="account.analytic.account",
+                    method_selection=type_id.analytic_account_selection_method,
+                    manual_recordset=type_id.analytic_account_ids,
+                    domain=type_id.analytic_account_domain,
+                    python_code=type_id.analytic_account_python_code,
+                )
             document.allowed_analytic_account_ids = result
 
     allowed_analytic_account_ids = fields.Many2many(
@@ -411,48 +414,15 @@ class HrReimbursement(models.Model):
         res += policy_field
         return res
 
-    def _get_localdict(self):
-        """Build the ``localdict`` used by ``_evaluate_analytic_account``.
-
-        Available variables: ``env`` (the current environment) and
-        ``document`` (this record). Expected output variable when
-        evaluated: ``result``.
-
-        :return: dict with ``env`` and ``document`` keys
-        """
-        self.ensure_one()
-        return {
-            "env": self.env,
-            "document": self,
-        }
-
-    def _evaluate_analytic_account(self):
-        """Evaluate ``type_id.python_code`` to get analytic accounts.
-
-        Runs ``type_id.python_code`` with ``safe_eval`` against
-        ``_get_localdict()``; the script is expected to assign a list
-        of ``account.analytic.account`` ids to ``result``.
-
-        :return: list of analytic account ids, or ``False``
-        :raises UserError: when the Python code raises an exception
-        """
-        self.ensure_one()
-        res = False
-        localdict = self._get_localdict()
-        try:
-            safe_eval(self.type_id.python_code, localdict, mode="exec", nocopy=True)
-            if "result" in localdict:
-                res = localdict["result"]
-        except Exception as error:
-            msg_err = _("Error evaluating conditions.\n %s") % error
-            raise UserError(msg_err)
-        return res
-
     @api.onchange(
         "duration_id",
         "date",
     )
     def onchange_date_due(self):
+        """Recompute ``date_due`` from ``duration_id`` and ``date``.
+
+        :return: None, sets ``date_due`` when ``duration_id`` is set
+        """
         if self.duration_id:
             self.date_due = self.duration_id.get_duration(self.date)
 
