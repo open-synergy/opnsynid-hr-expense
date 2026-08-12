@@ -51,6 +51,12 @@ class HrReimbursementLine(models.Model):
         "type_id",
     )
     def onchange_require_expense_account(self):
+        """Set ``require_expense_account`` from the line's product.
+
+        ``True`` when the line's ``product_id`` is one of the
+        products flagged as requiring an expense account on the
+        line's expense ``type_id`` (``hr.expense_type``).
+        """
         result = False
         ExpType = self.env["hr.expense_type"]
 
