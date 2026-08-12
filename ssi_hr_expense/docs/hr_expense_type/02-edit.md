@@ -20,8 +20,9 @@
 1. Open the **Human Resource > Configuration > Expense > Types** menu.
 2. Find and open the Expense Type record to edit.
 3. Click the **Edit** button.
-4. Change the required fields (**Expense Type**, **Code**) or the **Product Category**,
-   **Product**, **Product Usage**, and **Pricelist** tabs as needed.
+4. Change the required fields (**Expense Type**, **Code**) or the **Analytic Account**,
+   **Product Category**, **Product**, **Product Usage**, and **Pricelist** tabs as
+   needed.
 5. Click **Save**.
 6. On the header, click **Generate Code** to assign a new code automatically — for
    example after changing the **Code** field back to **/** and saving. Only works while
