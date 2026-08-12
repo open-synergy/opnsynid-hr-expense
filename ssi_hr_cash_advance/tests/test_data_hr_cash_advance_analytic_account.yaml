@@ -222,6 +222,13 @@ scenarios:
         # compute for its dependent fields, which is exactly the case
         # this scenario proves (see integrations/m2o-configurator.md
         # "Kenapa ini hampir selalu meledak di form create").
+        # NB: cannot use `type: "m2m", check: "contains"` here -- an
+        # unsaved Form's m2m field is Odoo's `M2MProxy`, which
+        # odoo-yaml-test's `_coerce_to_ids` cannot interpret (it has no
+        # `.ids` attribute), so it raises "Cannot interpret <M2MProxy>
+        # as a record reference" on the *actual* side of the check.
+        # `type: "value"` + `operator: "contains"` works instead: it
+        # relies on plain `in`, backed by `M2MProxy.__contains__`.
         action: "form"
         model: "hr.cash_advance"
         save: false
@@ -230,10 +237,9 @@ scenarios:
           employee_id: "REC: employee"
         asserts:
           allowed_analytic_account_ids:
-            type: "m2m"
-            check: "contains"
-            expected_records:
-              - "REC: aa_fallback"
+            type: "value"
+            operator: "contains"
+            expected: "REC: aa_fallback"
 
   - name: "Manual selection with an empty m2m: allowed_analytic_account_ids is empty"
     steps:
