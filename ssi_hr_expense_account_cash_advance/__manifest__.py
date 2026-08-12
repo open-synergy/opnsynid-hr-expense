@@ -4,7 +4,7 @@
 
 {
     "name": "Employee Expense Account - Cash Advance Integration",
-    "version": "14.0.1.3.3",
+    "version": "14.0.1.3.4",
     "website": "https://simetri-sinergi.id",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
     "license": "AGPL-3",
