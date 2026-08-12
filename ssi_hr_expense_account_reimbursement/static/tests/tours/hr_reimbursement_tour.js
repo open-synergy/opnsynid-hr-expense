@@ -141,29 +141,22 @@ odoo.define("ssi_hr_expense_account_reimbursement.hr_reimbursement_tour", functi
     );
 
     // IK: docs/hr_reimbursement/04-confirm.md
-    // (E2b delta -- Additional Validation). scope-and-boundaries.md §3
-    // normally excludes a pure validation-gate delta like this one from
-    // getting a tour at all (it has no kasatmata Flow of its own, only
-    // a server-side gate) -- but issue
-    // open-synergy/opnsynid-hr-expense#197's Keputusan Desain asks for
-    // a paired tour anyway, to close the mechanical "IK without a
-    // tour" finding from validate-ik.sh. Resolved by exercising the
-    // delta's VISIBLE failure outcome instead of the specific error
-    // text: navigation (open menu, open the record, click Confirm,
-    // click OK on the confirmation dialog) is taken verbatim from the
-    // base IK (ssi_hr_reimbursement/docs/hr_reimbursement/04-confirm.md,
-    // Flow steps 1-4); the assertion is this module's delta -- the
-    // fixture line is flagged Require Expense Account with no matching
-    // expense account, so models/hr_reimbursement.py::
-    // _check_expense_account (a pre_confirm_action hook, runs before
-    // the state-changing write per
-    // ssi_transaction_confirm_mixin::action_confirm) rejects Confirm
-    // with "No expense account" before the state transition lands.
-    // The tour asserts only that a warning dialog appears
-    // (.o_dialog_warning -- the CrashManager.warning template's fixed
-    // class, rendered regardless of the message) and that the record
-    // stays in Draft; it does not read the specific error text, which
-    // stays odoo-development-unit-test territory (expect_error).
+    // (E2b delta -- Additional Validation). Flow and Post-Condition are
+    // taken verbatim from the base IK
+    // (ssi_hr_reimbursement/docs/hr_reimbursement/04-confirm.md) --
+    // this module does not add any UI step to Confirm, only a
+    // pre-confirm check (models/hr_reimbursement.py
+    // _check_expense_account). The fixture record's line already
+    // satisfies that check (Require Expense Account = True, Expense
+    // Account filled with a non-negative-residual account), so this
+    // tour proves the base Flow still completes once the extra check
+    // is installed. The negative path (missing/insufficient Expense
+    // Account blocking Confirm) is a value/error-message assertion and
+    // stays with unit test expect_error, not this tour
+    // (odoo-development-ui-test, scope-and-boundaries.md, arketipe
+    // E2b) -- the same resolution already used by the sibling delta
+    // tour in ssi_hr_expense_account_cash_advance (issue
+    // open-synergy/opnsynid-hr-expense#136).
     tour.register(
         "ssi_hr_expense_account_reimbursement_hr_reimbursement_confirm",
         {
@@ -225,73 +218,29 @@ odoo.define("ssi_hr_expense_account_reimbursement.hr_reimbursement_tour", functi
                 extra_trigger: ".o_form_view",
             },
 
-            // Base Flow 4 -- Click OK on the confirmation dialog
-            // ("Confirm data. Are you sure?",
-            // ssi_transaction_confirm_mixin, button_confirm template).
-            // This is a client-side Dialog.confirm -- accepting it
-            // dispatches the action_confirm RPC that this module's
-            // pre_confirm_action hook rejects before the state
-            // changes.
+            // Base Flow 4 -- Click OK on the confirmation dialog.
             {
                 content: "Confirm the dialog",
                 trigger: ".modal-footer button.btn-primary",
                 in_modal: true,
             },
 
-            // Additional Validation (delta) -- the rejection surfaces
-            // as a warning dialog. Anchored on the template's fixed
-            // class (o_dialog_warning, CrashManager.warning), which
-            // cannot be true before the Confirm click (no modal is on
-            // screen at all until then) -- not on the message text,
-            // which stays unit-test territory.
+            // Base Post-Condition -- Status changes to Waiting for
+            // Approval. Reaching this step proves the Additional
+            // Validation this module adds did not block Confirm.
             {
-                // Generous timeout (max allowed by validate-tour.sh):
-                // CI logs show the server rejects with
-                // "No expense account" and the client fetches
-                // crash_manager.xml within ~40ms of the Confirm click
-                // -- this is not a slow round-trip. What follows is a
-                // ~19s window with zero network or DOM activity before
-                // the tour engine's own polling loop resumes and
-                // finally detects the already-rendered dialog,
-                // consistent with the headless Chrome tab losing
-                // requestAnimationFrame/event-loop cycles under this
-                // CI runner's load (this tour runs near the end of a
-                // 110+ UI-test job). 10000ms (default
-                // RUNNING_TOUR_TIMEOUT, web_tour/static/src/js/
-                // tour_manager.js) and 20000ms both reproduced the
-                // same failure, arriving right at each deadline. The
-                // gate itself (selector + content) is unchanged --
-                // only the margin is extended.
-                content: "A validation warning dialog is displayed",
-                trigger: ".modal .o_dialog_warning",
-                timeout: 60000,
-                run: function () {
-                    // Assertion only; do not trigger the default
-                    // click.
-                },
-            },
-            {
-                content: "Close the warning dialog",
-                trigger: ".modal-footer button.btn-primary",
-                in_modal: true,
-            },
-
-            // Post-Condition (delta) -- Confirm did not succeed: the
-            // status stays Draft and the Confirm button is still
-            // shown, unlike the base Post-Condition (Waiting for
-            // Approval).
-            {
-                content: "Status is still Draft",
+                content: "Status is Waiting for Approval",
                 trigger:
-                    ".o_statusbar_status .o_arrow_button[data-value='draft'].btn-primary",
+                    ".o_statusbar_status .o_arrow_button[data-value='confirm'].btn-primary",
                 run: function () {
                     // Assertion only; do not trigger the default
                     // click.
                 },
             },
             {
-                content: "The Confirm button is still shown",
-                trigger: ".o_statusbar_buttons button[name='action_confirm']:enabled",
+                content: "The Confirm button is no longer shown",
+                trigger:
+                    ".o_statusbar_buttons:not(:has(button[name='action_confirm']:visible))",
                 run: function () {
                     // Assertion only; do not trigger the default
                     // click.

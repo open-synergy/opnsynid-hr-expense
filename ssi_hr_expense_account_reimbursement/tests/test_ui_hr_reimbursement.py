@@ -28,12 +28,14 @@ class TestUiHrReimbursement(HttpSavepointCase):
 
         The confirm tour additionally needs a stored Draft
         ``hr.reimbursement`` whose only line is flagged **Require
-        Expense Account** with no matching ``employee_expense_account``
-        -- the Pre-Condition that makes this module's
-        ``_check_expense_account`` (``pre_confirm_action`` hook,
-        ``models/hr_reimbursement.py``) reject the Confirm action with
-        "No expense account". All master data is built from scratch
-        in Python (Keputusan Desain, issue
+        Expense Account** and already links a matching, sufficiently
+        funded ``employee_expense_account`` -- the Pre-Condition that
+        lets this module's ``_check_expense_account``
+        (``pre_confirm_action`` hook, ``models/hr_reimbursement.py``)
+        pass, so the tour can exercise the base IK's normal Confirm
+        Flow instead of a server-rejected one (see ``test_confirm``
+        docstring for why). All master data is built from scratch in
+        Python (Keputusan Desain, issue
         open-synergy/opnsynid-hr-expense#130): the create tour still
         does not Save, so it needs no stored record of its own.
         """
@@ -155,6 +157,50 @@ class TestUiHrReimbursement(HttpSavepointCase):
                 }
             )
         )
+        # This module's Additional Validation
+        # (``_check_expense_account``) only requires a linked
+        # ``employee_expense_account`` with a non-negative
+        # ``amount_residual`` -- it does not read the account's own
+        # workflow ``state``. ``amount_residual`` is computed as
+        # ``amount_limit - amount_realized`` (models/
+        # employee_expense_account.py ``_compute_amount``), and a
+        # freshly created account has no realized amount yet, so a
+        # bare Draft record with a positive ``amount_limit`` already
+        # satisfies the check.
+        ea_currency = (
+            cls.env["res.currency"]
+            .with_user(cls.admin)
+            .create(
+                {
+                    "name": "TRC",
+                    "symbol": "TR$",
+                }
+            )
+        )
+        ea_type = (
+            cls.env["employee_expense_account_type"]
+            .with_user(cls.admin)
+            .create(
+                {
+                    "name": "Tour Confirm Reimbursement EA Type",
+                    "code": "TOURRMBCFREATYPE",
+                }
+            )
+        )
+        expense_account = (
+            cls.env["employee_expense_account"]
+            .with_user(cls.admin)
+            .create(
+                {
+                    "type_id": ea_type.id,
+                    "currency_id": ea_currency.id,
+                    "employee_id": employee.id,
+                    "date_start": "2026-01-01",
+                    "date_end": "2026-12-31",
+                    "amount_limit": 1000.0,
+                }
+            )
+        )
         cls.reimbursement_confirm = (
             cls.env["hr.reimbursement"]
             .with_user(cls.admin)
@@ -181,6 +227,7 @@ class TestUiHrReimbursement(HttpSavepointCase):
                                 "uom_quantity": 1.0,
                                 "uom_id": product.uom_id.id,
                                 "require_expense_account": True,
+                                "expense_account_id": expense_account.id,
                             },
                         )
                     ],
@@ -205,18 +252,27 @@ class TestUiHrReimbursement(HttpSavepointCase):
         )
 
     def test_confirm(self):
-        """Run the Additional Validation delta tour for confirm.
+        """Run the base Confirm Flow with this module's check satisfied.
 
         IK: docs/hr_reimbursement/04-confirm.md
 
-        Navigation is the base IK Flow (open menu, open the record,
-        click Confirm, click OK on the confirmation dialog); the
-        assertion is this module's delta: the fixture line requires
-        an expense account it does not have, so the server rejects
-        Confirm with a visible warning dialog and the record stays in
-        Draft. The tour does not read the warning's specific message
-        text -- that remains unit-test territory
-        (``odoo-development-unit-test``, ``expect_error``).
+        Flow and Post-Condition are taken verbatim from the base IK
+        (``ssi_hr_reimbursement/docs/hr_reimbursement/04-confirm.md``)
+        -- this module adds no UI step to Confirm, only a pre-confirm
+        check (``models/hr_reimbursement.py``
+        ``_check_expense_account``). The fixture line already
+        satisfies that check (Require Expense Account = True with a
+        linked, sufficiently funded ``employee_expense_account``), so
+        this tour proves the base Flow still completes once the extra
+        check is installed. The negative path (missing/insufficient
+        expense account blocking Confirm with "No expense account" /
+        "Insuficient expense account") is a value/error-message
+        assertion and stays with unit test ``expect_error``, not this
+        tour (``odoo-development-ui-test``,
+        ``scope-and-boundaries.md``, arketipe E2b) -- the same
+        resolution already used by the sibling delta tour in
+        ``ssi_hr_expense_account_cash_advance`` (issue
+        open-synergy/opnsynid-hr-expense#136).
         """
         self.start_tour(
             "/web",
