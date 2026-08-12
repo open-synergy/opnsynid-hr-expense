@@ -39,6 +39,17 @@ class HrCashAdvanceSettlement(models.Model):
         "line_ids.require_expense_account",
     )
     def onchange_expense_account(self):
+        """Recompute ``expense_account_id`` for every settlement line.
+
+        Clears ``expense_account_id`` on each line, then searches for
+        a matching open ``employee_expense_account`` based on the
+        line's ``account_id``, the settlement's ``employee_id``, and
+        the settlement ``date`` (the account's validity window must
+        cover it). When a line requires an expense account
+        (``require_expense_account``) but no matching account is
+        found, the field is left empty, so confirmation later fails
+        in ``_check_expense_account``.
+        """
         for line in self.line_ids:
             line.expense_account_id = False
             domain = []
