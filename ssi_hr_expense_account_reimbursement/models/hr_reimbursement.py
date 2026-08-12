@@ -40,6 +40,16 @@ class HrReimbursement(models.Model):
         "line_ids.require_expense_account",
     )
     def onchange_expense_account(self):
+        """Resolve ``expense_account_id`` for every reimbursement line.
+
+        Clears each line's ``expense_account_id`` then re-selects a
+        matching open ``employee_expense_account`` based on the
+        line's ``account_id``, the reimbursement's ``employee_id``,
+        and the document's ``date``. A line that requires an expense
+        account but has no matching account is left unresolved and
+        later fails ``_check_expense_account``, which raises
+        ``UserError`` at confirmation.
+        """
         for line in self.line_ids:
             line.expense_account_id = False
             domain = []
