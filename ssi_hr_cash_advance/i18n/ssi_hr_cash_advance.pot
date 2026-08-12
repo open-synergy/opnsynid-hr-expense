@@ -645,15 +645,6 @@ msgid ""
 msgstr ""
 
 #. module: ssi_hr_cash_advance
-#: code:addons/ssi_hr_cash_advance/models/hr_cash_advance.py:0
-#: code:addons/ssi_hr_cash_advance/models/hr_cash_advance_settlement.py:0
-#, python-format
-msgid ""
-"Error evaluating conditions.\n"
-" %s"
-msgstr ""
-
-#. module: ssi_hr_cash_advance
 #: model:ir.model,name:ssi_hr_cash_advance.model_hr_expense_type
 msgid "Expense Type"
 msgstr ""
