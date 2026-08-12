@@ -70,6 +70,42 @@ odoo.define("ssi_hr_expense.hr_expense_type_tour", function (require) {
                 run: "text /",
             },
 
+            // ── Flow 3 (inline) — Analytic Account tab: open it, switch
+            // Selection Method to Manual, and verify the conditional
+            // fields toggle accordingly (IK: docs/hr_expense_type/
+            // 01-create.md, step 3). Only the visible toggle is
+            // asserted here -- resolved analytic account values are
+            // unit-test territory (open-synergy/opnsynid-hr-expense#227).
+            {
+                content: "Open the Analytic Account tab",
+                trigger: ".o_notebook .nav-link:contains(Analytic Account)",
+                extra_trigger: ".o_form_view.o_form_editable",
+            },
+            {
+                content: "Switch Selection Method to Manual",
+                trigger:
+                    "select.o_field_widget[name='analytic_account_selection_method']",
+                run: "text Manual",
+            },
+            {
+                // Gerbang: Analytic Accounts (many2many_tags) only loses
+                // its o_invisible_modifier class once Selection Method
+                // is actually Manual.
+                content: "Analytic Accounts field is visible",
+                trigger: ".o_field_widget[name='analytic_account_ids']",
+                run: function () {
+                    // Assertion only.
+                },
+            },
+            {
+                content: "Domain field is no longer visible",
+                trigger:
+                    ".o_form_view:not(:has(.o_field_widget[name='analytic_account_domain']:visible))",
+                run: function () {
+                    // Assertion only.
+                },
+            },
+
             // ── Flow 4 — Click Save
             {
                 content: "Save the record",

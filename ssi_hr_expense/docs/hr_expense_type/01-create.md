@@ -22,6 +22,14 @@
    - **Expense Type** _(required)_: Enter the name of the expense type.
    - **Code** _(required)_: Enter a unique code identifying this expense type, or enter
      **/** to generate it later with the **Generate Code** button.
+   - **Analytic Account** tab — **Selection Method**: Choose how the allowed analytic
+     accounts are resolved — **Manual**, **Domain**, or **Python Code**; defaults to
+     **Domain** with an empty domain (`[]`), which allows every analytic account.
+     **Analytic Accounts**: Select the allowed analytic accounts, shown only when
+     **Selection Method** is **Manual**. **Domain**: Enter the domain expression used to
+     filter analytic accounts, shown only when **Selection Method** is **Domain**.
+     **Python Code**: Enter the code used to compute the allowed analytic accounts,
+     shown only when **Selection Method** is **Python Code**.
    - **Product Category** tab: Optionally add the product categories employees are
      allowed to submit expenses against. Click **Add a line**, then select a **Product
      Category**. Repeat as many times as needed. Leave empty to allow all categories.
