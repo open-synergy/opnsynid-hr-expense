@@ -454,14 +454,6 @@ msgid ""
 msgstr ""
 
 #. module: ssi_hr_reimbursement
-#: code:addons/ssi_hr_reimbursement/models/hr_reimbursement.py:0
-#, python-format
-msgid ""
-"Error evaluating conditions.\n"
-" %s"
-msgstr ""
-
-#. module: ssi_hr_reimbursement
 #: model:ir.model,name:ssi_hr_reimbursement.model_hr_expense_type
 msgid "Expense Type"
 msgstr ""
