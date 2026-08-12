@@ -1,0 +1,434 @@
+options:
+  auto_refresh: true
+
+setup:
+  steps:
+    - step: "Get cash advance journal (for the underlying cash advance)"
+      action: "ref"
+      xml_id: "ssi_hr_cash_advance.demo_journal1"
+      save_as: "ca_journal"
+
+    - step: "Get cash advance account (for the underlying cash advance)"
+      action: "ref"
+      xml_id: "ssi_hr_cash_advance.demo_account2"
+      save_as: "ca_account"
+
+    - step: "Get cash advance payable account (for the underlying cash advance)"
+      action: "ref"
+      xml_id: "ssi_hr_cash_advance.demo_account1"
+      save_as: "payable_account"
+
+    - step: "Get settlement journal"
+      action: "ref"
+      xml_id: "ssi_hr_cash_advance.demo_journal2"
+      save_as: "settlement_journal"
+
+    - step: "Create employee"
+      action: "create"
+      model: "hr.employee"
+      save_as: "employee"
+      as_user: "base.user_admin"
+      values:
+        name: "Analytic Account Settlement Employee"
+
+# NB: the underlying cash-advance-type + cash-advance pair used to live in
+# `setup:` above, wired once with a fixed `code: "STLAAT000"`. `setup:`
+# steps replay for EVERY scenario in this file, in the SAME transaction --
+# so the second scenario onward hit `mixin.master_data`'s unique-code
+# constraint ("Dupilicate code") re-creating that same code. Each scenario
+# below now creates its own `ca_type`/`cash_advance` pair with a
+# scenario-unique code instead.
+scenarios:
+  - name: "Manual selection: allowed_analytic_account_ids is exactly the m2m list"
+    steps:
+      - step: "Create expense type wiring the underlying cash advance"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "ca_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Underlying CA Type for Settlement AA Test (manual)"
+          code: "STLAAT000A"
+          cash_advance_journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: ca_account.id"
+          cash_advance_payable_account_id: "REC: payable_account.id"
+
+      - step: "Create the underlying (draft) cash advance to settle"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: ca_type.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: ca_account.id"
+          payable_account_id: "REC: payable_account.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+
+      - step: "Create two analytic accounts"
+        # No `as_user:` here: creating account.analytic.account requires
+        # the analytic.group_analytic_accounting group, which
+        # base.user_admin does not carry by default. Omitting `as_user:`
+        # runs this step in the transaction's own (superuser)
+        # environment instead.
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_manual_1"
+        values:
+          name: "Manual Settlement Analytic Account 1"
+
+      - step: "Create the second analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_manual_2"
+        values:
+          name: "Manual Settlement Analytic Account 2"
+
+      - step: "Create expense type with manual selection listing both accounts"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "type_manual"
+        as_user: "base.user_admin"
+        values:
+          name: "Manual Settlement AA Type"
+          code: "STLAAT001"
+          cash_advance_settlement_journal_id: "REC: settlement_journal.id"
+          analytic_account_selection_method: "manual"
+          analytic_account_ids:
+            - - 6
+              - 0
+              - - "REC: aa_manual_1.id"
+                - "REC: aa_manual_2.id"
+
+      - step: "Create settlement with that type"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_manual.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REC: settlement_journal.id"
+          date: 2026-02-01
+
+      - step: "Assert allowed_analytic_account_ids is exactly both accounts"
+        action: "assert"
+        target: "settlement"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: aa_manual_1"
+              - "REC: aa_manual_2"
+
+  - name:
+      "Domain selection: allowed_analytic_account_ids matches only the filtered account"
+    steps:
+      - step: "Create expense type wiring the underlying cash advance"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "ca_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Underlying CA Type for Settlement AA Test (domain)"
+          code: "STLAAT000B"
+          cash_advance_journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: ca_account.id"
+          cash_advance_payable_account_id: "REC: payable_account.id"
+
+      - step: "Create the underlying (draft) cash advance to settle"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: ca_type.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: ca_account.id"
+          payable_account_id: "REC: payable_account.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+
+      - step: "Create the analytic account the domain will match"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_domain_match"
+        values:
+          name: "Domain Settlement Analytic Account Match STLAAT2"
+
+      - step: "Create a second analytic account the domain must exclude"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_domain_other"
+        values:
+          name: "Domain Settlement Analytic Account Other STLAAT2"
+
+      - step: "Create expense type with a domain matching only the first account"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "type_domain"
+        as_user: "base.user_admin"
+        values:
+          name: "Domain Settlement AA Type"
+          code: "STLAAT002"
+          cash_advance_settlement_journal_id: "REC: settlement_journal.id"
+          analytic_account_selection_method: "domain"
+          analytic_account_domain:
+            "[('name', '=', 'Domain Settlement Analytic Account Match STLAAT2')]"
+
+      - step: "Create settlement with that type"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_domain.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REC: settlement_journal.id"
+          date: 2026-02-01
+
+      - step: "Assert allowed_analytic_account_ids is exactly the matched account"
+        action: "assert"
+        target: "settlement"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: aa_domain_match"
+
+  - name:
+      "Code selection: allowed_analytic_account_ids matches the script's search result"
+    steps:
+      - step: "Create expense type wiring the underlying cash advance"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "ca_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Underlying CA Type for Settlement AA Test (code)"
+          code: "STLAAT000C"
+          cash_advance_journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: ca_account.id"
+          cash_advance_payable_account_id: "REC: payable_account.id"
+
+      - step: "Create the underlying (draft) cash advance to settle"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: ca_type.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: ca_account.id"
+          payable_account_id: "REC: payable_account.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+
+      - step: "Create the analytic account the script will search for"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_code_match"
+        values:
+          name: "Code Settlement Analytic Account Match STLAAT3"
+
+      - step: "Create expense type with a Python code selection"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "type_code"
+        as_user: "base.user_admin"
+        values:
+          name: "Code Settlement AA Type"
+          code: "STLAAT003"
+          cash_advance_settlement_journal_id: "REC: settlement_journal.id"
+          analytic_account_selection_method: "code"
+          analytic_account_python_code:
+            "result = env['account.analytic.account'].search([('name', '=', 'Code
+            Settlement Analytic Account Match STLAAT3')]).ids"
+
+      - step: "Create settlement with that type"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_code.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REC: settlement_journal.id"
+          date: 2026-02-01
+
+      - step: "Assert allowed_analytic_account_ids is exactly the script's result"
+        action: "assert"
+        target: "settlement"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: aa_code_match"
+
+  - name: "No type_id: allowed_analytic_account_ids falls back to search([]), not empty"
+    steps:
+      - step: "Create a demo-independent analytic account to prove the fallback"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_fallback"
+        values:
+          name: "Fallback Settlement Analytic Account STLAAT4"
+
+      - step: "Build the form without ever setting type_id"
+        # `type_id` is required=True, so a saved record cannot exist
+        # without it -- an unsaved Form (`save: false`) still runs the
+        # compute for its dependent fields, which is exactly the case
+        # this scenario proves (see integrations/m2o-configurator.md
+        # "Kenapa ini hampir selalu meledak di form create").
+        #
+        # NB: cannot use `type: "m2m", check: "contains"` here -- an
+        # unsaved Form's m2m field is Odoo's `M2MProxy`, which
+        # odoo-yaml-test's `_coerce_to_ids` cannot interpret (it has no
+        # `.ids` attribute), so it raises "Cannot interpret <M2MProxy>
+        # as a record reference" on the *actual* side of the check.
+        # `type: "value"` + `operator: "contains"` works instead: it
+        # relies on plain `in`, backed by `M2MProxy.__contains__`.
+        action: "form"
+        model: "hr.cash_advance_settlement"
+        save: false
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "value"
+            operator: "contains"
+            expected: "REC: aa_fallback"
+
+  - name: "Manual selection with an empty m2m: allowed_analytic_account_ids is empty"
+    steps:
+      - step: "Create expense type wiring the underlying cash advance"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "ca_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Underlying CA Type for Settlement AA Test (manual empty)"
+          code: "STLAAT000E"
+          cash_advance_journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: ca_account.id"
+          cash_advance_payable_account_id: "REC: payable_account.id"
+
+      - step: "Create the underlying (draft) cash advance to settle"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: ca_type.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: ca_account.id"
+          payable_account_id: "REC: payable_account.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+
+      - step: "Create expense type with manual selection and no analytic accounts"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "type_manual_empty"
+        as_user: "base.user_admin"
+        values:
+          name: "Manual Empty Settlement AA Type"
+          code: "STLAAT005"
+          cash_advance_settlement_journal_id: "REC: settlement_journal.id"
+          analytic_account_selection_method: "manual"
+
+      - step: "Create settlement with that type"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_manual_empty.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REC: settlement_journal.id"
+          date: 2026-02-01
+
+      - step: "Assert allowed_analytic_account_ids has no records"
+        action: "assert"
+        target: "settlement"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "m2m"
+            check: "count"
+            expected_count: 0
+
+  - name: "Code selection whose script raises: compute call fails with UserError"
+    steps:
+      - step: "Create expense type wiring the underlying cash advance"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "ca_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Underlying CA Type for Settlement AA Test (code raises)"
+          code: "STLAAT000F"
+          cash_advance_journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: ca_account.id"
+          cash_advance_payable_account_id: "REC: payable_account.id"
+
+      - step: "Create the underlying (draft) cash advance to settle"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: ca_type.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: ca_account.id"
+          payable_account_id: "REC: payable_account.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+
+      - step: "Create expense type with a Python code that raises"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "type_code_error"
+        as_user: "base.user_admin"
+        values:
+          name: "Code Error Settlement AA Type"
+          code: "STLAAT006"
+          cash_advance_settlement_journal_id: "REC: settlement_journal.id"
+          analytic_account_selection_method: "code"
+          analytic_account_python_code: "result = 1 / 0"
+
+      - step: "Create settlement with that type"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_code_error.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REC: settlement_journal.id"
+          date: 2026-02-01
+
+      - step: "Forcing the compute must fail with UserError"
+        # `assert` cannot carry `expect_error` -- reading a non-stored
+        # compute field through `assert` cannot be made to fail on
+        # demand, so the compute method is called directly instead.
+        action: "call"
+        target: "settlement"
+        method: "_compute_allowed_analytic_account_ids"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"

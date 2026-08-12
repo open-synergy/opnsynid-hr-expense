@@ -99,13 +99,21 @@ class HrExpenseType(models.Model):
         comodel_name="product.usage_type",
     )
 
-    analytic_account_method = fields.Selection(
+    analytic_account_selection_method = fields.Selection(
         string="Analytic Account Selection Method",
         selection=[
-            ("fixed", "Fixed"),
-            ("python", "Python Code"),
+            ("manual", "Manual"),
+            ("domain", "Domain"),
+            ("code", "Python Code"),
         ],
-        default="fixed",
+        default="domain",
+        required=True,
+        help="How the analytic accounts allowed on documents using this "
+        "expense type are resolved: Manual picks from "
+        "'Analytic Accounts' below, Domain filters "
+        "account.analytic.account with the domain expression below, "
+        "Python Code runs the Python snippet below and reads its "
+        "'result' variable.",
     )
     analytic_account_ids = fields.Many2many(
         string="Analytic Accounts",
@@ -113,13 +121,24 @@ class HrExpenseType(models.Model):
         relation="rel_expense_type_2_analytic_account",
         column1="expense_type_id",
         column2="analytic_account_id",
+        help="Analytic accounts allowed on documents using this expense "
+        "type. Used only when 'Analytic Account Selection Method' is "
+        "set to Manual.",
     )
-    python_code = fields.Text(
-        string="Python Code",
-        default="""# Available variables:
-#  - env: Odoo Environment on which the action is triggered.
-#  - document: record on which the action is triggered; may be void.
-#  - result: Return result, the value is list of Analytic Accounts.
-result = []""",
-        copy=True,
+    analytic_account_domain = fields.Text(
+        string="Analytic Account Domain",
+        default="[]",
+        help="Domain expression evaluated against account.analytic.account "
+        "to resolve the analytic accounts allowed on documents using "
+        "this expense type. Used only when 'Analytic Account Selection "
+        "Method' is set to Domain.",
+    )
+    analytic_account_python_code = fields.Text(
+        string="Analytic Account Python Code",
+        default="result = []",
+        help="Python snippet evaluated to resolve the analytic accounts "
+        "allowed on documents using this expense type; must assign a "
+        "list of account.analytic.account ids to the 'result' "
+        "variable. Used only when 'Analytic Account Selection Method' "
+        "is set to Python Code.",
     )

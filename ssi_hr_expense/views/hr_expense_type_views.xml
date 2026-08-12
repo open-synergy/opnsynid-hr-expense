@@ -36,18 +36,29 @@
         <data>
             <xpath expr="//page[@name='note']" position="before">
                 <page name="page_analytic_account" string="Analytic Account">
-                    <group name="grp_analytic_account" colspan="4">
-                        <field name="analytic_account_method" />
+                    <group
+                            name="grp_analytic_account"
+                            colspan="4"
+                            col="2"
+                            string="Analytic Account"
+                        >
+                        <field name="analytic_account_selection_method" />
                         <field
                                 name="analytic_account_ids"
-                                attrs="{'invisible': [('analytic_account_method','=','python')]}"
                                 widget="many2many_tags"
+                                attrs="{'invisible': [('analytic_account_selection_method','!=','manual')]}"
                             />
                         <field
-                                name="python_code"
+                                name="analytic_account_domain"
+                                widget="domain"
+                                options="{'model': 'account.analytic.account', 'in_dialog': True}"
+                                attrs="{'invisible': [('analytic_account_selection_method','!=','domain')]}"
+                            />
+                        <field
+                                name="analytic_account_python_code"
                                 widget="ace"
                                 options="{'mode': 'python'}"
-                                attrs="{'invisible': [('analytic_account_method', '=', 'fixed')]}"
+                                attrs="{'invisible': [('analytic_account_selection_method','!=','code')]}"
                             />
                     </group>
                 </page>

@@ -45,7 +45,15 @@ class HrCashAdvanceSettlementLine(models.Model):
         "currency_id",
     )
     def onchange_pricelist_id(self):
-        pass
+        """Force a client-side refresh of the ``pricelist_id`` domain.
+
+        Registered on ``allowed_pricelist_ids``/``currency_id`` so the
+        UI re-evaluates the ``pricelist_id`` field's domain whenever
+        either changes; the body is intentionally empty because the
+        value itself is not reset here.
+
+        :return: None
+        """
 
     def _create_expense_line(self, move):
         """Create the expense ``account.move.line`` for this detail.
