@@ -1,6 +1,6 @@
 # Finish Employee Business Trip
 
-> **Module:** ssi_employee_business_trip\
+> **Module:** `ssi_employee_business_trip`\
 > **Model:** `employee_business_trip`\
 > **Menu:** Human Resource > Expense > Business Trips\
 > **Actor:** system (`base.automation` `employee_business_trip_ready_2_done`)\
