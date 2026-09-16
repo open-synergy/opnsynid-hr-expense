@@ -1,6 +1,6 @@
 # Create Employee Business Trip
 
-> **Module:** ssi_employee_business_trip_operating_unit
+> **Module:** `ssi_employee_business_trip_operating_unit`
 >
 > **Extends:** ssi_employee_business_trip — model `employee_business_trip`, action
 > `01-create`
