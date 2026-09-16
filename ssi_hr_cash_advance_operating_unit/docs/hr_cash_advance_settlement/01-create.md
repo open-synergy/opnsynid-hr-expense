@@ -1,6 +1,6 @@
 # Create Employee Cash Advance Settlement
 
-> **Module:** ssi_hr_cash_advance_operating_unit
+> **Module:** `ssi_hr_cash_advance_operating_unit`
 >
 > **Extends:** ssi_hr_cash_advance — model `hr.cash_advance_settlement`, action
 > `01-create`
