@@ -1,6 +1,6 @@
 # Approve Employee Cash Advance
 
-> **Module:** ssi_hr_cash_advance_documenso_signing
+> **Module:** `ssi_hr_cash_advance_documenso_signing`
 >
 > **Extends:** ssi_hr_cash_advance — model `hr.cash_advance`, aksi `05-approve`
 
