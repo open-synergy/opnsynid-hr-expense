@@ -1,6 +1,6 @@
 # Activate Employee Business Trip Type
 
-> **Module:** ssi_employee_business_trip\
+> **Module:** `ssi_employee_business_trip`\
 > **Model:** `employee_business_trip_type`\
 > **Menu:** Human Resource > Configuration > Expense > Business Trip Types\
 > **Actor:** user in group `Human Resource - Configurator / Employee Business Trip Type`\
