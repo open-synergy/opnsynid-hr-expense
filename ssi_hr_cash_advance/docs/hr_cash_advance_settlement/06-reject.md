@@ -1,6 +1,6 @@
 # Reject Employee Cash Advance Settlement
 
-> **Module:** ssi_hr_cash_advance\
+> **Module:** `ssi_hr_cash_advance`\
 > **Model:** `hr.cash_advance_settlement`\
 > **Menu:** Human Resource > Expense > Cash Advance Settlements\
 > **Actor:** user registered as approver on the pending approval level, via the\
