@@ -1,6 +1,6 @@
 # Approve Employee Cash Advance
 
-> **Module:** ssi_hr_cash_advance\
+> **Module:** `ssi_hr_cash_advance`\
 > **Model:** `hr.cash_advance`\
 > **Menu:** Human Resource > Expense > Cash Advances\
 > **Actor:** user registered as approver on the pending approval level, via the\
