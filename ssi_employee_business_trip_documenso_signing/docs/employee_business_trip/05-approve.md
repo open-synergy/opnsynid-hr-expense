@@ -1,6 +1,6 @@
 # Approve Employee Business Trip
 
-> **Module:** ssi_employee_business_trip_documenso_signing
+> **Module:** `ssi_employee_business_trip_documenso_signing`
 >
 > **Extends:** ssi_employee_business_trip — model `employee_business_trip`, aksi
 > `05-approve`
