@@ -1,6 +1,6 @@
 # Activate Expense Type
 
-> **Module:** ssi_hr_expense\
+> **Module:** `ssi_hr_expense`\
 > **Model:** `hr.expense_type`\
 > **Menu:** Human Resource > Configuration > Expense > Types\
 > **Actor:** user in group `Expense Type`\
