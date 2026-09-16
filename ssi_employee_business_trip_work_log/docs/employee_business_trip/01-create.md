@@ -1,6 +1,6 @@
 # Create Employee Business Trip
 
-> **Module:** ssi_employee_business_trip_work_log
+> **Module:** `ssi_employee_business_trip_work_log`
 >
 > **Model:** `employee_business_trip`
 >
