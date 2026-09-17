@@ -1,9 +1,9 @@
 # Reset Document Number — Employee Reimbursement
 
-> **Module:** ssi*hr_reimbursement\
+> **Module:** `ssi_hr_reimbursement`\
 > **Model:** `hr.reimbursement`\
 > **Menu:** Human Resource > Expense > Reimbursements\
-> **Actor:** user in group \_Reimbursement — Validator*\
+> **Actor:** user in group \_Reimbursement — Validator\*\
 > **Requires:** `01-create`
 
 ## Pre-Condition
