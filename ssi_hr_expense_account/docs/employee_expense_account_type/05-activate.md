@@ -1,6 +1,6 @@
 # Activate Employee Expense Account Type
 
-> **Module:** ssi_hr_expense_account\
+> **Module:** `ssi_hr_expense_account`\
 > **Model:** `employee_expense_account_type`\
 > **Menu:** Human Resource > Configuration > Expense > Expense Account Types\
 > **Actor:** user in group `Human Resource - Configurator / Employee Expense Account Type`\
