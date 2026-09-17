@@ -1,6 +1,6 @@
 # Approve Employee Expense Account
 
-> **Module:** ssi_hr_expense_account_documenso_signing
+> **Module:** `ssi_hr_expense_account_documenso_signing`
 >
 > **Extends:** ssi_hr_expense_account — model `employee_expense_account`, aksi
 > `05-approve`
