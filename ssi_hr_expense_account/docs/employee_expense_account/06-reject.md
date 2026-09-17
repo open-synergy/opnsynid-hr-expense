@@ -1,6 +1,6 @@
 # Reject Employee Expense Account
 
-> **Module:** ssi_hr_expense_account\
+> **Module:** `ssi_hr_expense_account`\
 > **Model:** `employee_expense_account`\
 > **Menu:** Human Resource > Expense > Expense Accounts\
 > **Actor:** approver on the approval level that is currently pending (group `Expense Account / Validator`)\

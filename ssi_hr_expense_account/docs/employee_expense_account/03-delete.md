@@ -1,6 +1,6 @@
 # Delete Employee Expense Account
 
-> **Module:** ssi_hr_expense_account\
+> **Module:** `ssi_hr_expense_account`\
 > **Model:** `employee_expense_account`\
 > **Menu:** Human Resource > Expense > Expense Accounts\
 > **Actor:** user in group `Expense Account / User`\
