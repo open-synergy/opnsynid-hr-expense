@@ -1,9 +1,9 @@
 # Delete Employee Reimbursement
 
-> **Module:** ssi*hr_reimbursement\
+> **Module:** `ssi_hr_reimbursement`\
 > **Model:** `hr.reimbursement`\
 > **Menu:** Human Resource > Expense > Reimbursements\
-> **Actor:** user in group \_Reimbursement — User*\
+> **Actor:** user in group \_Reimbursement — User\*\
 > **Requires:** `01-create`
 
 ## Pre-Condition

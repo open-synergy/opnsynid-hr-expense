@@ -1,9 +1,9 @@
 # Restart Employee Reimbursement
 
-> **Module:** ssi*hr_reimbursement\
+> **Module:** `ssi_hr_reimbursement`\
 > **Model:** `hr.reimbursement`\
 > **Menu:** Human Resource > Expense > Reimbursements\
-> **Actor:** user in group \_Reimbursement — Validator*\
+> **Actor:** user in group \_Reimbursement — Validator\*\
 > **State:** `cancel` | `reject` → `draft`\
 > **Requires:** `10-cancel`
 
