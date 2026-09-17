@@ -1,6 +1,6 @@
 # Finish Employee Expense Account
 
-> **Module:** ssi_hr_expense_account\
+> **Module:** `ssi_hr_expense_account`\
 > **Model:** `employee_expense_account`\
 > **Menu:** Human Resource > Expense > Expense Accounts\
 > **Actor:** — (triggered automatically, no user action)\
