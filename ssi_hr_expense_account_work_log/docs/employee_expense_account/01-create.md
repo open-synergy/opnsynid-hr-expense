@@ -1,6 +1,6 @@
 # Create Employee Expense Account
 
-> **Module:** ssi_hr_expense_account_work_log
+> **Module:** `ssi_hr_expense_account_work_log`
 >
 > **Extends:** ssi_hr_expense_account — model `employee_expense_account`, action
 > `01-create`
