@@ -148,6 +148,9 @@
                 <field name="job_id" readonly="1" force_save="1" />
             </xpath>
             <xpath expr="//group[@name='header_right']" position="inside">
+                <!-- Header count 8/14 is intentional: 7 of the 14 fields below are
+                     invisible domain helpers (company_currency_id, allowed_*);
+                     visible fields are 7 per side. -->
                 <field name="company_currency_id" invisible="1" />
                 <field name="currency_id" />
                 <field name="type_id" />
@@ -316,9 +319,9 @@
                     <group name="grp_accounting" colspan="4" col="2">
                         <field name="journal_id" />
                         <field name="account_id" />
-                        <field name="reconciled" />
-                        <field name="payable_move_line_id" />
                         <field name="move_id" />
+                        <field name="payable_move_line_id" />
+                        <field name="reconciled" />
                     </group>
                 </page>
             </xpath>
