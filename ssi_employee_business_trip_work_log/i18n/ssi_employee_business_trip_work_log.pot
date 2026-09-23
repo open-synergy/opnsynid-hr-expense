@@ -15,7 +15,7 @@ msgstr ""
 
 #. module: ssi_employee_business_trip_work_log
 #: model:ir.model.fields,field_description:ssi_employee_business_trip_work_log.field_employee_business_trip__allowed_analytic_account_ids
-msgid "Analytic Accounts"
+msgid "Allowed Analytic Accounts"
 msgstr ""
 
 #. module: ssi_employee_business_trip_work_log
