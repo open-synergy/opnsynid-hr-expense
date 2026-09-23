@@ -1,0 +1,393 @@
+options:
+  auto_refresh: true
+
+setup:
+  steps:
+    - step: "Get payable account type"
+      action: "ref"
+      xml_id: "account.data_account_type_payable"
+      save_as: "payable_acc_type"
+
+    # `setup:` replays before every scenario in the same transaction (no
+    # rollback in between), so a fixed `code`/`name` would collide with
+    # the previous scenario's record on the 2nd+ replay. Generate a
+    # fresh, never-colliding value on each replay.
+    - step: "Create payable account"
+      action: "create"
+      model: "account.account"
+      save_as: "payable_account"
+      values:
+        code: "EVAL: 'EBTAAP%d' % env['account.account'].search_count([])"
+        name: "Test Analytic Account Payable"
+        user_type_id: "REC: payable_acc_type.id"
+        reconcile: true
+
+    - step: "Create journal"
+      action: "create"
+      model: "account.journal"
+      save_as: "journal"
+      values:
+        name:
+          "EVAL: 'Test Analytic Account Journal %d' %
+          env['account.journal'].search_count([])"
+        code: "EVAL: 'EAJ%d' % env['account.journal'].search_count([])"
+        type: "general"
+
+    - step: "Get Indonesia country"
+      action: "ref"
+      xml_id: "base.id"
+      save_as: "indonesia"
+
+    - step: "Create origin city"
+      action: "create"
+      model: "res.city"
+      save_as: "origin_city"
+      values:
+        name:
+          "EVAL: 'Test Analytic Account Origin %d' % env['res.city'].search_count([])"
+        country_id: "REC: indonesia.id"
+
+    - step: "Create destination city"
+      action: "create"
+      model: "res.city"
+      save_as: "destination_city"
+      values:
+        name:
+          "EVAL: 'Test Analytic Account Destination %d' %
+          env['res.city'].search_count([])"
+        country_id: "REC: indonesia.id"
+
+    - step: "Create pricelist"
+      action: "create"
+      model: "product.pricelist"
+      save_as: "pricelist"
+      values:
+        name:
+          "EVAL: 'Test Analytic Account Pricelist %d' %
+          env['product.pricelist'].search_count([])"
+
+    - step: "Create employee home address partner"
+      action: "create"
+      model: "res.partner"
+      save_as: "employee_partner"
+      as_user: "base.user_admin"
+      values:
+        name:
+          "EVAL: 'Test Analytic Account Employee Address %d' %
+          env['res.partner'].search_count([])"
+        is_company: false
+
+    - step: "Create employee"
+      action: "create"
+      model: "hr.employee"
+      save_as: "employee"
+      as_user: "base.user_admin"
+      values:
+        name:
+          "EVAL: 'Test Analytic Account Employee %d' %
+          env['hr.employee'].search_count([])"
+        address_home_id: "REC: employee_partner.id"
+
+scenarios:
+  - name: "Manual selection: allowed_analytic_account_ids is exactly the m2m list"
+    steps:
+      - step: "Create two analytic accounts"
+        # No `as_user:` here: creating account.analytic.account requires
+        # the analytic.group_analytic_accounting group, which
+        # base.user_admin does not carry by default. Omitting `as_user:`
+        # runs this step in the transaction's own (superuser)
+        # environment instead.
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_manual_1"
+        values:
+          name: "Manual EBT Analytic Account 1"
+
+      - step: "Create the second analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_manual_2"
+        values:
+          name: "Manual EBT Analytic Account 2"
+
+      - step: "Create business trip type with manual selection listing both accounts"
+        action: "create"
+        model: "employee_business_trip_type"
+        save_as: "type_manual"
+        as_user: "base.user_admin"
+        values:
+          name: "Manual EBT AA Type"
+          code: "/"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+          analytic_account_selection_method: "manual"
+          analytic_account_ids:
+            - - 6
+              - 0
+              - - "REC: aa_manual_1.id"
+                - "REC: aa_manual_2.id"
+
+      - step: "Create business trip with that type"
+        action: "create"
+        model: "employee_business_trip"
+        save_as: "trip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_manual.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          date_start: 2026-01-16
+          date_end: 2026-01-18
+          origin_id: "REC: origin_city.id"
+          destination_id: "REC: destination_city.id"
+          currency_id: "EVAL: env.company.currency_id.id"
+          pricelist_id: "REC: pricelist.id"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+
+      - step: "Assert allowed_analytic_account_ids is exactly both accounts"
+        action: "assert"
+        target: "trip"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: aa_manual_1"
+              - "REC: aa_manual_2"
+
+  - name:
+      "Domain selection: allowed_analytic_account_ids matches only the filtered account"
+    steps:
+      - step: "Create the analytic account the domain will match"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_domain_match"
+        values:
+          name: "Domain EBT Analytic Account Match EBTAAT2"
+
+      - step: "Create a second analytic account the domain must exclude"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_domain_other"
+        values:
+          name: "Domain EBT Analytic Account Other EBTAAT2"
+
+      - step: "Create business trip type with a domain matching only the first account"
+        action: "create"
+        model: "employee_business_trip_type"
+        save_as: "type_domain"
+        as_user: "base.user_admin"
+        values:
+          name: "Domain EBT AA Type"
+          code: "/"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+          analytic_account_selection_method: "domain"
+          analytic_account_domain:
+            "[('name', '=', 'Domain EBT Analytic Account Match EBTAAT2')]"
+
+      - step: "Create business trip with that type"
+        action: "create"
+        model: "employee_business_trip"
+        save_as: "trip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_domain.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          date_start: 2026-01-16
+          date_end: 2026-01-18
+          origin_id: "REC: origin_city.id"
+          destination_id: "REC: destination_city.id"
+          currency_id: "EVAL: env.company.currency_id.id"
+          pricelist_id: "REC: pricelist.id"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+
+      - step: "Assert allowed_analytic_account_ids is exactly the matched account"
+        action: "assert"
+        target: "trip"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: aa_domain_match"
+
+  - name:
+      "Code selection: allowed_analytic_account_ids matches the script's search result"
+    steps:
+      - step: "Create the analytic account the script will search for"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_code_match"
+        values:
+          name: "Code EBT Analytic Account Match EBTAAT3"
+
+      - step: "Create business trip type with a Python code selection"
+        action: "create"
+        model: "employee_business_trip_type"
+        save_as: "type_code"
+        as_user: "base.user_admin"
+        values:
+          name: "Code EBT AA Type"
+          code: "/"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+          analytic_account_selection_method: "code"
+          analytic_account_python_code:
+            "result = env['account.analytic.account'].search([('name', '=', 'Code EBT
+            Analytic Account Match EBTAAT3')]).ids"
+
+      - step: "Create business trip with that type"
+        action: "create"
+        model: "employee_business_trip"
+        save_as: "trip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_code.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          date_start: 2026-01-16
+          date_end: 2026-01-18
+          origin_id: "REC: origin_city.id"
+          destination_id: "REC: destination_city.id"
+          currency_id: "EVAL: env.company.currency_id.id"
+          pricelist_id: "REC: pricelist.id"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+
+      - step: "Assert allowed_analytic_account_ids is exactly the script's result"
+        action: "assert"
+        target: "trip"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: aa_code_match"
+
+  - name: "No type_id: allowed_analytic_account_ids falls back to search([]), not empty"
+    steps:
+      - step: "Create a demo-independent analytic account to prove the fallback"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_fallback"
+        values:
+          name: "Fallback EBT Analytic Account EBTAAT4"
+
+      - step: "Build the form without ever setting type_id"
+        # `type_id` is required=True, so a saved record cannot exist
+        # without it -- an unsaved Form (`save: false`) still runs the
+        # compute for its dependent fields, which is exactly the case
+        # this scenario proves (see integrations/m2o-configurator.md
+        # "Kenapa ini hampir selalu meledak di form create").
+        # NB: cannot use `type: "m2m", check: "contains"` here -- an
+        # unsaved Form's m2m field is Odoo's `M2MProxy`, which
+        # odoo-yaml-test's `_coerce_to_ids` cannot interpret (it has no
+        # `.ids` attribute), so it raises "Cannot interpret <M2MProxy>
+        # as a record reference" on the *actual* side of the check.
+        # `type: "value"` + `operator: "contains"` works instead: it
+        # relies on plain `in`, backed by `M2MProxy.__contains__`.
+        action: "form"
+        model: "employee_business_trip"
+        save: false
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "value"
+            operator: "contains"
+            expected: "REC: aa_fallback"
+
+  - name: "Manual selection with an empty m2m: allowed_analytic_account_ids is empty"
+    steps:
+      - step: "Create business trip type with manual selection and no analytic accounts"
+        action: "create"
+        model: "employee_business_trip_type"
+        save_as: "type_manual_empty"
+        as_user: "base.user_admin"
+        values:
+          name: "Manual Empty EBT AA Type"
+          code: "/"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+          analytic_account_selection_method: "manual"
+
+      - step: "Create business trip with that type"
+        action: "create"
+        model: "employee_business_trip"
+        save_as: "trip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_manual_empty.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          date_start: 2026-01-16
+          date_end: 2026-01-18
+          origin_id: "REC: origin_city.id"
+          destination_id: "REC: destination_city.id"
+          currency_id: "EVAL: env.company.currency_id.id"
+          pricelist_id: "REC: pricelist.id"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+
+      - step: "Assert allowed_analytic_account_ids has no records"
+        action: "assert"
+        target: "trip"
+        asserts:
+          allowed_analytic_account_ids:
+            type: "m2m"
+            check: "count"
+            expected_count: 0
+
+  - name: "Code selection whose script raises: compute call fails with UserError"
+    steps:
+      - step: "Create business trip type with a Python code that raises"
+        action: "create"
+        model: "employee_business_trip_type"
+        save_as: "type_code_error"
+        as_user: "base.user_admin"
+        values:
+          name: "Code Error EBT AA Type"
+          code: "/"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+          analytic_account_selection_method: "code"
+          analytic_account_python_code: "result = 1 / 0"
+
+      - step: "Create business trip with that type"
+        action: "create"
+        model: "employee_business_trip"
+        save_as: "trip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_code_error.id"
+          date: 2026-01-15
+          date_due: 2026-02-15
+          date_start: 2026-01-16
+          date_end: 2026-01-18
+          origin_id: "REC: origin_city.id"
+          destination_id: "REC: destination_city.id"
+          currency_id: "EVAL: env.company.currency_id.id"
+          pricelist_id: "REC: pricelist.id"
+          journal_id: "REC: journal.id"
+          payable_account_id: "REC: payable_account.id"
+
+      - step: "Forcing the compute must fail with UserError"
+        # `assert` cannot carry `expect_error` -- reading a non-stored
+        # compute field through `assert` cannot be made to fail on
+        # demand, so the compute method is called directly instead.
+        action: "call"
+        target: "trip"
+        method: "_compute_allowed_analytic_account_ids"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"

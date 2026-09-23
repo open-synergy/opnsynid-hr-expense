@@ -8,8 +8,10 @@ from odoo import fields, models
 class EmployeeBusinessTripType(models.Model):
     """
     Master data for classifying employee business trip types.
-    Defines the journal, payable account, and product selection
-    rules (manual, domain, or Python code) used on trip documents.
+    Defines the journal, payable account, and the product,
+    currency, pricelist, origin, destination, and analytic
+    account selection rules (manual, domain, or Python code)
+    used on trip documents.
     """
 
     _name = "employee_business_trip_type"
@@ -22,6 +24,38 @@ class EmployeeBusinessTripType(models.Model):
     )
     payable_account_id = fields.Many2one(
         comodel_name="account.account", string="Payable Account", required=True
+    )
+    # Analytic Account
+    analytic_account_selection_method = fields.Selection(
+        default="domain",
+        selection=[("manual", "Manual"), ("domain", "Domain"), ("code", "Python Code")],
+        string="Analytic Account Selection Method",
+        required=True,
+        help="How the analytic accounts allowed on a business trip document of "
+        "this type are determined: a manual list, a search domain, or a "
+        "Python code snippet.",
+    )
+    analytic_account_ids = fields.Many2many(
+        comodel_name="account.analytic.account",
+        relation="rel_employee_business_trip_type_2_analytic_account",
+        column1="type_id",
+        column2="analytic_account_id",
+        string="Analytic Accounts",
+        help="Analytic accounts allowed on a business trip document of this "
+        "type when Analytic Account Selection Method is Manual.",
+    )
+    analytic_account_domain = fields.Text(
+        default="[]",
+        string="Analytic Account Domain",
+        help="Search domain evaluated against Analytic Account when Analytic "
+        "Account Selection Method is Domain.",
+    )
+    analytic_account_python_code = fields.Text(
+        default="result = []",
+        string="Analytic Account Python Code",
+        help="Python code that sets the result variable to a recordset of "
+        "Analytic Account, evaluated when Analytic Account Selection "
+        "Method is Python Code.",
     )
     # Per diem
     product_selection_method = fields.Selection(

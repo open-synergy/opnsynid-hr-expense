@@ -130,6 +130,13 @@ odoo.define("ssi_employee_business_trip.employee_business_trip_type_tour", funct
                 trigger: ".o_notebook .nav-link:contains(Accounting)",
             },
             {
+                content: "Analytic Account group is displayed",
+                trigger: ".o_horizontal_separator:contains(Analytic Account)",
+                run: function () {
+                    // Assertion only.
+                },
+            },
+            {
                 content: "Select the Journal",
                 trigger: ".o_field_many2one[name='journal_id'] input",
                 run: "text Tour Business Trip Journal",
