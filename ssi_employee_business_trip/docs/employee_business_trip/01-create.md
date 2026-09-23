@@ -21,6 +21,9 @@
    - **Job Position**: Automatically filled from **Employee**. Read-only.
    - **Type**: Select the business trip type.
    - **Date**: Enter the accounting/document date.
+   - **Date Due**: Enter the payment due date.
+   - **Currency**: Select the currency. Available options are based on **Type**.
+   - **Pricelist**: Select the pricelist. Available options are based on **Type**.
 4. In the **Trip Information** tab, fill in:
    - **Date Start**: Enter the travel start date.
    - **Date End**: Enter the travel end date.
@@ -28,10 +31,7 @@
    - **Destination**: Select the destination city. Available options are based on
      **Type**.
 5. In the **Per Diem** tab, fill in:
-   - **Currency**: Select the currency. Available options are based on **Type**.
-   - **Pricelist**: Select the pricelist. Available options are based on **Type**.
    - **Analytic Account**: Select the analytic account if applicable.
-   - **Date Due**: Enter the payment due date.
    - Add lines in the **Per Diem** table. Repeat the following steps as many times as
      needed:
      - Click **Add a line**.
