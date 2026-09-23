@@ -148,7 +148,26 @@
                 <xpath expr="//group[@name='header_right']" position="inside">
                     <field name="type_id" />
                     <field name="date" />
-
+                    <field name="date_due" />
+                    <field name="company_currency_id" invisible="1" />
+                    <field
+                        name="allowed_currency_ids"
+                        invisible="1"
+                        widget="many2many_tags"
+                    />
+                    <field
+                        name="currency_id"
+                        domain="[('id', 'in', allowed_currency_ids)]"
+                    />
+                    <field
+                        name="allowed_pricelist_ids"
+                        invisible="1"
+                        widget="many2many_tags"
+                    />
+                    <field
+                        name="pricelist_id"
+                        domain="[('id', 'in', allowed_pricelist_ids)]"
+                    />
                 </xpath>
                 <xpath expr="//page[1]" position="before">
                     <page name="trip" string="Trip Information">
@@ -192,34 +211,12 @@
                     <page name="per_diem" string="Per Diem">
                         <group name="per_diem_1" colspan="4" col="2">
                             <group name="per_diem_1_1" colspan="1" col="2">
-                                <field name="company_currency_id" invisible="1" />
-                                <field
-                                    name="allowed_currency_ids"
-                                    invisible="1"
-                                    widget="many2many_tags"
-                                />
-                                <field
-                                    name="currency_id"
-                                    domain="[('id', 'in', allowed_currency_ids)]"
-                                />
-                                <field
-                                    name="allowed_pricelist_ids"
-                                    invisible="1"
-                                    widget="many2many_tags"
-                                />
-                                <field
-                                    name="pricelist_id"
-                                    domain="[('id', 'in', allowed_pricelist_ids)]"
-                                />
                                 <field
                                     name="allowed_product_ids"
                                     invisible="1"
                                     widget="many2many_tags"
                                 />
                                 <field name="analytic_account_id" />
-                            </group>
-                            <group name="per_diem_1_2" colspan="1" col="2">
-                                <field name="date_due" />
                             </group>
                         </group>
                         <field name="per_diem_ids">

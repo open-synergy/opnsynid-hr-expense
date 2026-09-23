@@ -98,6 +98,32 @@ odoo.define("ssi_employee_business_trip.employee_business_trip_tour", function (
                 trigger: ".o_field_widget[name='date'] input",
                 run: "text 01/15/2026",
             },
+            {
+                content: "Fill in Date Due",
+                trigger: ".o_field_widget[name='date_due'] input",
+                run: "text 01/31/2026",
+            },
+            {
+                content: "Select the Currency",
+                trigger: ".o_field_many2one[name='currency_id'] input",
+                run: "text EBT",
+            },
+            {
+                content: "Pick the Currency from the dropdown",
+                trigger: ".ui-autocomplete .ui-menu-item a:contains(EBT)",
+                in_modal: false,
+            },
+            {
+                content: "Select the Pricelist",
+                trigger: ".o_field_many2one[name='pricelist_id'] input",
+                run: "text Tour EBT Pricelist",
+            },
+            {
+                content: "Pick the Pricelist from the dropdown",
+                trigger:
+                    ".ui-autocomplete .ui-menu-item a:contains(Tour EBT Pricelist)",
+                in_modal: false,
+            },
 
             // Flow 4 — In the Trip Information tab, fill in Date Start,
             // Date End, Origin, and Destination.
@@ -138,39 +164,14 @@ odoo.define("ssi_employee_business_trip.employee_business_trip_tour", function (
                 in_modal: false,
             },
 
-            // Flow 5 — In the Per Diem tab, fill in Currency, Pricelist,
-            // Date Due, and add one Per Diem line. Analytic Account is
-            // optional and is intentionally skipped (Keputusan Desain,
-            // issue open-synergy/opnsynid-hr-expense#132).
+            // Flow 5 — In the Per Diem tab, add one Per Diem line. Analytic
+            // Account is optional and is intentionally skipped (Keputusan
+            // Desain, issue open-synergy/opnsynid-hr-expense#132). Currency,
+            // Pricelist, and Date Due moved to the header (Flow 3) -- see
+            // Keputusan Desain, issue open-synergy/opnsynid-hr-expense#259.
             {
                 content: "Open the Per Diem tab",
                 trigger: ".o_notebook .nav-link:contains(Per Diem)",
-            },
-            {
-                content: "Select the Currency",
-                trigger: ".o_field_many2one[name='currency_id'] input",
-                run: "text EBT",
-            },
-            {
-                content: "Pick the Currency from the dropdown",
-                trigger: ".ui-autocomplete .ui-menu-item a:contains(EBT)",
-                in_modal: false,
-            },
-            {
-                content: "Select the Pricelist",
-                trigger: ".o_field_many2one[name='pricelist_id'] input",
-                run: "text Tour EBT Pricelist",
-            },
-            {
-                content: "Pick the Pricelist from the dropdown",
-                trigger:
-                    ".ui-autocomplete .ui-menu-item a:contains(Tour EBT Pricelist)",
-                in_modal: false,
-            },
-            {
-                content: "Fill in Date Due",
-                trigger: ".o_field_widget[name='date_due'] input",
-                run: "text 01/31/2026",
             },
             {
                 content: "Click Add a line",
