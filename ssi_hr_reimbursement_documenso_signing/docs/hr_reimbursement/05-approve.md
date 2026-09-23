@@ -1,6 +1,6 @@
 # Approve Employee Reimbursement
 
-> **Module:** ssi_hr_reimbursement_documenso_signing
+> **Module:** `ssi_hr_reimbursement_documenso_signing`
 >
 > **Extends:** ssi_hr_reimbursement — model `hr.reimbursement`, aksi `05-approve`
 
