@@ -1,6 +1,6 @@
 # Create Employee Reimbursement
 
-> **Module:** ssi_hr_reimbursement_operating_unit
+> **Module:** `ssi_hr_reimbursement_operating_unit`
 >
 > **Extends:** ssi_hr_reimbursement — model `hr.reimbursement`, action `01-create`
 
