@@ -80,6 +80,17 @@
      documents of this type.
    - **Payable Account** _(required)_: Select the payable account used to post business
      trip documents of this type.
+   - **Analytic Account Selection Method**: Select how analytic accounts allowed on a
+     business trip of this type are determined: **Manual**, **Domain** (default), or
+     **Python Code**.
+   - **Analytic Accounts**: Only visible when Analytic Account Selection Method =
+     **Manual**. Select the allowed analytic accounts.
+   - **Analytic Account Domain**: Only visible when Analytic Account Selection Method =
+     **Domain**. Enter the domain expression evaluated against Analytic Account.
+     Default: `[]`.
+   - **Analytic Account Python Code**: Only visible when Analytic Account Selection
+     Method = **Python Code**. Enter the Python code that sets the `result` variable to
+     a recordset of Analytic Account. Default: `result = []`.
 8. If **Code** was left as **/**, click the **Generate Code** button in the header to
    automatically assign a code from the configured `sequence.template`. Skip this step
    if an explicit code was entered manually — **Generate Code** only changes records

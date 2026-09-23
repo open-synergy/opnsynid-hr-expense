@@ -24,6 +24,7 @@
         "base_address_city",
         "ssi_accounting_entry_mixin",
         "ssi_product_line_account_mixin",
+        "ssi_m2o_configurator_mixin",
         "base_automation",
         "web_tour",
     ],

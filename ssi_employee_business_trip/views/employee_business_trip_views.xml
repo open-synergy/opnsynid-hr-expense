@@ -216,7 +216,15 @@
                                     invisible="1"
                                     widget="many2many_tags"
                                 />
-                                <field name="analytic_account_id" />
+                                <field
+                                    name="allowed_analytic_account_ids"
+                                    invisible="1"
+                                    widget="many2many_tags"
+                                />
+                                <field
+                                    name="analytic_account_id"
+                                    domain="[('id', 'in', allowed_analytic_account_ids)]"
+                                />
                             </group>
                         </group>
                         <field name="per_diem_ids">
@@ -231,7 +239,10 @@
                                 <field name="name" />
                                 <field name="usage_id" />
                                 <field name="account_id" />
-                                <field name="analytic_account_id" />
+                                <field
+                                    name="analytic_account_id"
+                                    domain="[('id', 'in', parent.allowed_analytic_account_ids)]"
+                                />
                                 <field name="uom_quantity" string="Qty." />
                                 <field
                                     name="allowed_uom_ids"
@@ -263,7 +274,10 @@
                                         <field name="name" />
                                         <field name="usage_id" />
                                         <field name="account_id" />
-                                        <field name="analytic_account_id" />
+                                        <field
+                                            name="analytic_account_id"
+                                            domain="[('id', 'in', parent.allowed_analytic_account_ids)]"
+                                        />
                                     </group>
                                     <group
                                         name="per_diem_line_group_1_2"
@@ -328,7 +342,10 @@
                                 <field name="name" />
                                 <field name="currency_id" invisible="True" />
                                 <field name="account_id" />
-                                <field name="analytic_account_id" />
+                                <field
+                                    name="analytic_account_id"
+                                    domain="[('id', 'in', parent.allowed_analytic_account_ids)]"
+                                />
                                 <field name="manual" invisible="True" />
                                 <field name="base_amount" />
                                 <field name="tax_amount" />
@@ -338,7 +355,10 @@
                                     <field name="tax_id" />
                                     <field name="currency_id" invisible="True" />
                                     <field name="account_id" />
-                                    <field name="analytic_account_id" />
+                                    <field
+                                        name="analytic_account_id"
+                                        domain="[('id', 'in', parent.allowed_analytic_account_ids)]"
+                                    />
                                     <field name="manual" invisible="True" />
                                     <field name="base_amount" />
                                     <field name="tax_amount" />

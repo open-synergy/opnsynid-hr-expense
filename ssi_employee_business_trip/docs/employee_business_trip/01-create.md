@@ -31,7 +31,8 @@
    - **Destination**: Select the destination city. Available options are based on
      **Type**.
 5. In the **Per Diem** tab, fill in:
-   - **Analytic Account**: Select the analytic account if applicable.
+   - **Analytic Account**: Select the analytic account if applicable. Available options
+     are based on **Type**.
    - Add lines in the **Per Diem** table. Repeat the following steps as many times as
      needed:
      - Click **Add a line**.
@@ -41,7 +42,8 @@
        - **Description**: Automatically filled from **Product**. Change if needed.
        - **Usage**: Select the usage category.
        - **Account**: Automatically filled from **Product**. Change if needed.
-       - **Analytic Account**: Select if applicable.
+       - **Analytic Account**: Select if applicable. Available options are based on
+         **Type**.
        - **Qty.**: Enter the quantity.
        - **UoM**: Automatically filled from **Product**. Change if needed.
        - **Price**: Automatically filled from **Pricelist** and **Product**. Change if

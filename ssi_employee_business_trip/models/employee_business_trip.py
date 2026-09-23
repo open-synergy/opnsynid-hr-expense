@@ -29,6 +29,7 @@ class EmployeeBusinessTrip(models.Model):
         "mixin.account_move",
         "mixin.account_move_single_line",
         "mixin.transaction_pricelist",
+        "mixin.many2one_configurator",
     ]
 
     # Multiple Approval Attribute
@@ -192,6 +193,13 @@ class EmployeeBusinessTrip(models.Model):
         ondelete="restrict",
         readonly=True,
         states={"draft": [("readonly", False)]},
+    )
+    allowed_analytic_account_ids = fields.Many2many(
+        comodel_name="account.analytic.account",
+        string="Allowed Analytic Accounts",
+        compute="_compute_allowed_analytic_account_ids",
+        store=False,
+        compute_sudo=True,
     )
     payable_account_id = fields.Many2one(
         comodel_name="account.account",
@@ -490,6 +498,32 @@ class EmployeeBusinessTrip(models.Model):
                         raise UserError(_("Error evaluating conditions.\n %s") % error)
 
             record.allowed_currency_ids = result
+
+    @api.depends("type_id")
+    def _compute_allowed_analytic_account_ids(self):
+        """Compute the analytic accounts allowed on the trip.
+
+        Resolves ``allowed_analytic_account_ids`` from the trip
+        type's ``analytic_account_selection_method`` via
+        :meth:`_m2o_configurator_get_filter` (mixin
+        ``mixin.many2one_configurator``). Falls back to
+        ``search([])`` (no restriction) when ``type_id`` is empty,
+        matching the type's own permissive default
+        (``selection_method="domain"``, ``domain="[]"``).
+        """
+        AnalyticAccount = self.env["account.analytic.account"]
+        for record in self:
+            result = AnalyticAccount.search([])
+            if record.type_id:
+                ttype = record.type_id
+                result = record._m2o_configurator_get_filter(
+                    object_name="account.analytic.account",
+                    method_selection=ttype.analytic_account_selection_method,
+                    manual_recordset=ttype.analytic_account_ids,
+                    domain=ttype.analytic_account_domain,
+                    python_code=ttype.analytic_account_python_code,
+                )
+            record.allowed_analytic_account_ids = result
 
     @api.depends(
         "per_diem_ids", "per_diem_ids.price_subtotal", "tax_ids", "tax_ids.tax_amount"
