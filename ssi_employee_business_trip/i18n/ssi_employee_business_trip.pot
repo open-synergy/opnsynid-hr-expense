@@ -103,6 +103,11 @@ msgid "All Subordinate"
 msgstr ""
 
 #. module: ssi_employee_business_trip
+#: model:ir.model.fields,field_description:ssi_employee_business_trip.field_employee_business_trip__allowed_analytic_account_ids
+msgid "Allowed Analytic Accounts"
+msgstr ""
+
+#. module: ssi_employee_business_trip
 #: model:ir.model.fields,field_description:ssi_employee_business_trip.field_employee_business_trip__allowed_currency_ids
 msgid "Allowed Currencies"
 msgstr ""
@@ -147,7 +152,35 @@ msgstr ""
 #: model:ir.model.fields,field_description:ssi_employee_business_trip.field_employee_business_trip__analytic_account_id
 #: model:ir.model.fields,field_description:ssi_employee_business_trip.field_employee_business_trip_per_diem__analytic_account_id
 #: model:ir.model.fields,field_description:ssi_employee_business_trip.field_employee_business_trip_tax__analytic_account_id
+#: model_terms:ir.ui.view,arch_db:ssi_employee_business_trip.employee_business_trip_type_view_form
 msgid "Analytic Account"
+msgstr ""
+
+#. module: ssi_employee_business_trip
+#: model:ir.model.fields,field_description:ssi_employee_business_trip.field_employee_business_trip_type__analytic_account_domain
+msgid "Analytic Account Domain"
+msgstr ""
+
+#. module: ssi_employee_business_trip
+#: model:ir.model.fields,field_description:ssi_employee_business_trip.field_employee_business_trip_type__analytic_account_python_code
+msgid "Analytic Account Python Code"
+msgstr ""
+
+#. module: ssi_employee_business_trip
+#: model:ir.model.fields,field_description:ssi_employee_business_trip.field_employee_business_trip_type__analytic_account_selection_method
+msgid "Analytic Account Selection Method"
+msgstr ""
+
+#. module: ssi_employee_business_trip
+#: model:ir.model.fields,field_description:ssi_employee_business_trip.field_employee_business_trip_type__analytic_account_ids
+msgid "Analytic Accounts"
+msgstr ""
+
+#. module: ssi_employee_business_trip
+#: model:ir.model.fields,help:ssi_employee_business_trip.field_employee_business_trip_type__analytic_account_ids
+msgid ""
+"Analytic accounts allowed on a business trip document of this type when "
+"Analytic Account Selection Method is Manual."
 msgstr ""
 
 #. module: ssi_employee_business_trip
@@ -447,6 +480,7 @@ msgid "Display Name"
 msgstr ""
 
 #. module: ssi_employee_business_trip
+#: model:ir.model.fields.selection,name:ssi_employee_business_trip.selection__employee_business_trip_type__analytic_account_selection_method__domain
 #: model:ir.model.fields.selection,name:ssi_employee_business_trip.selection__employee_business_trip_type__currency_selection_method__domain
 #: model:ir.model.fields.selection,name:ssi_employee_business_trip.selection__employee_business_trip_type__destination_selection_method__domain
 #: model:ir.model.fields.selection,name:ssi_employee_business_trip.selection__employee_business_trip_type__origin_selection_method__domain
@@ -557,6 +591,13 @@ msgid "Font awesome icon e.g. fa-tasks"
 msgstr ""
 
 #. module: ssi_employee_business_trip
+#: model:ir.model.fields,help:ssi_employee_business_trip.field_employee_business_trip_type__analytic_account_selection_method
+msgid ""
+"How the analytic accounts allowed on a business trip document of this type "
+"are determined: a manual list, a search domain, or a Python code snippet."
+msgstr ""
+
+#. module: ssi_employee_business_trip
 #: model:ir.model.fields,field_description:ssi_employee_business_trip.field_employee_business_trip__id
 #: model:ir.model.fields,field_description:ssi_employee_business_trip.field_employee_business_trip_per_diem__id
 #: model:ir.model.fields,field_description:ssi_employee_business_trip.field_employee_business_trip_tax__id
@@ -661,6 +702,7 @@ msgstr ""
 
 #. module: ssi_employee_business_trip
 #: model:ir.model.fields,field_description:ssi_employee_business_trip.field_employee_business_trip_tax__manual
+#: model:ir.model.fields.selection,name:ssi_employee_business_trip.selection__employee_business_trip_type__analytic_account_selection_method__manual
 #: model:ir.model.fields.selection,name:ssi_employee_business_trip.selection__employee_business_trip_type__currency_selection_method__manual
 #: model:ir.model.fields.selection,name:ssi_employee_business_trip.selection__employee_business_trip_type__destination_selection_method__manual
 #: model:ir.model.fields.selection,name:ssi_employee_business_trip.selection__employee_business_trip_type__origin_selection_method__manual
@@ -918,12 +960,20 @@ msgid "Products"
 msgstr ""
 
 #. module: ssi_employee_business_trip
+#: model:ir.model.fields.selection,name:ssi_employee_business_trip.selection__employee_business_trip_type__analytic_account_selection_method__code
 #: model:ir.model.fields.selection,name:ssi_employee_business_trip.selection__employee_business_trip_type__currency_selection_method__code
 #: model:ir.model.fields.selection,name:ssi_employee_business_trip.selection__employee_business_trip_type__destination_selection_method__code
 #: model:ir.model.fields.selection,name:ssi_employee_business_trip.selection__employee_business_trip_type__origin_selection_method__code
 #: model:ir.model.fields.selection,name:ssi_employee_business_trip.selection__employee_business_trip_type__pricelist_selection_method__code
 #: model:ir.model.fields.selection,name:ssi_employee_business_trip.selection__employee_business_trip_type__product_selection_method__code
 msgid "Python Code"
+msgstr ""
+
+#. module: ssi_employee_business_trip
+#: model:ir.model.fields,help:ssi_employee_business_trip.field_employee_business_trip_type__analytic_account_python_code
+msgid ""
+"Python code that sets the result variable to a recordset of Analytic "
+"Account, evaluated when Analytic Account Selection Method is Python Code."
 msgstr ""
 
 #. module: ssi_employee_business_trip
@@ -1005,6 +1055,13 @@ msgstr ""
 #. module: ssi_employee_business_trip
 #: model:ir.model.fields,field_description:ssi_employee_business_trip.field_employee_business_trip__reviewer_id
 msgid "Reviewer"
+msgstr ""
+
+#. module: ssi_employee_business_trip
+#: model:ir.model.fields,help:ssi_employee_business_trip.field_employee_business_trip_type__analytic_account_domain
+msgid ""
+"Search domain evaluated against Analytic Account when Analytic Account "
+"Selection Method is Domain."
 msgstr ""
 
 #. module: ssi_employee_business_trip
