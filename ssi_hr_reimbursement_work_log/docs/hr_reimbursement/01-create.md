@@ -1,6 +1,6 @@
 # Create Employee Reimbursement
 
-> **Module:** ssi_hr_reimbursement_work_log
+> **Module:** `ssi_hr_reimbursement_work_log`
 >
 > **Extends:** ssi_hr_reimbursement — model `hr.reimbursement`, action `01-create`
 
