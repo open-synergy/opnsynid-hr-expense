@@ -111,6 +111,11 @@
                     />
                 <field name="job_id" optional="hide" />
                 <field name="type_id" />
+                <field
+                        name="analytic_account_ids"
+                        widget="many2many_tags"
+                        optional="show"
+                    />
                 <field name="currency_id" />
                 <field name="date" />
                 <field name="date_due" />
@@ -160,6 +165,13 @@
                     />
                 <field name="job_id" readonly="1" force_save="1" />
 
+            </xpath>
+            <xpath expr="//group[@name='header_center']" position="inside">
+                <field
+                        name="analytic_account_ids"
+                        widget="many2many_tags"
+                        readonly="1"
+                    />
             </xpath>
             <xpath expr="//group[@name='header_right']" position="inside">
                 <field name="company_currency_id" invisible="1" />

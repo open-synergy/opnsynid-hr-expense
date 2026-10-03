@@ -1,0 +1,293 @@
+options:
+  auto_refresh: true
+
+setup:
+  steps:
+    - step: "Get expense type"
+      action: "ref"
+      xml_id: "ssi_hr_expense.demo_expense_type1"
+      save_as: "expense_type"
+
+    - step: "Get line account"
+      action: "ref"
+      xml_id: "ssi_hr_cash_advance.demo_account1"
+      save_as: "line_account"
+
+    - step: "Get journal"
+      action: "ref"
+      xml_id: "ssi_hr_cash_advance.demo_journal1"
+      save_as: "journal"
+
+    - step: "Create a product"
+      action: "create"
+      model: "product.product"
+      save_as: "product"
+      as_user: "base.user_admin"
+      values:
+        name: "CA Analytic Set Product"
+        type: "consu"
+
+    - step: "Create employee"
+      action: "create"
+      model: "hr.employee"
+      save_as: "employee"
+      as_user: "base.user_admin"
+      values:
+        name: "CA Analytic Set Employee"
+
+scenarios:
+  - name: "Compute: unique set of the analytic accounts of the lines"
+    steps:
+      - step: "Create analytic account aa_a"
+        # No `as_user:`: creating account.analytic.account needs a group
+        # base.user_admin lacks, so run in the superuser environment.
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_a"
+        values:
+          name: "CA Set Analytic aa_a"
+
+      - step: "Create analytic account aa_b"
+        # No `as_user:`: creating account.analytic.account needs a group
+        # base.user_admin lacks, so run in the superuser environment.
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_b"
+        values:
+          name: "CA Set Analytic aa_b"
+
+      - step: "Create the document with its lines"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "document"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REC: journal.id"
+          date: 2026-01-20
+          cash_advance_account_id: "REF: ssi_hr_cash_advance.demo_account2"
+          payable_account_id: "REF: ssi_hr_cash_advance.demo_account1"
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-01-20
+                product_id: "REC: product.id"
+                name: "Line A1"
+                account_id: "REC: line_account.id"
+                price_unit: 10.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_a.id"
+            - - 0
+              - 0
+              - date_expense: 2026-01-20
+                product_id: "REC: product.id"
+                name: "Line B"
+                account_id: "REC: line_account.id"
+                price_unit: 10.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_b.id"
+            - - 0
+              - 0
+              - date_expense: 2026-01-20
+                product_id: "REC: product.id"
+                name: "Line A2"
+                account_id: "REC: line_account.id"
+                price_unit: 10.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_a.id"
+
+      - step: "Assert exactly accounts A and B"
+        action: "assert"
+        target: "document"
+        asserts:
+          analytic_account_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: aa_a"
+              - "REC: aa_b"
+
+  - name: "Recompute: write and unlink on lines refresh the set"
+    steps:
+      - step: "Create analytic account aa_a"
+        # No `as_user:`: creating account.analytic.account needs a group
+        # base.user_admin lacks, so run in the superuser environment.
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_a"
+        values:
+          name: "CA Set Analytic aa_a"
+
+      - step: "Create analytic account aa_b"
+        # No `as_user:`: creating account.analytic.account needs a group
+        # base.user_admin lacks, so run in the superuser environment.
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_b"
+        values:
+          name: "CA Set Analytic aa_b"
+
+      - step: "Create analytic account aa_c"
+        # No `as_user:`: creating account.analytic.account needs a group
+        # base.user_admin lacks, so run in the superuser environment.
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "aa_c"
+        values:
+          name: "CA Set Analytic aa_c"
+
+      - step: "Create the document with its lines"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "document"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REC: journal.id"
+          date: 2026-01-20
+          cash_advance_account_id: "REF: ssi_hr_cash_advance.demo_account2"
+          payable_account_id: "REF: ssi_hr_cash_advance.demo_account1"
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-01-20
+                product_id: "REC: product.id"
+                name: "Line A1"
+                account_id: "REC: line_account.id"
+                price_unit: 10.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_a.id"
+            - - 0
+              - 0
+              - date_expense: 2026-01-20
+                product_id: "REC: product.id"
+                name: "Line B"
+                account_id: "REC: line_account.id"
+                price_unit: 10.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_b.id"
+            - - 0
+              - 0
+              - date_expense: 2026-01-20
+                product_id: "REC: product.id"
+                name: "Line A2"
+                account_id: "REC: line_account.id"
+                price_unit: 10.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_a.id"
+
+      - step: "Find Line A1"
+        action: "search"
+        model: "hr.cash_advance_line"
+        domain:
+          - ["cash_advance_id", "=", "REC: document.id"]
+          - ["name", "=", "Line A1"]
+        save_as: "line_a1"
+        limit: 1
+
+      - step: "Find Line B"
+        action: "search"
+        model: "hr.cash_advance_line"
+        domain:
+          - ["cash_advance_id", "=", "REC: document.id"]
+          - ["name", "=", "Line B"]
+        save_as: "line_b"
+        limit: 1
+
+      - step: "Find Line A2"
+        action: "search"
+        model: "hr.cash_advance_line"
+        domain:
+          - ["cash_advance_id", "=", "REC: document.id"]
+          - ["name", "=", "Line A2"]
+        save_as: "line_a2"
+        limit: 1
+
+      - step: "Change the analytic account of line B to C"
+        action: "write"
+        target: "line_b"
+        as_user: "base.user_admin"
+        values:
+          analytic_account_id: "REC: aa_c.id"
+
+      - step: "Delete the first line carrying A"
+        action: "unlink"
+        target: "line_a1"
+        as_user: "base.user_admin"
+
+      - step: "Assert exactly accounts A and C"
+        action: "assert"
+        target: "document"
+        asserts:
+          analytic_account_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: aa_a"
+              - "REC: aa_c"
+
+      - step: "Delete the last line carrying A"
+        action: "unlink"
+        target: "line_a2"
+        as_user: "base.user_admin"
+
+      - step: "Assert exactly account C"
+        action: "assert"
+        target: "document"
+        asserts:
+          analytic_account_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: aa_c"
+
+  - name: "Negative: lines without analytic account give an empty set"
+    steps:
+      - step: "Create the document with its lines"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "document"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REC: journal.id"
+          date: 2026-01-20
+          cash_advance_account_id: "REF: ssi_hr_cash_advance.demo_account2"
+          payable_account_id: "REF: ssi_hr_cash_advance.demo_account1"
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-01-20
+                product_id: "REC: product.id"
+                name: "Line No Analytic 1"
+                account_id: "REC: line_account.id"
+                price_unit: 10.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+            - - 0
+              - 0
+              - date_expense: 2026-01-20
+                product_id: "REC: product.id"
+                name: "Line No Analytic 2"
+                account_id: "REC: line_account.id"
+                price_unit: 10.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+
+      - step: "Assert no analytic account"
+        action: "assert"
+        target: "document"
+        asserts:
+          analytic_account_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records: []
