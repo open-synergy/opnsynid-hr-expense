@@ -205,6 +205,12 @@ msgid "Analytic Account"
 msgstr ""
 
 #. module: ssi_hr_cash_advance
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance.field_hr_cash_advance__analytic_account_ids
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance.field_hr_cash_advance_settlement__analytic_account_ids
+msgid "Analytic Accounts"
+msgstr ""
+
+#. module: ssi_hr_cash_advance
 #: model:ir.model.fields,help:ssi_hr_cash_advance.field_hr_cash_advance__approval_template_id
 #: model:ir.model.fields,help:ssi_hr_cash_advance.field_hr_cash_advance_settlement__approval_template_id
 msgid "Approval Configuration"
@@ -1191,6 +1197,14 @@ msgstr ""
 #: model:ir.model.fields,help:ssi_hr_cash_advance.field_hr_cash_advance__activity_exception_decoration
 #: model:ir.model.fields,help:ssi_hr_cash_advance.field_hr_cash_advance_settlement__activity_exception_decoration
 msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: ssi_hr_cash_advance
+#: model:ir.model.fields,help:ssi_hr_cash_advance.field_hr_cash_advance__analytic_account_ids
+#: model:ir.model.fields,help:ssi_hr_cash_advance.field_hr_cash_advance_settlement__analytic_account_ids
+msgid ""
+"Unique analytic accounts used by the lines of this document. Filled "
+"automatically from the lines."
 msgstr ""
 
 #. module: ssi_hr_cash_advance
