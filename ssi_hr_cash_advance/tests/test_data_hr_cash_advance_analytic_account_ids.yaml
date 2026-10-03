@@ -66,6 +66,7 @@ scenarios:
           type_id: "REC: expense_type.id"
           journal_id: "REC: journal.id"
           date: 2026-01-20
+          date_due: 2026-02-15
           cash_advance_account_id: "REF: ssi_hr_cash_advance.demo_account2"
           payable_account_id: "REF: ssi_hr_cash_advance.demo_account1"
           line_ids:
@@ -150,6 +151,7 @@ scenarios:
           type_id: "REC: expense_type.id"
           journal_id: "REC: journal.id"
           date: 2026-01-20
+          date_due: 2026-02-15
           cash_advance_account_id: "REF: ssi_hr_cash_advance.demo_account2"
           payable_account_id: "REF: ssi_hr_cash_advance.demo_account1"
           line_ids:
@@ -261,6 +263,7 @@ scenarios:
           type_id: "REC: expense_type.id"
           journal_id: "REC: journal.id"
           date: 2026-01-20
+          date_due: 2026-02-15
           cash_advance_account_id: "REF: ssi_hr_cash_advance.demo_account2"
           payable_account_id: "REF: ssi_hr_cash_advance.demo_account1"
           line_ids:

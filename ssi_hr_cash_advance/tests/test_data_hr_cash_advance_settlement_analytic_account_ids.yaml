@@ -47,6 +47,7 @@ setup:
         cash_advance_account_id: "REF: ssi_hr_cash_advance.demo_account2"
         payable_account_id: "REF: ssi_hr_cash_advance.demo_account1"
         date: 2026-01-20
+        date_due: 2026-02-15
 
 scenarios:
   - name: "Compute: unique set of the analytic accounts of the lines"
