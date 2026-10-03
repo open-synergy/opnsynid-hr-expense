@@ -38,3 +38,13 @@ class TestHrCashAdvance(YamlTransactionCase):
         manual selection, and a Python code that raises.
         """
         self.run_yaml_scenario("test_data_hr_cash_advance_analytic_account.yaml")
+
+    def test_hr_cash_advance_analytic_account_ids(self):
+        """Run the stored ``analytic_account_ids`` compute scenario
+        (issue open-synergy/opnsynid-hr-expense#284).
+
+        Covers the unique set of line analytic accounts, the recompute
+        on line write and unlink, and the empty result for lines
+        without analytic account.
+        """
+        self.run_yaml_scenario("test_data_hr_cash_advance_analytic_account_ids.yaml")

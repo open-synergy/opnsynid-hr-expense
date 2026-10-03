@@ -290,6 +290,38 @@ class HrCashAdvanceSettlement(models.Model):
         compute_sudo=True,
     )
 
+    @api.depends("line_ids.analytic_account_id")
+    def _compute_analytic_account_ids(self):
+        """Collect the unique analytic accounts of the document lines.
+
+        Lines without an analytic account do not contribute. A
+        document whose lines carry no analytic account gets an empty
+        result. No ``state`` guard is applied because lines are
+        already readonly outside ``draft``.
+
+        :return: None, sets ``analytic_account_ids`` on each record
+        """
+        for document in self:
+            result = []
+            for line in document.line_ids:
+                account = line.analytic_account_id
+                if account and account.id not in result:
+                    result.append(account.id)
+            document.analytic_account_ids = [(6, 0, result)]
+
+    analytic_account_ids = fields.Many2many(
+        string="Analytic Accounts",
+        comodel_name="account.analytic.account",
+        relation="rel_hr_cash_advance_settlement_2_analytic_account",
+        column1="cash_advance_settlement_id",
+        column2="analytic_account_id",
+        compute="_compute_analytic_account_ids",
+        store=True,
+        compute_sudo=True,
+        help="Unique analytic accounts used by the lines of this "
+        "document. Filled automatically from the lines.",
+    )
+
     @api.depends("type_id", "currency_id", "employee_id")
     def _compute_allowed_pricelist_ids(self):
         """Resolve the pricelists allowed by the document type.
