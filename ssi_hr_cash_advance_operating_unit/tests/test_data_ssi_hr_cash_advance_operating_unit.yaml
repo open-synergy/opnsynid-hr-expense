@@ -102,6 +102,15 @@ setup:
         cash_advance_account_id: "REC: cash_advance_account.id"
         payable_account_id: "REC: payable_account.id"
         operating_unit_id: "REC: ou.id"
+        line_ids:
+          - - 0
+            - 0
+            - name: "Test Cash Advance OU Cash Advance Line"
+              product_id: "REC: product.id"
+              account_id: "REC: settlement_account.id"
+              uom_quantity: 1.0
+              uom_id: "REC: product.uom_id.id"
+              price_unit: 100000.0
 
     - step: "Confirm cash advance"
       action: "call"
