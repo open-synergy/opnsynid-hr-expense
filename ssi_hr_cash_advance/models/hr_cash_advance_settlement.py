@@ -4,6 +4,7 @@
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import float_compare
 
 from odoo.addons.ssi_decorator import ssi_decorator
 
@@ -362,6 +363,128 @@ class HrCashAdvanceSettlement(models.Model):
         ]
         res += policy_field
         return res
+
+    def _get_amount_in_cash_advance_currency(self, amount):
+        """Convert an amount to the currency of the linked cash advance.
+
+        The amount is returned unchanged when the settlement and the
+        cash advance share the same currency. Otherwise it is
+        converted at the settlement ``date``.
+
+        :param amount: amount expressed in the settlement currency
+        :return: amount expressed in the cash advance currency
+        """
+        self.ensure_one()
+        ca_currency = self.cash_advance_id.currency_id
+        if not ca_currency or ca_currency == self.currency_id:
+            return amount
+        return self.currency_id._convert(
+            amount,
+            ca_currency,
+            self.company_id,
+            self.date or fields.Date.context_today(self),
+        )
+
+    def _get_reserved_amount_other_settlements(self):
+        """Sum the totals of other settlements waiting for approval.
+
+        Only settlements of the same cash advance whose state is
+        ``confirm`` are counted; they reserve part of the unsettled
+        amount. Totals are converted to the cash advance currency.
+
+        :return: reserved amount in the cash advance currency
+        """
+        self.ensure_one()
+        others = self.sudo().search(
+            [
+                ("cash_advance_id", "=", self.cash_advance_id.id),
+                ("state", "=", "confirm"),
+                ("id", "!=", self.id),
+            ]
+        )
+        result = 0.0
+        for other in others:
+            result += other._get_amount_in_cash_advance_currency(other.amount_total)
+        return result
+
+    def _raise_over_settlement_error(self, context, amount, reserved, unsettled):
+        """Raise the over-settlement error for the given transition.
+
+        :param context: name of the blocked operation
+        :param amount: settlement total in the cash advance currency
+        :param reserved: amount reserved by other settlements
+        :param unsettled: unsettled amount of the cash advance
+        :raises UserError: always
+        """
+        self.ensure_one()
+        error_message = (
+            _(
+                """
+Document Type: %(doc_type)s
+Context: %(context)s
+Database ID: %(id)s
+Problem: Settlement amount %(amount)s plus reserved amount %(reserved)s \
+exceeds the unsettled amount %(unsettled)s of cash advance %(cash_advance)s
+Solution: Reduce the settlement amount or settle a different cash advance"""
+            )
+            % {
+                "doc_type": self._description,
+                "context": context,
+                "id": self.id,
+                "amount": amount,
+                "reserved": reserved,
+                "unsettled": unsettled,
+                "cash_advance": self.cash_advance_id.display_name,
+            }
+        )
+        raise UserError(error_message)
+
+    @ssi_decorator.pre_confirm_check()
+    def _check_amount_against_cash_advance_confirm(self):
+        """Reject confirmation when the amount exceeds the unsettled amount.
+
+        The totals of other settlements of the same cash advance that
+        are already in ``confirm`` state are reserved and counted.
+
+        :raises UserError: when the total would exceed the unsettled
+            amount of the cash advance
+        """
+        self.ensure_one()
+        ca = self.cash_advance_id
+        amount = self._get_amount_in_cash_advance_currency(self.amount_total)
+        reserved = self._get_reserved_amount_other_settlements()
+        compare = float_compare(
+            amount + reserved,
+            ca.amount_unsettled,
+            precision_rounding=ca.currency_id.rounding or 0.01,
+        )
+        if compare > 0:
+            self._raise_over_settlement_error(
+                "Confirm settlement", amount, reserved, ca.amount_unsettled
+            )
+
+    @ssi_decorator.pre_done_check()
+    def _check_amount_against_cash_advance_done(self):
+        """Reject completion when the amount exceeds the unsettled amount.
+
+        Guards settlements confirmed before this check existed; no
+        reservation is applied, only the real residual is compared.
+
+        :raises UserError: when the total exceeds the unsettled amount
+            of the cash advance
+        """
+        self.ensure_one()
+        ca = self.cash_advance_id
+        amount = self._get_amount_in_cash_advance_currency(self.amount_total)
+        compare = float_compare(
+            amount,
+            ca.amount_unsettled,
+            precision_rounding=ca.currency_id.rounding or 0.01,
+        )
+        if compare > 0:
+            self._raise_over_settlement_error(
+                "Complete settlement", amount, 0.0, ca.amount_unsettled
+            )
 
     def action_done(self):
         """Complete the settlement and create its accounting entry.

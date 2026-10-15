@@ -12,6 +12,8 @@
 ## Pre-Condition
 
 - **Record:** Record is in **Waiting for Approval** status.
+- **Data:** The settlement total does not exceed the cash advance's current **Amount
+  Unsettled** (checked when the final approval completes the settlement).
 - **Access:** User is registered as an approver on the active approval template.
 - **Access:** User has _Can Approve_ access right.
 

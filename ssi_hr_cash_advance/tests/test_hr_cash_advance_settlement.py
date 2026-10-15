@@ -49,3 +49,15 @@ class TestHrCashAdvanceSettlement(YamlTransactionCase):
         self.run_yaml_scenario(
             "test_data_hr_cash_advance_settlement_analytic_account_ids.yaml"
         )
+
+    def test_hr_cash_advance_settlement_over_settlement(self):
+        """Run the over-settlement guard scenarios (issue
+        open-synergy/opnsynid-hr-expense#289).
+
+        Covers the confirm gate with and without reservation by other
+        confirmed settlements, the exact-fit boundary, and the done
+        gate for a settlement confirmed before the upgrade.
+        """
+        self.run_yaml_scenario(
+            "test_data_hr_cash_advance_settlement_over_settlement.yaml"
+        )

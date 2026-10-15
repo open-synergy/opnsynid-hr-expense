@@ -366,6 +366,11 @@ class TestUiHrCashAdvanceSettlement(HttpSavepointCase):
         on the 14.0 branch, which this mirrors).
 
         :param employee: ``hr.employee`` the record is submitted for
+        The cash advance carries one line of **100.0**, equal to the
+        total of the settlement fixtures, so the over-settlement
+        guard (issue open-synergy/opnsynid-hr-expense#289) lets them
+        be confirmed and approved.
+
         :param name: optional manual document number; when set it
             survives sequence generation at Open (``mixin.sequence``
             only auto-generates while the field still holds the "/"
@@ -381,6 +386,22 @@ class TestUiHrCashAdvanceSettlement(HttpSavepointCase):
             "payable_account_id": cls.ca_payable_account.id,
             "date": "2026-01-01",
             "date_due": "2026-01-31",
+            "line_ids": [
+                (
+                    0,
+                    0,
+                    {
+                        "date_expense": "2026-01-01",
+                        "product_id": cls.product.id,
+                        "name": "Tour Cash Advance Settlement Source Line",
+                        "usage_id": cls.usage_type.id,
+                        "account_id": cls.line_account.id,
+                        "price_unit": 100.0,
+                        "uom_quantity": 1.0,
+                        "uom_id": cls.product.uom_id.id,
+                    },
+                )
+            ],
         }
         if name:
             vals["name"] = name
