@@ -1,0 +1,534 @@
+options:
+  auto_refresh: true
+
+scenarios:
+  - name:
+      "Cancel reconcile 1 -- cancelling a done settlement re-pairs another done
+      settlement"
+    steps:
+      - step: "Get payable account type (system data)"
+        action: "ref"
+        xml_id: "account.data_account_type_payable"
+        save_as: "account_type_payable"
+
+      - step: "Create cash advance account"
+        action: "create"
+        model: "account.account"
+        save_as: "cash_advance_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 1 CA Advance Account"
+          code: "CR1ADV"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create payable account"
+        action: "create"
+        model: "account.account"
+        save_as: "payable_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 1 CA Payable Account"
+          code: "CR1PAY"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create the settlement line's expense account"
+        action: "create"
+        model: "account.account"
+        save_as: "line_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 1 Line Account"
+          code: "CR1LN"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create cash advance journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "ca_journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 1 CA Journal"
+          code: "CR1J1"
+          type: "general"
+
+      - step: "Create settlement journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "settlement_journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 1 Journal"
+          code: "CR1J2"
+          type: "general"
+
+      - step: "Create expense type"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 1 Type"
+          code: "CR1TYPE"
+
+      - step: "Create a product for the lines"
+        action: "create"
+        model: "product.product"
+        save_as: "product"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 1 Product"
+          type: "consu"
+
+      - step: "Create home address partner for the employee"
+        action: "create"
+        model: "res.partner"
+        save_as: "employee_partner"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 1 Employee Address"
+          is_company: false
+
+      - step: "Create employee with a home address"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 1 Employee"
+          address_home_id: "REC: employee_partner.id"
+
+      - step: "Create the cash advance with one line of 100.0"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: cash_advance_account.id"
+          payable_account_id: "REC: payable_account.id"
+          date: 2026-02-01
+          date_due: 2026-03-01
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Cancel Reconcile 1 Source Line"
+                account_id: "REC: line_account.id"
+                price_unit: 100.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+
+      - step: "Confirm the cash advance"
+        action: "call"
+        target: "cash_advance"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read before opening (T-04)"
+        action: "assert"
+        target: "cash_advance"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Open the cash advance (posts its own accounting entry)"
+        action: "call"
+        target: "cash_advance"
+        method: "action_open"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create draft settlement settlement_a of 60.0"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement_a"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REC: settlement_journal.id"
+          date: 2026-02-20
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-20
+                product_id: "REC: product.id"
+                name: "Cancel Reconcile 1 settlement_a Line"
+                account_id: "REC: line_account.id"
+                price_unit: 60.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+
+      - step: "action_confirm on settlement_a"
+        action: "call"
+        target: "settlement_a"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read of settlement_a (T-04)"
+        action: "assert"
+        target: "settlement_a"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "action_done on settlement_a"
+        action: "call"
+        target: "settlement_a"
+        method: "action_done"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Create draft settlement settlement_b of 100.0"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement_b"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REC: settlement_journal.id"
+          date: 2026-02-21
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-21
+                product_id: "REC: product.id"
+                name: "Cancel Reconcile 1 settlement_b Line"
+                account_id: "REC: line_account.id"
+                price_unit: 100.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+
+      - step: "Post the entry directly, bypassing the confirm and done gates"
+        action: "call"
+        target: "settlement_b"
+        method: "_create_accounting_entry"
+        as_user: "base.user_admin"
+
+      - step: "Simulate a pre-upgrade over-settled done document"
+        action: "write"
+        target: "settlement_b"
+        as_user: "base.user_admin"
+        values:
+          state: "done"
+
+      - step: "The header of settlement_b is only partly reconciled"
+        action: "assert"
+        target: "settlement_b"
+        refresh: true
+        asserts:
+          cash_advance_move_line_id.reconciled:
+            type: "value"
+            expected: false
+
+      - step: "Create a global cancel reason"
+        action: "create"
+        model: "base.cancel_reason"
+        save_as: "cancel_reason"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 1 Reason"
+          code: "CR1REASON"
+          global_use: true
+
+      - step: "Cancel settlement_a via select-reason wizard"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "settlement_a"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: cancel_reason"
+        method: "action_confirm"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+      - step: "settlement_b is now fully reconciled to the cash advance"
+        action: "assert"
+        target: "settlement_b"
+        refresh: true
+        asserts:
+          cash_advance_move_line_id.reconciled:
+            type: "value"
+            expected: true
+
+      - step: "The cash advance has nothing left unsettled"
+        action: "assert"
+        target: "cash_advance"
+        refresh: true
+        asserts:
+          amount_unsettled:
+            type: "value"
+            expected: 0.0
+          state:
+            type: "value"
+            expected: "done"
+
+  - name: "Cancel reconcile 2 -- cancelling a done settlement without candidates"
+    steps:
+      - step: "Get payable account type (system data)"
+        action: "ref"
+        xml_id: "account.data_account_type_payable"
+        save_as: "account_type_payable"
+
+      - step: "Create cash advance account"
+        action: "create"
+        model: "account.account"
+        save_as: "cash_advance_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 2 CA Advance Account"
+          code: "CR2ADV"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create payable account"
+        action: "create"
+        model: "account.account"
+        save_as: "payable_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 2 CA Payable Account"
+          code: "CR2PAY"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create the settlement line's expense account"
+        action: "create"
+        model: "account.account"
+        save_as: "line_account"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 2 Line Account"
+          code: "CR2LN"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create cash advance journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "ca_journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 2 CA Journal"
+          code: "CR2J1"
+          type: "general"
+
+      - step: "Create settlement journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "settlement_journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 2 Journal"
+          code: "CR2J2"
+          type: "general"
+
+      - step: "Create expense type"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 2 Type"
+          code: "CR2TYPE"
+
+      - step: "Create a product for the lines"
+        action: "create"
+        model: "product.product"
+        save_as: "product"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 2 Product"
+          type: "consu"
+
+      - step: "Create home address partner for the employee"
+        action: "create"
+        model: "res.partner"
+        save_as: "employee_partner"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 2 Employee Address"
+          is_company: false
+
+      - step: "Create employee with a home address"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 2 Employee"
+          address_home_id: "REC: employee_partner.id"
+
+      - step: "Create the cash advance with one line of 100.0"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: cash_advance_account.id"
+          payable_account_id: "REC: payable_account.id"
+          date: 2026-02-01
+          date_due: 2026-03-01
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Cancel Reconcile 2 Source Line"
+                account_id: "REC: line_account.id"
+                price_unit: 100.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+
+      - step: "Confirm the cash advance"
+        action: "call"
+        target: "cash_advance"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read before opening (T-04)"
+        action: "assert"
+        target: "cash_advance"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Open the cash advance (posts its own accounting entry)"
+        action: "call"
+        target: "cash_advance"
+        method: "action_open"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create draft settlement settlement_a of 60.0"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement_a"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REC: settlement_journal.id"
+          date: 2026-02-20
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-20
+                product_id: "REC: product.id"
+                name: "Cancel Reconcile 2 settlement_a Line"
+                account_id: "REC: line_account.id"
+                price_unit: 60.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+
+      - step: "action_confirm on settlement_a"
+        action: "call"
+        target: "settlement_a"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read of settlement_a (T-04)"
+        action: "assert"
+        target: "settlement_a"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "action_done on settlement_a"
+        action: "call"
+        target: "settlement_a"
+        method: "action_done"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Create a global cancel reason"
+        action: "create"
+        model: "base.cancel_reason"
+        save_as: "cancel_reason"
+        as_user: "base.user_admin"
+        values:
+          name: "Cancel Reconcile 2 Reason"
+          code: "CR2REASON"
+          global_use: true
+
+      - step: "Cancel settlement_a via select-reason wizard"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "settlement_a"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: cancel_reason"
+        method: "action_confirm"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+      - step: "The whole cash advance is open again, without error"
+        action: "assert"
+        target: "cash_advance"
+        refresh: true
+        asserts:
+          amount_unsettled:
+            type: "value"
+            expected: 100.0
+          state:
+            type: "value"
+            expected: "open"

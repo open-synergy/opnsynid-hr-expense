@@ -640,12 +640,16 @@ Solution: Reduce the settlement amount or settle a different cash advance"""
     def _delete_accounting_entry(self):
         """Undo reconciliation and delete the settlement journal entry.
 
+        After the entry is deleted, the other done settlements of the
+        cash advance are paired again with its open residual.
+
         :return: ``True`` if there was nothing to delete
         """
         self.ensure_one()
         if not self.move_id:
             return True
 
+        cash_advance = self.cash_advance_id
         self.cash_advance_move_line_id.remove_move_reconcile()
 
         if self.move_id.state == "posted":
@@ -653,6 +657,7 @@ Solution: Reduce the settlement amount or settle a different cash advance"""
             self.move_id.button_cancel()
 
         self.move_id.with_context(force_delete=True).unlink()
+        cash_advance._reconcile_settlement_residual()
 
     @api.onchange(
         "type_id",
