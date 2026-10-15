@@ -27,3 +27,8 @@
 - Status changes to **Cancelled**.
 - If the record was in **Done** status, the associated journal entry is automatically
   deleted and the reconciliation with the cash advance move line is reversed.
+- Any other **Done** settlement of the same cash advance whose journal entry is only
+  partly reconciled is automatically reconciled again with the cash advance's open
+  residual, oldest first, until the residual is used up. The cash advance's unsettled
+  amount and status follow the new reconciliation. Without such a settlement, the
+  residual of the cash advance simply stays open.

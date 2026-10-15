@@ -552,6 +552,39 @@ class HrCashAdvance(models.Model):
         elif self.state == "done" and (not self.realized or not self.settled):
             self.action_open()
 
+    def _reconcile_settlement_residual(self):
+        """Reconcile unpaired done settlements to the open residual.
+
+        Done settlements of this cash advance whose header line is not
+        fully reconciled are paired, oldest first, with the cash
+        advance move line while it still has an open residual. The
+        pairing may be partial. Nothing happens when there is no cash
+        advance move line or no candidate.
+
+        :return: None
+        """
+        self.ensure_one()
+        ca_line = self.cash_advance_move_line_id
+        if not ca_line:
+            return
+        candidates = (
+            self.env["hr.cash_advance_settlement"]
+            .sudo()
+            .search(
+                [
+                    ("cash_advance_id", "=", self.id),
+                    ("state", "=", "done"),
+                    ("cash_advance_move_line_id", "!=", False),
+                    ("cash_advance_move_line_id.reconciled", "=", False),
+                ],
+                order="date asc, id asc",
+            )
+        )
+        for settlement in candidates:
+            if ca_line.reconciled:
+                break
+            (settlement.cash_advance_move_line_id + ca_line).reconcile()
+
     def _delete_accounting_entry(self):
         """Cancel and delete the journal entry created on open, if any.
 

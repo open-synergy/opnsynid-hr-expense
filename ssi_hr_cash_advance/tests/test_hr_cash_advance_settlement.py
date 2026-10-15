@@ -61,3 +61,15 @@ class TestHrCashAdvanceSettlement(YamlTransactionCase):
         self.run_yaml_scenario(
             "test_data_hr_cash_advance_settlement_over_settlement.yaml"
         )
+
+    def test_hr_cash_advance_settlement_cancel_reconcile(self):
+        """Run the cancel re-reconciliation scenarios (issue
+        open-synergy/opnsynid-hr-expense#290).
+
+        Covers re-pairing a partly reconciled done settlement after
+        another done settlement is cancelled, and the cancel without
+        any candidate.
+        """
+        self.run_yaml_scenario(
+            "test_data_hr_cash_advance_settlement_cancel_reconcile.yaml"
+        )
