@@ -10,6 +10,9 @@
 ## Pre-Condition
 
 - **Record:** Record is in **Draft** status.
+- **Data:** The settlement total, plus the totals of other settlements of the same cash
+  advance that are in **Waiting for Approval** status, does not exceed the cash
+  advance's **Amount Unsettled**.
 - **Access:** User has _Can Confirm_ access right.
 
 ## Flow
