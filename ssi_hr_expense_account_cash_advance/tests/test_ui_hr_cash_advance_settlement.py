@@ -212,7 +212,10 @@ class TestUiHrCashAdvanceSettlement(HttpSavepointCase):
         # The underlying cash advance, pushed to Open in Python
         # (Pre-Condition of every settlement tour: "At least one Cash
         # Advance record in Open status exists for the employee"), not
-        # by clicking through the UI.
+        # by clicking through the UI. It carries one detail line worth
+        # exactly the settlement below (100), because a settlement may
+        # not exceed the remaining cash advance; the equal amounts
+        # keep the boundary case ``amount_total == amount_unsettled``.
         cash_advance_confirm = (
             cls.env["hr.cash_advance"]
             .with_user(cls.admin)
@@ -225,6 +228,24 @@ class TestUiHrCashAdvanceSettlement(HttpSavepointCase):
                     "payable_account_id": cls.ca_payable_account.id,
                     "date": "2026-01-01",
                     "date_due": "2026-01-31",
+                    "line_ids": [
+                        (
+                            0,
+                            0,
+                            {
+                                "date_expense": "2026-01-01",
+                                "product_id": cls.product.id,
+                                "name": (
+                                    "Tour Expense Account Settlement Confirm "
+                                    "Cash Advance Line"
+                                ),
+                                "account_id": cls.line_account.id,
+                                "price_unit": 100.0,
+                                "uom_quantity": 1.0,
+                                "uom_id": cls.product.uom_id.id,
+                            },
+                        )
+                    ],
                 }
             )
         )
