@@ -14,6 +14,18 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: ssi_hr_cash_advance
+#: code:addons/ssi_hr_cash_advance/models/hr_cash_advance_settlement.py:0
+#, python-format
+msgid ""
+"\n"
+"Document Type: %(doc_type)s\n"
+"Context: %(context)s\n"
+"Database ID: %(id)s\n"
+"Problem: Settlement amount %(amount)s plus reserved amount %(reserved)s exceeds the unsettled amount %(unsettled)s of cash advance %(cash_advance)s\n"
+"Solution: Reduce the settlement amount or settle a different cash advance"
+msgstr ""
+
+#. module: ssi_hr_cash_advance
 #: model:ir.model.fields,field_description:ssi_hr_cash_advance.field_hr_cash_advance_settlement__cash_advance_id
 msgid "# Cash Advance"
 msgstr ""
