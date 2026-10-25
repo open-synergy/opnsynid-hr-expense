@@ -5,5 +5,6 @@
 from . import (  # noqa: F401
     test_hr_reimbursement,
     test_hr_reimbursement_line,
+    test_hr_reimbursement_status_check,
     test_ui_hr_reimbursement,
 )
