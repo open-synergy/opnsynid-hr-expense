@@ -27,6 +27,8 @@
 ## Post-Condition
 
 - If all approval levels are fulfilled, status changes to **Done** and a journal entry
-  is automatically created in the configured journal to reconcile the settlement against
-  the original cash advance.
+  is automatically created in the configured journal. It credits the Cash Advance
+  Account once per disbursement line of the original cash advance, with the analytic
+  account of that line, and each credit line is reconciled against its disbursement
+  line. The expense lines carry the analytic account of the settlement lines.
 - If there are still pending approval levels, status remains **Waiting for Approval**.

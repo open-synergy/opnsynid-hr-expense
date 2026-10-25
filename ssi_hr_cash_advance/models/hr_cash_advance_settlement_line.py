@@ -83,6 +83,7 @@ class HrCashAdvanceSettlementLine(models.Model):
             "move_id": move.id,
             "partner_id": self.cash_advance_settlement_id._get_partner_id(),
             "account_id": account.id,
+            "analytic_account_id": self.analytic_account_id.id or False,
             "debit": amount,
             "credit": 0.0,
             "currency_id": currency and currency.id or False,

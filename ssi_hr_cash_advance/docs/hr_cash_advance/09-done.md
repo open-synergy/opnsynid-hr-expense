@@ -11,15 +11,16 @@
 ## Pre-Condition
 
 - **Record:** Record is in **Open** status.
-- **Record:** Cash Advance Account move line is reconciled (**Settled** = True).
+- **Record:** Every Cash Advance Account move line of the disbursement journal entry
+  (one per analytic account of the document lines) is reconciled (**Settled** = True).
 
 ## Flow
 
 This transition is triggered automatically by the system. No user action is required.
 
-The system automatically changes the status to **Done** when the Cash Advance Account
-move line is reconciled. This typically occurs when a Cash Advance Settlement for this
-cash advance is posted (status **Done**).
+The system automatically changes the status to **Done** when all Cash Advance Account
+move lines of the disbursement entry are reconciled. This typically occurs when a Cash
+Advance Settlement for this cash advance is posted (status **Done**).
 
 Additionally, once the record is in **Open** or **Done** status, the user may click the
 **Recompute Realization** button (**Inline Action**, `action_recompute_realization`) on

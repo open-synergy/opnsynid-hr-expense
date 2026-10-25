@@ -11,15 +11,15 @@
 ## Pre-Condition
 
 - **Record:** Record is in **Done** status.
-- **Record:** Cash Advance Account move line reconciliation is removed (**Settled** =
-  False).
+- **Record:** The reconciliation of at least one Cash Advance Account move line of the
+  disbursement journal entry is removed (**Settled** = False).
 
 ## Flow
 
 This transition is triggered automatically by the system. No user action is required.
 
-The system automatically changes the status back to **Open** when the Cash Advance
-Account move line reconciliation is removed. This typically occurs when the associated
+The system automatically changes the status back to **Open** when the reconciliation of
+a Cash Advance Account move line is removed. This typically occurs when the associated
 Cash Advance Settlement is cancelled.
 
 Additionally, once the record is in **Open** or **Done** status, the user may click the

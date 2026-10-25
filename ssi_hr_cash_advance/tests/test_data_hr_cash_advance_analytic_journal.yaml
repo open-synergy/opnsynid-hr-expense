@@ -1,0 +1,955 @@
+options:
+  auto_refresh: true
+
+setup:
+  steps:
+    - step: "Get the cash advance account"
+      action: "ref"
+      xml_id: "ssi_hr_cash_advance.demo_account2"
+      save_as: "ca_account"
+
+    - step: "Get the expense and payable account"
+      action: "ref"
+      xml_id: "ssi_hr_cash_advance.demo_account1"
+      save_as: "ex_account"
+
+    - step: "Create a product"
+      action: "create"
+      model: "product.product"
+      save_as: "product"
+      as_user: "base.user_admin"
+      values:
+        name: "Analytic Journal Product"
+        type: "consu"
+
+    - step: "Create home address partner for the employee"
+      action: "create"
+      model: "res.partner"
+      save_as: "employee_partner"
+      as_user: "base.user_admin"
+      values:
+        name: "Analytic Journal Employee Address"
+        is_company: false
+
+    - step: "Create employee with a home address"
+      action: "create"
+      model: "hr.employee"
+      save_as: "employee"
+      as_user: "base.user_admin"
+      values:
+        name: "Analytic Journal Employee"
+        address_home_id: "REC: employee_partner.id"
+
+    - step: "Create analytic account aa_a"
+      # No `as_user:`: creating account.analytic.account needs a group
+      # base.user_admin lacks, so run in the superuser environment.
+      action: "create"
+      model: "account.analytic.account"
+      save_as: "aa_a"
+      values:
+        name: "Analytic Journal aa_a"
+
+    - step: "Create analytic account aa_b"
+      # No `as_user:`: creating account.analytic.account needs a group
+      # base.user_admin lacks, so run in the superuser environment.
+      action: "create"
+      model: "account.analytic.account"
+      save_as: "aa_b"
+      values:
+        name: "Analytic Journal aa_b"
+
+scenarios:
+  - name: "Disbursement -- one debit line per analytic account, balanced entry"
+    steps:
+      - step: "Create expense type 1"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Analytic Journal Type 1"
+          code: "ANJT1"
+
+      - step: "Create the cash advance"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REF: ssi_hr_cash_advance.demo_journal1"
+          cash_advance_account_id: "REF: ssi_hr_cash_advance.demo_account2"
+          payable_account_id: "REF: ssi_hr_cash_advance.demo_account1"
+          date: 2026-02-01
+          date_due: 2026-03-01
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Disbursement 0"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 100.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_a.id"
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Disbursement 1"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 50.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_b.id"
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Disbursement 2"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 30.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+
+      - step: "Confirm the cash advance"
+        action: "call"
+        target: "cash_advance"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read before opening (T-04)"
+        action: "assert"
+        target: "cash_advance"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Open the cash advance (posts the disbursement entry)"
+        action: "call"
+        target: "cash_advance"
+        method: "action_open"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Debit line of aa_a"
+        action: "search"
+        model: "account.move.line"
+        save_as: "line_a"
+        domain:
+          - ["move_id", "=", "REC: cash_advance.move_id.id"]
+          - ["account_id", "=", "REC: ca_account.id"]
+          - ["analytic_account_id", "=", "REC: aa_a.id"]
+          - ["debit", ">", 0.0]
+        expect_count: 1
+
+      - step: "Debit of aa_a is 100"
+        action: "assert"
+        target: "line_a"
+        refresh: true
+        asserts:
+          debit:
+            type: "value"
+            expected: 100.0
+
+      - step: "Debit line of aa_b"
+        action: "search"
+        model: "account.move.line"
+        save_as: "line_b"
+        domain:
+          - ["move_id", "=", "REC: cash_advance.move_id.id"]
+          - ["account_id", "=", "REC: ca_account.id"]
+          - ["analytic_account_id", "=", "REC: aa_b.id"]
+          - ["debit", ">", 0.0]
+        expect_count: 1
+
+      - step: "Debit of aa_b is 50"
+        action: "assert"
+        target: "line_b"
+        refresh: true
+        asserts:
+          debit:
+            type: "value"
+            expected: 50.0
+
+      - step: "Debit line without analytic"
+        action: "search"
+        model: "account.move.line"
+        save_as: "line_n"
+        domain:
+          - ["move_id", "=", "REC: cash_advance.move_id.id"]
+          - ["account_id", "=", "REC: ca_account.id"]
+          - ["analytic_account_id", "=", false]
+          - ["debit", ">", 0.0]
+        expect_count: 1
+
+      - step: "Debit without analytic is 30"
+        action: "assert"
+        target: "line_n"
+        refresh: true
+        asserts:
+          debit:
+            type: "value"
+            expected: 30.0
+
+      - step: "Payable credit is the sum of the debit lines"
+        action: "search"
+        model: "account.move.line"
+        save_as: "payable"
+        domain:
+          - ["move_id", "=", "REC: cash_advance.move_id.id"]
+          - ["account_id", "=", "REC: ex_account.id"]
+          - ["credit", "=", 180.0]
+        expect_count: 1
+
+      - step: "Analytic line exists for aa_a"
+        action: "search"
+        model: "account.analytic.line"
+        save_as: "analytic_line_a"
+        domain:
+          - ["move_id.move_id", "=", "REC: cash_advance.move_id.id"]
+          - ["account_id", "=", "REC: aa_a.id"]
+        expect_count: 1
+
+      - step: "Analytic line exists for aa_b"
+        action: "search"
+        model: "account.analytic.line"
+        save_as: "analytic_line_b"
+        domain:
+          - ["move_id.move_id", "=", "REC: cash_advance.move_id.id"]
+          - ["account_id", "=", "REC: aa_b.id"]
+        expect_count: 1
+
+  - name: "Disbursement -- single analytic account keeps one line and the m2o"
+    steps:
+      - step: "Create expense type 2"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Analytic Journal Type 2"
+          code: "ANJT2"
+
+      - step: "Create the cash advance"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REF: ssi_hr_cash_advance.demo_journal1"
+          cash_advance_account_id: "REF: ssi_hr_cash_advance.demo_account2"
+          payable_account_id: "REF: ssi_hr_cash_advance.demo_account1"
+          date: 2026-02-01
+          date_due: 2026-03-01
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Disbursement 0"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 100.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_a.id"
+
+      - step: "Confirm the cash advance"
+        action: "call"
+        target: "cash_advance"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read before opening (T-04)"
+        action: "assert"
+        target: "cash_advance"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Open the cash advance (posts the disbursement entry)"
+        action: "call"
+        target: "cash_advance"
+        method: "action_open"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "One debit line with aa_a"
+        action: "search"
+        model: "account.move.line"
+        save_as: "line_a"
+        domain:
+          - ["move_id", "=", "REC: cash_advance.move_id.id"]
+          - ["account_id", "=", "REC: ca_account.id"]
+          - ["analytic_account_id", "=", "REC: aa_a.id"]
+          - ["debit", ">", 0.0]
+        expect_count: 1
+
+      - step: "The first cash advance line stays in the m2o"
+        action: "assert"
+        target: "cash_advance"
+        refresh: true
+        asserts:
+          cash_advance_move_line_id:
+            type: "value"
+            operator: "is_truthy"
+          cash_advance_move_line_id.analytic_account_id:
+            type: "m2o"
+            expected: "REC: aa_a"
+
+  - name: "Settlement -- full settlement with the same analytic accounts"
+    steps:
+      - step: "Create expense type 3"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Analytic Journal Type 3"
+          code: "ANJT3"
+
+      - step: "Create the cash advance"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REF: ssi_hr_cash_advance.demo_journal1"
+          cash_advance_account_id: "REF: ssi_hr_cash_advance.demo_account2"
+          payable_account_id: "REF: ssi_hr_cash_advance.demo_account1"
+          date: 2026-02-01
+          date_due: 2026-03-01
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Disbursement 0"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 100.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_a.id"
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Disbursement 1"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 50.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_b.id"
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Disbursement 2"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 30.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+
+      - step: "Confirm the cash advance"
+        action: "call"
+        target: "cash_advance"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read before opening (T-04)"
+        action: "assert"
+        target: "cash_advance"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Open the cash advance (posts the disbursement entry)"
+        action: "call"
+        target: "cash_advance"
+        method: "action_open"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create settlement settlement"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REF: ssi_hr_cash_advance.demo_journal2"
+          date: 2026-02-20
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Expense settlement 0"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 100.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_a.id"
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Expense settlement 1"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 50.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_b.id"
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Expense settlement 2"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 30.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+
+      - step: "Confirm settlement"
+        action: "call"
+        target: "settlement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read before done (T-04) settlement"
+        action: "assert"
+        target: "settlement"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Complete settlement"
+        action: "call"
+        target: "settlement"
+        method: "action_done"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Credit line of aa_a"
+        action: "search"
+        model: "account.move.line"
+        save_as: "credit_a"
+        domain:
+          - ["move_id", "=", "REC: settlement.move_id.id"]
+          - ["account_id", "=", "REC: ca_account.id"]
+          - ["analytic_account_id", "=", "REC: aa_a.id"]
+          - ["credit", "=", 100.0]
+        expect_count: 1
+
+      - step: "Credit of aa_a is reconciled"
+        action: "assert"
+        target: "credit_a"
+        refresh: true
+        asserts:
+          reconciled:
+            type: "value"
+            expected: true
+
+      - step: "Credit line of aa_b"
+        action: "search"
+        model: "account.move.line"
+        save_as: "credit_b"
+        domain:
+          - ["move_id", "=", "REC: settlement.move_id.id"]
+          - ["account_id", "=", "REC: ca_account.id"]
+          - ["analytic_account_id", "=", "REC: aa_b.id"]
+          - ["credit", "=", 50.0]
+        expect_count: 1
+
+      - step: "Credit of aa_b is reconciled"
+        action: "assert"
+        target: "credit_b"
+        refresh: true
+        asserts:
+          reconciled:
+            type: "value"
+            expected: true
+
+      - step: "Credit line without analytic"
+        action: "search"
+        model: "account.move.line"
+        save_as: "credit_n"
+        domain:
+          - ["move_id", "=", "REC: settlement.move_id.id"]
+          - ["account_id", "=", "REC: ca_account.id"]
+          - ["analytic_account_id", "=", false]
+          - ["credit", "=", 30.0]
+        expect_count: 1
+
+      - step: "Credit without analytic is reconciled"
+        action: "assert"
+        target: "credit_n"
+        refresh: true
+        asserts:
+          reconciled:
+            type: "value"
+            expected: true
+
+      - step: "Expense line carries aa_a"
+        action: "search"
+        model: "account.move.line"
+        save_as: "expense_a"
+        domain:
+          - ["move_id", "=", "REC: settlement.move_id.id"]
+          - ["account_id", "=", "REC: ex_account.id"]
+          - ["analytic_account_id", "=", "REC: aa_a.id"]
+          - ["debit", "=", 100.0]
+        expect_count: 1
+
+      - step: "Expense line carries aa_b"
+        action: "search"
+        model: "account.move.line"
+        save_as: "expense_b"
+        domain:
+          - ["move_id", "=", "REC: settlement.move_id.id"]
+          - ["account_id", "=", "REC: ex_account.id"]
+          - ["analytic_account_id", "=", "REC: aa_b.id"]
+          - ["debit", "=", 50.0]
+        expect_count: 1
+
+      - step: "Commitment of aa_a is released: debit and credit analytic lines"
+        action: "search"
+        model: "account.analytic.line"
+        save_as: "net_a"
+        domain:
+          - ["move_id.account_id", "=", "REC: ca_account.id"]
+          - [
+              "move_id.move_id",
+              "in",
+              ["REC: cash_advance.move_id.id", "REC: settlement.move_id.id"],
+            ]
+          - ["account_id", "=", "REC: aa_a.id"]
+        expect_count: 2
+
+      - step: "The cash advance is settled and done"
+        action: "assert"
+        target: "cash_advance"
+        refresh: true
+        asserts:
+          settled:
+            type: "value"
+            expected: true
+          amount_unsettled:
+            type: "value"
+            expected: 0.0
+          state:
+            type: "value"
+            expected: "done"
+
+  - name: "Settlement -- analytic account differs from the disbursement"
+    steps:
+      - step: "Create expense type 4"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Analytic Journal Type 4"
+          code: "ANJT4"
+
+      - step: "Create the cash advance"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REF: ssi_hr_cash_advance.demo_journal1"
+          cash_advance_account_id: "REF: ssi_hr_cash_advance.demo_account2"
+          payable_account_id: "REF: ssi_hr_cash_advance.demo_account1"
+          date: 2026-02-01
+          date_due: 2026-03-01
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Disbursement 0"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 100.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_a.id"
+
+      - step: "Confirm the cash advance"
+        action: "call"
+        target: "cash_advance"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read before opening (T-04)"
+        action: "assert"
+        target: "cash_advance"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Open the cash advance (posts the disbursement entry)"
+        action: "call"
+        target: "cash_advance"
+        method: "action_open"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create settlement settlement"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REF: ssi_hr_cash_advance.demo_journal2"
+          date: 2026-02-20
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Expense settlement 0"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 100.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_b.id"
+
+      - step: "Confirm settlement"
+        action: "call"
+        target: "settlement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read before done (T-04) settlement"
+        action: "assert"
+        target: "settlement"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Complete settlement"
+        action: "call"
+        target: "settlement"
+        method: "action_done"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Credit line keeps aa_a"
+        action: "search"
+        model: "account.move.line"
+        save_as: "credit_a"
+        domain:
+          - ["move_id", "=", "REC: settlement.move_id.id"]
+          - ["account_id", "=", "REC: ca_account.id"]
+          - ["analytic_account_id", "=", "REC: aa_a.id"]
+          - ["credit", "=", 100.0]
+        expect_count: 1
+
+      - step: "Credit of aa_a is reconciled"
+        action: "assert"
+        target: "credit_a"
+        refresh: true
+        asserts:
+          reconciled:
+            type: "value"
+            expected: true
+
+      - step: "Expense line carries aa_b"
+        action: "search"
+        model: "account.move.line"
+        save_as: "expense_b"
+        domain:
+          - ["move_id", "=", "REC: settlement.move_id.id"]
+          - ["account_id", "=", "REC: ex_account.id"]
+          - ["analytic_account_id", "=", "REC: aa_b.id"]
+          - ["debit", "=", 100.0]
+        expect_count: 1
+
+  - name: "Cancel -- re-pairing keeps the other partial settlement reconciled"
+    steps:
+      - step: "Create expense type 5"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Analytic Journal Type 5"
+          code: "ANJT5"
+
+      - step: "Create the cash advance"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "cash_advance"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REF: ssi_hr_cash_advance.demo_journal1"
+          cash_advance_account_id: "REF: ssi_hr_cash_advance.demo_account2"
+          payable_account_id: "REF: ssi_hr_cash_advance.demo_account1"
+          date: 2026-02-01
+          date_due: 2026-03-01
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Disbursement 0"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 100.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_a.id"
+
+      - step: "Confirm the cash advance"
+        action: "call"
+        target: "cash_advance"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read before opening (T-04)"
+        action: "assert"
+        target: "cash_advance"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Open the cash advance (posts the disbursement entry)"
+        action: "call"
+        target: "cash_advance"
+        method: "action_open"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create settlement settlement_1"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement_1"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REF: ssi_hr_cash_advance.demo_journal2"
+          date: 2026-02-20
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Expense settlement_1 0"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 60.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_a.id"
+
+      - step: "Confirm settlement_1"
+        action: "call"
+        target: "settlement_1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read before done (T-04) settlement_1"
+        action: "assert"
+        target: "settlement_1"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Complete settlement_1"
+        action: "call"
+        target: "settlement_1"
+        method: "action_done"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Create settlement settlement_2"
+        action: "create"
+        model: "hr.cash_advance_settlement"
+        save_as: "settlement_2"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          cash_advance_id: "REC: cash_advance.id"
+          journal_id: "REF: ssi_hr_cash_advance.demo_journal2"
+          date: 2026-02-20
+          line_ids:
+            - - 0
+              - 0
+              - date_expense: 2026-02-01
+                product_id: "REC: product.id"
+                name: "Expense settlement_2 0"
+                account_id: "REF: ssi_hr_cash_advance.demo_account1"
+                price_unit: 40.0
+                uom_quantity: 1.0
+                uom_id: "REC: product.uom_id.id"
+                analytic_account_id: "REC: aa_a.id"
+
+      - step: "Confirm settlement_2"
+        action: "call"
+        target: "settlement_2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Force a fresh read before done (T-04) settlement_2"
+        action: "assert"
+        target: "settlement_2"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Complete settlement_2"
+        action: "call"
+        target: "settlement_2"
+        method: "action_done"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Create a global cancel reason"
+        action: "create"
+        model: "base.cancel_reason"
+        save_as: "cancel_reason"
+        as_user: "base.user_admin"
+        values:
+          name: "Analytic Journal Reason"
+          code: "ANJTREASON"
+          global_use: true
+
+      - step: "Cancel the first settlement via select-reason wizard"
+        action: "wizard"
+        model: "base.select_cancel_reason"
+        target: "settlement_1"
+        as_user: "base.user_admin"
+        values:
+          cancel_reason_id: "REC: cancel_reason"
+        method: "action_confirm"
+        asserts:
+          state:
+            type: "value"
+            expected: "cancel"
+
+      - step: "Only the first part is unsettled again"
+        action: "assert"
+        target: "cash_advance"
+        refresh: true
+        asserts:
+          amount_unsettled:
+            type: "value"
+            expected: 60.0
+
+      - step: "Credit line of the second settlement"
+        action: "search"
+        model: "account.move.line"
+        save_as: "credit_2"
+        domain:
+          - ["move_id", "=", "REC: settlement_2.move_id.id"]
+          - ["account_id", "=", "REC: ca_account.id"]
+          - ["analytic_account_id", "=", "REC: aa_a.id"]
+          - ["credit", "=", 40.0]
+        expect_count: 1
+
+      - step: "Credit of the second settlement stays reconciled"
+        action: "assert"
+        target: "credit_2"
+        refresh: true
+        asserts:
+          reconciled:
+            type: "value"
+            expected: true

@@ -58,3 +58,14 @@ class TestHrCashAdvance(YamlTransactionCase):
         item, and the allowed confirm for a passing one.
         """
         self.run_yaml_scenario("test_data_hr_cash_advance_status_check.yaml")
+
+    def test_hr_cash_advance_analytic_journal(self):
+        """Run the analytic journal scenarios (issue
+        open-synergy/opnsynid-hr-expense#297).
+
+        Covers the disbursement debit split per analytic account, the
+        settlement credit allocation and pairwise reconciliation, the
+        analytic account on expense lines, and the re-pairing after a
+        settlement is cancelled.
+        """
+        self.run_yaml_scenario("test_data_hr_cash_advance_analytic_journal.yaml")

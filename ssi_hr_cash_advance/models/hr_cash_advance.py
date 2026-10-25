@@ -299,19 +299,40 @@ class HrCashAdvance(models.Model):
         compute_sudo=True,
     )
 
+    def _get_cash_advance_move_lines(self):
+        """Return the disbursement lines booked on the cash advance account.
+
+        The lines are the debit lines of the journal entry on
+        ``cash_advance_account_id``; there is one per distinct analytic
+        account of the document lines. The line stored in
+        ``cash_advance_move_line_id`` is always included, so documents
+        issued before the entry was split keep working.
+
+        :return: ``account.move.line`` recordset, ordered by id
+        """
+        self.ensure_one()
+        lines = self.move_id.line_ids.filtered(
+            lambda line: line.account_id == self.cash_advance_account_id
+            and line.debit > 0.0
+        )
+        return (lines | self.cash_advance_move_line_id).sorted("id")
+
     @api.depends(
         "cash_advance_move_line_id",
-        "cash_advance_move_line_id.matched_debit_ids",
-        "cash_advance_move_line_id.matched_credit_ids",
+        "cash_advance_move_line_id.reconciled",
+        "move_id.line_ids.reconciled",
+        "move_id.line_ids.account_id",
+        "cash_advance_account_id",
     )
     def _compute_settled(self):
-        """Flag the document as settled once its cash advance line reconciles.
+        """Flag the document as settled once its cash advance lines reconcile.
 
         :return: None, sets ``settled`` on each record
         """
         for record in self:
             result = False
-            if record.cash_advance_move_line_id.reconciled:
+            lines = record._get_cash_advance_move_lines()
+            if lines and all(line.reconciled for line in lines):
                 result = True
             record.settled = result
 
@@ -354,19 +375,24 @@ class HrCashAdvance(models.Model):
     @api.depends(
         "cash_advance_move_line_id",
         "cash_advance_move_line_id.reconciled",
-        "cash_advance_move_line_id.amount_residual",
         "cash_advance_move_line_id.amount_residual_currency",
+        "move_id.line_ids.reconciled",
+        "move_id.line_ids.account_id",
+        "move_id.line_ids.amount_residual_currency",
+        "cash_advance_account_id",
     )
     def _compute_amount_settled(self):
-        """Compute the unsettled amount from the cash advance move line.
+        """Compute the unsettled amount from the cash advance move lines.
+
+        Sums ``amount_residual_currency`` over every cash advance line
+        of the journal entry.
 
         :return: None, sets ``amount_unsettled`` on each record
         """
         for document in self:
             result = 0.0
-            if document.cash_advance_move_line_id:
-                move_line = document.cash_advance_move_line_id
-                result = move_line.amount_residual_currency
+            for move_line in document._get_cash_advance_move_lines():
+                result += move_line.amount_residual_currency
             document.amount_unsettled = result
 
     amount_unsettled = fields.Monetary(
@@ -586,17 +612,18 @@ class HrCashAdvance(models.Model):
     def _reconcile_settlement_residual(self):
         """Reconcile unpaired done settlements to the open residual.
 
-        Done settlements of this cash advance whose header line is not
-        fully reconciled are paired, oldest first, with the cash
-        advance move line while it still has an open residual. The
-        pairing may be partial. Nothing happens when there is no cash
-        advance move line or no candidate.
+        Every credit line of the done settlements of this cash advance
+        that is not fully reconciled is paired, oldest settlement
+        first, with a disbursement line that has the **same analytic
+        account** and still has an open residual. The pairing may be
+        partial. Nothing happens when there is no disbursement line or
+        no candidate.
 
         :return: None
         """
         self.ensure_one()
-        ca_line = self.cash_advance_move_line_id
-        if not ca_line:
+        ca_lines = self._get_cash_advance_move_lines()
+        if not ca_lines:
             return
         candidates = (
             self.env["hr.cash_advance_settlement"]
@@ -605,16 +632,19 @@ class HrCashAdvance(models.Model):
                 [
                     ("cash_advance_id", "=", self.id),
                     ("state", "=", "done"),
-                    ("cash_advance_move_line_id", "!=", False),
-                    ("cash_advance_move_line_id.reconciled", "=", False),
                 ],
                 order="date asc, id asc",
             )
         )
         for settlement in candidates:
-            if ca_line.reconciled:
-                break
-            (settlement.cash_advance_move_line_id + ca_line).reconcile()
+            credit_lines = settlement._get_cash_advance_credit_lines()
+            for credit_line in credit_lines.filtered(lambda line: not line.reconciled):
+                target = ca_lines.filtered(
+                    lambda line, credit_line=credit_line: not line.reconciled
+                    and line.analytic_account_id == credit_line.analytic_account_id
+                )[:1]
+                if target:
+                    (credit_line + target).reconcile()
 
     def _delete_accounting_entry(self):
         """Cancel and delete the journal entry created on open, if any.
@@ -634,8 +664,9 @@ class HrCashAdvance(models.Model):
     def _create_accounting_entry(self):
         """Create and post the journal entry for this cash advance.
 
-        Builds the journal entry with a payable line and a cash
-        advance line, links them back to the document, then posts it.
+        Builds the journal entry with a payable line and one cash
+        advance line per analytic account of the document lines, links
+        them back to the document, then posts it.
 
         :return: ``True`` if a journal entry already exists
         """
@@ -645,12 +676,12 @@ class HrCashAdvance(models.Model):
 
         move = self._create_account_move()
         payable_line = self._create_payable_line(move)
-        cash_advance_line = self._create_cash_advance_line(move)
+        cash_advance_lines = self._create_cash_advance_line(move)
         self.write(
             {
                 "move_id": move.id,
                 "payable_move_line_id": payable_line.id,
-                "cash_advance_move_line_id": cash_advance_line.id,
+                "cash_advance_move_line_id": cash_advance_lines[:1].id,
             }
         )
         move.action_post()
@@ -691,17 +722,52 @@ class HrCashAdvance(models.Model):
         return AML.create(self._prepare_create_payable_line_data(move))
 
     def _create_cash_advance_line(self, move):
-        """Create the cash advance ``account.move.line`` of the entry.
+        """Create the cash advance ``account.move.line`` records of the entry.
+
+        One line is created for each analytic account group returned
+        by :meth:`_get_cash_advance_groups`.
 
         :param move: the ``account.move`` this line belongs to
-        :return: the created ``account.move.line`` record
+        :return: the created ``account.move.line`` recordset
         """
         self.ensure_one()
         AML = self.env["account.move.line"].with_context(check_move_validity=False)
-        return AML.create(self._prepare_create_cash_advance_line_data(move))
+        result = AML
+        for analytic_id, total in self._get_cash_advance_groups():
+            data = self._prepare_create_cash_advance_line_data(
+                move, analytic_id=analytic_id, total=total
+            )
+            result |= AML.create(data)
+        return result
+
+    def _get_cash_advance_groups(self):
+        """Group the document lines by analytic account.
+
+        Lines without an analytic account are merged into a single
+        group. The group without analytic account comes first, the
+        others follow ordered by analytic account id. A document
+        without lines yields one empty group so the entry is still
+        built.
+
+        :return: list of ``(analytic_account_id, total)`` tuples, where
+            ``analytic_account_id`` is ``False`` for the group without
+            analytic account and ``total`` is the sum of ``price_total``
+            in the document currency
+        """
+        self.ensure_one()
+        totals = {}
+        for line in self.line_ids:
+            key = line.analytic_account_id.id or False
+            totals[key] = totals.get(key, 0.0) + line.price_total
+        if not totals:
+            totals[False] = 0.0
+        return [(key, totals[key]) for key in sorted(totals, key=lambda k: k or 0)]
 
     def _prepare_create_payable_line_data(self, move):
         """Build the payable ``account.move.line`` values.
+
+        The credit is the sum of the debit of every cash advance
+        line, so the entry balances without rounding difference.
 
         Extension point: override to customize the payable line.
 
@@ -710,7 +776,13 @@ class HrCashAdvance(models.Model):
         """
         self.ensure_one()
         currency = self._get_currency()
-        amount, amount_currency = self._get_cash_advance_amount(currency)
+        amount = amount_currency = 0.0
+        for _analytic_id, total in self._get_cash_advance_groups():
+            group_amount, group_currency = self._get_cash_advance_amount(
+                currency, total
+            )
+            amount += group_amount
+            amount_currency += group_currency
         move_name = _("Employee cash advance %s" % (self.name))
         data = {
             "name": move_name,
@@ -724,23 +796,30 @@ class HrCashAdvance(models.Model):
         }
         return data
 
-    def _prepare_create_cash_advance_line_data(self, move):
-        """Build the cash advance ``account.move.line`` values.
+    def _prepare_create_cash_advance_line_data(
+        self, move, analytic_id=False, total=None
+    ):
+        """Build the values of one cash advance ``account.move.line``.
 
         Extension point: override to customize the cash advance line.
 
         :param move: the ``account.move`` this line belongs to
+        :param analytic_id: id of the analytic account of the group, or
+            ``False`` for the group without analytic account
+        :param total: group total in the document currency; defaults to
+            ``amount_total``
         :return: dict of ``account.move.line`` values
         """
         self.ensure_one()
         currency = self._get_currency()
-        amount, amount_currency = self._get_cash_advance_amount(currency)
+        amount, amount_currency = self._get_cash_advance_amount(currency, total)
         move_name = _("Employee cash advance %s" % (self.name))
         data = {
             "name": move_name,
             "move_id": move.id,
             "partner_id": self._get_partner_id(),
             "account_id": self.cash_advance_account_id.id,
+            "analytic_account_id": analytic_id or False,
             "debit": amount,
             "credit": 0.0,
             "currency_id": currency and currency.id or False,
@@ -760,25 +839,29 @@ class HrCashAdvance(models.Model):
         result = self.currency_id
         return result
 
-    def _get_cash_advance_amount(self, currency):
-        """Convert the total amount to company currency for the entry.
+    def _get_cash_advance_amount(self, currency, total=None):
+        """Convert an amount to company currency for the entry.
 
         :param currency: the document currency, or ``False``
+        :param total: amount in the document currency; defaults to
+            ``amount_total``
         :return: tuple ``(amount, amount_currency)`` in company currency
             and document currency respectively
         """
         self.ensure_one()
         amount = amount_currency = 0.0
         move_date = self.date
+        if total is None:
+            total = self.amount_total
 
         if currency:
-            amount_currency = self.amount_total
+            amount_currency = total
             amount = currency.with_context(date=move_date).compute(
                 amount_currency,
                 self.company_id.currency_id,
             )
         else:
-            amount = self.amount_total
+            amount = total
 
         return amount, amount_currency
 
