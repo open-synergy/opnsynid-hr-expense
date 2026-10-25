@@ -1,0 +1,438 @@
+scenarios:
+  - name:
+      "Cash advance -- the status check template is selected from the type on create and
+      on onchange"
+    steps:
+      - step: "Get the referenced model"
+        action: "ref"
+        xml_id: "ssi_hr_cash_advance.model_hr_cash_advance"
+        save_as: "ir_model"
+      - step: "Find the state field"
+        action: "search"
+        model: "ir.model.fields"
+        domain: [["model", "=", "hr.cash_advance"], ["name", "=", "state"]]
+        save_as: "state_field"
+        limit: 1
+        expect_count: 1
+      - step: "Find the confirm selection value"
+        action: "search"
+        model: "ir.model.fields.selection"
+        domain:
+          [
+            ["field_id.model", "=", "hr.cash_advance"],
+            ["field_id.name", "=", "state"],
+            ["value", "=", "confirm"],
+          ]
+        save_as: "confirm_selection"
+        limit: 1
+        expect_count: 1
+      - step: "Get payable account type (system data)"
+        action: "ref"
+        xml_id: "account.data_account_type_payable"
+        save_as: "acc_type"
+      - step: "Create cash advance account"
+        action: "create"
+        model: "account.account"
+        save_as: "adv_account"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC CA A Advance Account"
+          code: "SCCA1ADV"
+          user_type_id: "REC: acc_type.id"
+          internal_type: "other"
+          reconcile: true
+      - step: "Create payable account"
+        action: "create"
+        model: "account.account"
+        save_as: "pay_account"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC CA A Payable Account"
+          code: "SCCA1PAY"
+          user_type_id: "REC: acc_type.id"
+          internal_type: "other"
+          reconcile: true
+      - step: "Create cash advance journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "ca_journal"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC CA A CA Journal"
+          code: "CA1J1"
+          type: "general"
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC CA A Employee"
+      - step: "Create expense type SCCA1TYPE"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "type_a"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC CA A Type SCCA1TYPE"
+          code: "SCCA1TYPE"
+      - step: "Create expense type SCCA1OTH"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "type_other"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC CA A Type SCCA1OTH"
+          code: "SCCA1OTH"
+      - step: "Create status check item A"
+        action: "create"
+        model: "status.check.item"
+        save_as: "item_a"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC A Item"
+          code: "hr_cash_advance_A"
+          model_id: "REC: ir_model.id"
+          python_code: "result = True"
+      - step: "Create status check template A matching only its own type"
+        action: "create"
+        model: "status.check.template"
+        save_as: "tmpl_a"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC A Template"
+          model_id: "REC: ir_model.id"
+          python_code: 'result = document.type_id.code == "SCCA1TYPE"'
+      - step: "Create status check template detail A"
+        action: "create"
+        model: "status.check.template_detail"
+        save_as: "det_tmpl_a"
+        as_user: "base.user_admin"
+        values:
+          template_id: "REC: tmpl_a.id"
+          status_check_item_id: "REC: item_a.id"
+      - step: "Create document with the matching type"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "doc"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_a.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: adv_account.id"
+          payable_account_id: "REC: pay_account.id"
+          date: 2026-02-01
+          date_due: 2026-03-01
+      - step: "Assert the template is selected and the checks are created"
+        action: "assert"
+        target: "doc"
+        refresh: true
+        asserts:
+          status_check_template_id:
+            type: "m2o"
+            expected: "REC: tmpl_a"
+          status_check_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+      - step: "Create document with a type that matches no template"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "doc_other"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_other.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: adv_account.id"
+          payable_account_id: "REC: pay_account.id"
+          date: 2026-02-01
+          date_due: 2026-03-01
+      - step: "Assert no template is selected for the other type"
+        action: "assert"
+        target: "doc_other"
+        refresh: true
+        asserts:
+          status_check_template_id:
+            type: "value"
+            operator: "is_falsy"
+          status_check_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 0
+      - step: "Change the type in the form and watch the template follow"
+        action: form
+        model: "hr.cash_advance"
+        save_as: "form_doc"
+        as_user: "base.user_admin"
+        ops:
+          - set: {employee_id: "REC: employee"}
+          - set: {date: 2026-02-01}
+          - set: {date_due: 2026-03-01}
+          - set: {type_id: "REC: type_a"}
+          - assert:
+              status_check_template_id:
+                type: "m2o"
+                expected: "REC: tmpl_a"
+          - set: {type_id: "REC: type_other"}
+          - assert:
+              status_check_template_id:
+                type: "value"
+                operator: "is_falsy"
+          - set: {type_id: "REC: type_a"}
+          - assert:
+              status_check_template_id:
+                type: "m2o"
+                expected: "REC: tmpl_a"
+          - set: {journal_id: "REC: ca_journal"}
+          - set: {cash_advance_account_id: "REC: adv_account"}
+          - set: {payable_account_id: "REC: pay_account"}
+        save: true
+      - step: "Assert the saved form document keeps the template"
+        action: "assert"
+        target: "form_doc"
+        refresh: true
+        asserts:
+          status_check_template_id:
+            type: "m2o"
+            expected: "REC: tmpl_a"
+
+  - name:
+      "Cash advance -- confirm is blocked by a failing status check and allowed by a
+      passing one"
+    steps:
+      - step: "Get the referenced model"
+        action: "ref"
+        xml_id: "ssi_hr_cash_advance.model_hr_cash_advance"
+        save_as: "ir_model"
+      - step: "Find the state field"
+        action: "search"
+        model: "ir.model.fields"
+        domain: [["model", "=", "hr.cash_advance"], ["name", "=", "state"]]
+        save_as: "state_field"
+        limit: 1
+        expect_count: 1
+      - step: "Find the confirm selection value"
+        action: "search"
+        model: "ir.model.fields.selection"
+        domain:
+          [
+            ["field_id.model", "=", "hr.cash_advance"],
+            ["field_id.name", "=", "state"],
+            ["value", "=", "confirm"],
+          ]
+        save_as: "confirm_selection"
+        limit: 1
+        expect_count: 1
+      - step: "Get payable account type (system data)"
+        action: "ref"
+        xml_id: "account.data_account_type_payable"
+        save_as: "acc_type"
+      - step: "Create cash advance account"
+        action: "create"
+        model: "account.account"
+        save_as: "adv_account"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC CA B Advance Account"
+          code: "SCCA2ADV"
+          user_type_id: "REC: acc_type.id"
+          internal_type: "other"
+          reconcile: true
+      - step: "Create payable account"
+        action: "create"
+        model: "account.account"
+        save_as: "pay_account"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC CA B Payable Account"
+          code: "SCCA2PAY"
+          user_type_id: "REC: acc_type.id"
+          internal_type: "other"
+          reconcile: true
+      - step: "Create cash advance journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "ca_journal"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC CA B CA Journal"
+          code: "CA2J1"
+          type: "general"
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC CA B Employee"
+      - step: "Create expense type SCCA2FAIL"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "type_fail"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC CA B Type SCCA2FAIL"
+          code: "SCCA2FAIL"
+      - step: "Create expense type SCCA2PASS"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "type_pass"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC CA B Type SCCA2PASS"
+          code: "SCCA2PASS"
+      - step: "Create status check item FAIL"
+        action: "create"
+        model: "status.check.item"
+        save_as: "item_fail"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC FAIL Item"
+          code: "hr_cash_advance_FAIL"
+          model_id: "REC: ir_model.id"
+          python_code: "result = False"
+      - step: "Create status check template FAIL matching only its own type"
+        action: "create"
+        model: "status.check.template"
+        save_as: "tmpl_fail"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC FAIL Template"
+          model_id: "REC: ir_model.id"
+          python_code: 'result = document.type_id.code == "SCCA2FAIL"'
+      - step: "Create status check template detail FAIL"
+        action: "create"
+        model: "status.check.template_detail"
+        save_as: "det_tmpl_fail"
+        as_user: "base.user_admin"
+        values:
+          template_id: "REC: tmpl_fail.id"
+          status_check_item_id: "REC: item_fail.id"
+      - step: "Create state change constrain template FAIL"
+        action: "create"
+        model: "state.change.constrain.template"
+        save_as: "scc_tmpl_fail"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC FAIL Constrain"
+          model_id: "REC: ir_model.id"
+          state_field_id: "REC: state_field.id"
+          status_check_template_id: "REC: tmpl_fail.id"
+          python_code: "result = True"
+      - step: "Create constrain detail FAIL blocking confirm on the item"
+        action: "create"
+        model: "state.change.constrain.template_detail"
+        save_as: "sccd_tmpl_fail"
+        as_user: "base.user_admin"
+        values:
+          template_id: "REC: scc_tmpl_fail.id"
+          state_id: "REC: confirm_selection.id"
+          status_check_item_ids: [[6, 0, ["REC: item_fail.id"]]]
+      - step: "Create status check item PASS"
+        action: "create"
+        model: "status.check.item"
+        save_as: "item_pass"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC PASS Item"
+          code: "hr_cash_advance_PASS"
+          model_id: "REC: ir_model.id"
+          python_code: "result = True"
+      - step: "Create status check template PASS matching only its own type"
+        action: "create"
+        model: "status.check.template"
+        save_as: "tmpl_pass"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC PASS Template"
+          model_id: "REC: ir_model.id"
+          python_code: 'result = document.type_id.code == "SCCA2PASS"'
+      - step: "Create status check template detail PASS"
+        action: "create"
+        model: "status.check.template_detail"
+        save_as: "det_tmpl_pass"
+        as_user: "base.user_admin"
+        values:
+          template_id: "REC: tmpl_pass.id"
+          status_check_item_id: "REC: item_pass.id"
+      - step: "Create state change constrain template PASS"
+        action: "create"
+        model: "state.change.constrain.template"
+        save_as: "scc_tmpl_pass"
+        as_user: "base.user_admin"
+        values:
+          name: "SCC PASS Constrain"
+          model_id: "REC: ir_model.id"
+          state_field_id: "REC: state_field.id"
+          status_check_template_id: "REC: tmpl_pass.id"
+          python_code: "result = True"
+      - step: "Create constrain detail PASS blocking confirm on the item"
+        action: "create"
+        model: "state.change.constrain.template_detail"
+        save_as: "sccd_tmpl_pass"
+        as_user: "base.user_admin"
+        values:
+          template_id: "REC: scc_tmpl_pass.id"
+          state_id: "REC: confirm_selection.id"
+          status_check_item_ids: [[6, 0, ["REC: item_pass.id"]]]
+      - step: "Create document whose status check fails"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "doc_fail"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_fail.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: adv_account.id"
+          payable_account_id: "REC: pay_account.id"
+          date: 2026-02-01
+          date_due: 2026-03-01
+      - step: "Assert the constrain template is selected"
+        action: "assert"
+        target: "doc_fail"
+        refresh: true
+        asserts:
+          state_change_constrain_template_id:
+            type: "m2o"
+            expected: "REC: scc_tmpl_fail"
+      - step: "Confirm is rejected while the status check fails"
+        action: "call"
+        target: "doc_fail"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+          message_contains: "Status check"
+      - step: "Assert the document stayed in draft"
+        action: "assert"
+        target: "doc_fail"
+        refresh: true
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+      - step: "Create document whose status check passes"
+        action: "create"
+        model: "hr.cash_advance"
+        save_as: "doc_pass"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: type_pass.id"
+          journal_id: "REC: ca_journal.id"
+          cash_advance_account_id: "REC: adv_account.id"
+          payable_account_id: "REC: pay_account.id"
+          date: 2026-02-01
+          date_due: 2026-03-01
+      - step: "Confirm is allowed while the status check passes"
+        action: "call"
+        target: "doc_pass"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
