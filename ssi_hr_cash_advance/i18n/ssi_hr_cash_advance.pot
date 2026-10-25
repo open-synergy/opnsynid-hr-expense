@@ -1118,15 +1118,29 @@ msgid "State"
 msgstr ""
 
 #. module: ssi_hr_cash_advance
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance.field_hr_cash_advance__state_change_constrain_template_id
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance.field_hr_cash_advance_settlement__state_change_constrain_template_id
+msgid "State Change Constrain Template"
+msgstr ""
+
+#. module: ssi_hr_cash_advance
 #: model_terms:ir.ui.view,arch_db:ssi_hr_cash_advance.hr_cash_advance_settings_view_form
 #: model_terms:ir.ui.view,arch_db:ssi_hr_cash_advance.hr_cash_advance_settlement_settings_view_form
 msgid "State Change Constrains"
 msgstr ""
 
 #. module: ssi_hr_cash_advance
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance.field_hr_cash_advance__status_check_ids
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance.field_hr_cash_advance_settlement__status_check_ids
 #: model_terms:ir.ui.view,arch_db:ssi_hr_cash_advance.hr_cash_advance_settings_view_form
 #: model_terms:ir.ui.view,arch_db:ssi_hr_cash_advance.hr_cash_advance_settlement_settings_view_form
 msgid "Status Check"
+msgstr ""
+
+#. module: ssi_hr_cash_advance
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance.field_hr_cash_advance__status_check_template_id
+#: model:ir.model.fields,field_description:ssi_hr_cash_advance.field_hr_cash_advance_settlement__status_check_template_id
+msgid "Status Check Template"
 msgstr ""
 
 #. module: ssi_hr_cash_advance
