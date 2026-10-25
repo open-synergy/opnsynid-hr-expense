@@ -530,26 +530,136 @@ Solution: Reduce the settlement amount or settle a different cash advance"""
     def _create_accounting_entry(self):
         """Create, post and reconcile the settlement journal entry.
 
-        Builds the journal entry with a header line and one expense
-        line per detail, posts it, then reconciles the header line
-        against the originating cash advance move line.
+        Builds the journal entry with one credit line per receiving
+        disbursement line of the cash advance (see
+        :meth:`_get_header_allocations`) and one expense line per
+        detail, posts it, then reconciles every credit line against
+        the disbursement line it was allocated to.
 
         :return: None
         """
         self.ensure_one()
         move = self._create_account_move()
-        header_line = self._create_header_line(move)
+        header_lines = self.env["account.move.line"]
+        pairs = []
+        for ca_line, amount in self._get_header_allocations():
+            header_line = self._create_header_line(move, ca_line, amount)
+            header_lines |= header_line
+            pairs.append(header_line + ca_line)
         for line in self.line_ids:
             line._create_expense_line(move)
-        pair = header_line + self.cash_advance_id.cash_advance_move_line_id
         self.write(
             {
                 "move_id": move.id,
-                "cash_advance_move_line_id": header_line.id,
+                "cash_advance_move_line_id": header_lines[:1].id,
             }
         )
         move.action_post()
-        pair.reconcile()
+        for pair in pairs:
+            if not pair[1].reconciled:
+                pair.reconcile()
+
+    def _get_cash_advance_credit_lines(self):
+        """Return the credit lines booked on the cash advance account.
+
+        The line stored in ``cash_advance_move_line_id`` is always
+        included, so settlements created before the credit was split
+        keep working.
+
+        :return: ``account.move.line`` recordset, ordered by id
+        """
+        self.ensure_one()
+        account = self.cash_advance_id.cash_advance_account_id
+        lines = self.move_id.line_ids.filtered(
+            lambda line: line.account_id == account and line.credit > 0.0
+        )
+        return (lines | self.cash_advance_move_line_id).sorted("id")
+
+    def _get_analytic_totals(self):
+        """Group the detail lines by analytic account.
+
+        :return: list of ``(analytic_account_id, amount)`` tuples in
+            company currency; the group without analytic account comes
+            first, the others are ordered by analytic account id
+        """
+        self.ensure_one()
+        currency = self._get_currency()
+        totals = {}
+        for line in self.line_ids:
+            key = line.analytic_account_id.id or False
+            totals[key] = totals.get(key, 0.0) + line.price_total
+        result = []
+        for key in sorted(totals, key=lambda k: k or 0):
+            amount, _amount_currency = self._get_header_amount(currency, totals[key])
+            result.append((key, amount))
+        return result
+
+    def _get_header_allocations(self):
+        """Allocate the settlement amount to the disbursement lines.
+
+        The residual of each disbursement line of the cash advance is
+        consumed in two passes. First every analytic group of this
+        settlement fills the residual of the disbursement line with the
+        same analytic account. Whatever is left (different analytic
+        account, or excess) goes to the disbursement lines that still
+        have a residual, ordered by id. Allocations to the same line
+        are merged, so there is one credit line per receiving line.
+
+        :return: list of ``(disbursement_line, amount)`` tuples in
+            company currency, in order of first allocation
+        """
+        self.ensure_one()
+        rounding = self.company_id.currency_id.rounding or 0.01
+        ca_lines = self.cash_advance_id._get_cash_advance_move_lines()
+        residuals = {
+            line.id: abs(line.amount_residual)
+            for line in ca_lines
+            if not line.reconciled
+        }
+        allocations = {}
+        order = []
+
+        def _allocate(line, amount):
+            """Take up to ``amount`` from the residual of ``line``.
+
+            :param line: the disbursement ``account.move.line``
+            :param amount: the amount still to allocate
+            :return: the amount actually allocated to ``line``
+            """
+            take = min(amount, residuals[line.id])
+            if float_compare(take, 0.0, precision_rounding=rounding) <= 0:
+                return 0.0
+            residuals[line.id] -= take
+            if line.id not in allocations:
+                allocations[line.id] = 0.0
+                order.append(line)
+            allocations[line.id] += take
+            return take
+
+        remainders = []
+        for analytic_id, amount in self._get_analytic_totals():
+            for line in ca_lines.filtered(
+                lambda ca_line, analytic_id=analytic_id: ca_line.id in residuals
+                and (ca_line.analytic_account_id.id or False) == analytic_id
+            ):
+                amount -= _allocate(line, amount)
+            remainders.append(amount)
+        rest = sum(remainders)
+        for line in ca_lines.filtered(lambda ca_line: ca_line.id in residuals):
+            if float_compare(rest, 0.0, precision_rounding=rounding) <= 0:
+                break
+            rest -= _allocate(line, rest)
+        result = [(line, allocations[line.id]) for line in order]
+        if float_compare(rest, 0.0, precision_rounding=rounding) > 0:
+            # Nothing left to settle against: keep the entry balanced by
+            # crediting the excess on the last receiving line (or the
+            # first disbursement line) without a reconciliation partner.
+            if result:
+                last_line, last_amount = result[-1]
+                result[-1] = (last_line, last_amount + rest)
+            elif ca_lines:
+                result.append((ca_lines[:1], rest))
+        return result
 
     def _create_account_move(self):
         """Create the ``account.move`` header for this document.
@@ -576,15 +686,18 @@ Solution: Reduce the settlement amount or settle a different cash advance"""
         }
         return data
 
-    def _create_header_line(self, move):
-        """Create the header ``account.move.line`` of the entry.
+    def _create_header_line(self, move, ca_line, amount):
+        """Create one credit ``account.move.line`` of the entry.
 
         :param move: the ``account.move`` this line belongs to
+        :param ca_line: the disbursement ``account.move.line`` this
+            credit is allocated to
+        :param amount: the credit in company currency
         :return: the created ``account.move.line`` record
         """
         self.ensure_one()
         AML = self.env["account.move.line"].with_context(check_move_validity=False)
-        return AML.create(self._prepare_create_header_line_data(move))
+        return AML.create(self._prepare_create_header_line_data(move, ca_line, amount))
 
     def _get_currency(self):
         """Return the currency used to build the accounting entry.
@@ -597,17 +710,23 @@ Solution: Reduce the settlement amount or settle a different cash advance"""
         result = self.company_currency_id
         return result
 
-    def _prepare_create_header_line_data(self, move):
-        """Build the header ``account.move.line`` values.
+    def _prepare_create_header_line_data(self, move, ca_line, amount):
+        """Build the values of one credit ``account.move.line``.
+
+        The line carries the analytic account of the disbursement line
+        it is allocated to, so the commitment of that analytic account
+        is released.
 
         Extension point: override to customize the header line.
 
         :param move: the ``account.move`` this line belongs to
+        :param ca_line: the disbursement ``account.move.line`` this
+            credit is allocated to
+        :param amount: the credit in company currency
         :return: dict of ``account.move.line`` values
         """
         self.ensure_one()
         currency = self._get_currency()
-        amount, amount_currency = self._get_header_amount(currency)
         move_name = _("Employee cash advance settlement %s" % (self.name))
         account = self.cash_advance_id.cash_advance_account_id
         data = {
@@ -615,32 +734,37 @@ Solution: Reduce the settlement amount or settle a different cash advance"""
             "move_id": move.id,
             "partner_id": self._get_partner_id(),
             "account_id": account.id,
+            "analytic_account_id": ca_line.analytic_account_id.id or False,
             "debit": 0.0,
             "credit": amount,
             "currency_id": currency and currency.id or False,
-            "amount_currency": amount_currency,
+            "amount_currency": currency and amount or 0.0,
         }
         return data
 
-    def _get_header_amount(self, currency):
-        """Convert the total amount to company currency for the entry.
+    def _get_header_amount(self, currency, total=None):
+        """Convert an amount to company currency for the entry.
 
         :param currency: the document currency, or ``False``
+        :param total: amount in the document currency; defaults to
+            ``amount_total``
         :return: tuple ``(amount, amount_currency)`` in company currency
             and document currency respectively
         """
         self.ensure_one()
         amount = amount_currency = 0.0
         move_date = self.date
+        if total is None:
+            total = self.amount_total
 
         if currency:
-            amount_currency = self.amount_total
+            amount_currency = total
             amount = currency.with_context(date=move_date).compute(
                 amount_currency,
                 self.company_id.currency_id,
             )
         else:
-            amount = self.amount_total
+            amount = total
 
         return amount, amount_currency
 
@@ -671,8 +795,10 @@ Solution: Reduce the settlement amount or settle a different cash advance"""
     def _delete_accounting_entry(self):
         """Undo reconciliation and delete the settlement journal entry.
 
-        After the entry is deleted, the other done settlements of the
-        cash advance are paired again with its open residual.
+        Every credit line of the entry is unreconciled first. After the
+        entry is deleted, the other done settlements of the cash
+        advance are paired again with its open residual, per analytic
+        account.
 
         :return: ``True`` if there was nothing to delete
         """
@@ -681,7 +807,7 @@ Solution: Reduce the settlement amount or settle a different cash advance"""
             return True
 
         cash_advance = self.cash_advance_id
-        self.cash_advance_move_line_id.remove_move_reconcile()
+        self._get_cash_advance_credit_lines().remove_move_reconcile()
 
         if self.move_id.state == "posted":
             self.move_id.button_draft()
