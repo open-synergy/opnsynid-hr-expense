@@ -25,8 +25,16 @@ class HrCashAdvanceSettlement(models.Model):
         "mixin.many2one_configurator",
         "mixin.employee_document",
         "mixin.company_currency",
+        "mixin.state_change_constrain",
+        "mixin.status_check",
     ]
     _description = "Employee Cash Advance Settlement"
+
+    # Status check attributes
+    _status_check_create_page = True
+    _status_check_include_fields = [
+        "type_id",
+    ]
 
     # Multiple Approval Attribute
     _approval_from_state = "draft"
@@ -347,6 +355,29 @@ class HrCashAdvanceSettlement(models.Model):
                         lambda r: r.currency_id.id == record.currency_id.id
                     )
             record.allowed_pricelist_ids = result
+
+    @api.onchange("type_id")
+    def onchange_status_check_template_id(self):
+        """Select the status check template matching the document type.
+
+        The template is cleared first, then resolved again only when
+        ``type_id`` is set.
+        """
+        self.status_check_template_id = False
+        if self.type_id:
+            self.status_check_template_id = self._get_template_status_check()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Create documents and select their status check template.
+
+        :param vals_list: list of value dictionaries, one per document
+        :return: the created recordset
+        """
+        _super = super()
+        results = _super.create(vals_list)
+        results.onchange_status_check_template_id()
+        return results
 
     @api.model
     def _get_policy_field(self):

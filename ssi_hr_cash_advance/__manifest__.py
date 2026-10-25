@@ -20,6 +20,7 @@
         "ssi_employee_document_mixin",
         "ssi_product_line_account_mixin",
         "ssi_company_currency_mixin",
+        "ssi_state_change_constrain_mixin",
         "ssi_m2o_configurator_mixin",
         "base_duration",
         "base_automation",

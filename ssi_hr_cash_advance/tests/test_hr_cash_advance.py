@@ -48,3 +48,13 @@ class TestHrCashAdvance(YamlTransactionCase):
         without analytic account.
         """
         self.run_yaml_scenario("test_data_hr_cash_advance_analytic_account_ids.yaml")
+
+    def test_hr_cash_advance_status_check(self):
+        """Run the status check and state change constrain scenarios
+        (issue open-synergy/opnsynid-hr-expense#295).
+
+        Covers the template selection on create and on onchange of
+        ``type_id``, the rejected confirm for a failing status check
+        item, and the allowed confirm for a passing one.
+        """
+        self.run_yaml_scenario("test_data_hr_cash_advance_status_check.yaml")
