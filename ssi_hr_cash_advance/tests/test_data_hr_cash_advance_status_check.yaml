@@ -405,7 +405,7 @@ scenarios:
         as_user: "base.user_admin"
         expect_error:
           type: "UserError"
-          message_contains: "Status check"
+          message_contains: "SCC FAIL Item"
       - step: "Assert the document stayed in draft"
         action: "assert"
         target: "doc_fail"
@@ -427,6 +427,18 @@ scenarios:
           payable_account_id: "REC: pay_account.id"
           date: 2026-02-01
           date_due: 2026-03-01
+      - step: "Assert the constrain template and status check are loaded"
+        action: "assert"
+        target: "doc_pass"
+        refresh: true
+        asserts:
+          state_change_constrain_template_id:
+            type: "m2o"
+            expected: "REC: scc_tmpl_pass"
+          status_check_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
       - step: "Confirm is allowed while the status check passes"
         action: "call"
         target: "doc_pass"
