@@ -853,6 +853,21 @@ msgid "State"
 msgstr ""
 
 #. module: ssi_hr_reimbursement
+#: model:ir.model.fields,field_description:ssi_hr_reimbursement.field_hr_reimbursement__state_change_constrain_template_id
+msgid "State Change Constrain Template"
+msgstr ""
+
+#. module: ssi_hr_reimbursement
+#: model:ir.model.fields,field_description:ssi_hr_reimbursement.field_hr_reimbursement__status_check_ids
+msgid "Status Check"
+msgstr ""
+
+#. module: ssi_hr_reimbursement
+#: model:ir.model.fields,field_description:ssi_hr_reimbursement.field_hr_reimbursement__status_check_template_id
+msgid "Status Check Template"
+msgstr ""
+
+#. module: ssi_hr_reimbursement
 #: model:ir.model.fields,help:ssi_hr_reimbursement.field_hr_reimbursement__activity_state
 msgid ""
 "Status based on activities\n"
