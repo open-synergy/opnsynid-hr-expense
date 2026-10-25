@@ -24,6 +24,7 @@
         "base_duration",
         "base_automation",
         "ssi_financial_accounting",
+        "ssi_state_change_constrain_mixin",
         "web_tour",
     ],
     "data": [

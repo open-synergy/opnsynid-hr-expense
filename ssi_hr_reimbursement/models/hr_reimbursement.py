@@ -24,6 +24,8 @@ class HrReimbursement(models.Model):
         "mixin.many2one_configurator",
         "mixin.employee_bank_account",
         "mixin.company_currency",
+        "mixin.state_change_constrain",
+        "mixin.status_check",
     ]
     _description = "Employee Reimbursement"
 
@@ -73,6 +75,12 @@ class HrReimbursement(models.Model):
 
     # Sequence attribute
     _create_sequence_state = "open"
+
+    # Status check attribute
+    _status_check_create_page = True
+    _status_check_include_fields = [
+        "type_id",
+    ]
 
     # FIELD
     date = fields.Date(
@@ -653,3 +661,31 @@ class HrReimbursement(models.Model):
         if self._automatically_insert_view_element:
             view_arch = self._reconfigure_statusbar_visible(view_arch)
         return view_arch
+
+    @api.onchange(
+        "type_id",
+    )
+    def onchange_status_check_template_id(self):
+        """Select the status check template from ``type_id``.
+
+        Clears ``status_check_template_id`` first, then fills it with
+        the first matching template when ``type_id`` is set.
+
+        :return: None, sets ``status_check_template_id``
+        """
+        self.status_check_template_id = False
+        if self.type_id:
+            self.status_check_template_id = self._get_template_status_check()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Create documents and select their status check template.
+
+        :param vals_list: list of value dicts, one per document
+        :return: the created ``hr.reimbursement`` recordset
+        """
+        _super = super(HrReimbursement, self)
+        documents = _super.create(vals_list)
+        for document in documents:
+            document.onchange_status_check_template_id()
+        return documents

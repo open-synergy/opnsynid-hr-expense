@@ -1,0 +1,500 @@
+options:
+  auto_refresh: true
+
+# Read-only lookups replayed before every scenario (fresh registry each
+# time). Fixtures that carry unique codes stay inside each scenario because
+# the scenarios share one DB transaction (T-01).
+setup:
+  steps:
+    - step: "Find the ir.model row of hr.reimbursement"
+      action: "search"
+      model: "ir.model"
+      domain: [["model", "=", "hr.reimbursement"]]
+      save_as: "model_reimbursement"
+      limit: 1
+      expect_count: 1
+
+    - step: "Find the state field of hr.reimbursement"
+      action: "search"
+      model: "ir.model.fields"
+      domain: [["model", "=", "hr.reimbursement"], ["name", "=", "state"]]
+      save_as: "state_field"
+      limit: 1
+      expect_count: 1
+
+    - step: "Find the confirm selection value of the state field"
+      action: "search"
+      model: "ir.model.fields.selection"
+      domain:
+        - ["field_id", "=", "EVAL: registry['state_field'].id"]
+        - ["value", "=", "confirm"]
+      save_as: "state_confirm"
+      limit: 1
+      expect_count: 1
+
+scenarios:
+  - name: "Status check template selected on create from type_id"
+    steps:
+      - step: "Get payable account type (system data)"
+        action: "ref"
+        xml_id: "account.data_account_type_payable"
+        save_as: "account_type_payable"
+
+      - step: "Create reimbursement account"
+        action: "create"
+        model: "account.account"
+        save_as: "account"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Account 1"
+          code: "SCACC1"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create reimbursement journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Journal 1"
+          code: "SCJ1"
+          type: "general"
+
+      - step: "Create expense type matched by the status check template"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Type 1"
+          code: "SCTYPE1"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Employee 1"
+
+      - step: "Create status check item"
+        action: "create"
+        model: "status.check.item"
+        save_as: "item"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Item 1"
+          code: "SCITEM1"
+          status_check_method: "use_python"
+          python_code: "result = True"
+
+      - step: "Create status check template matching only this expense type"
+        action: "create"
+        model: "status.check.template"
+        save_as: "template"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Template 1"
+          model_id: "REC: model_reimbursement.id"
+          python_code: "result = document.type_id.code == 'SCTYPE1'"
+
+      - step: "Create status check template detail"
+        action: "create"
+        model: "status.check.template_detail"
+        save_as: "template_detail"
+        as_user: "base.user_admin"
+        values:
+          template_id: "REC: template.id"
+          status_check_item_id: "REC: item.id"
+
+      - step: "Create draft reimbursement"
+        action: "create"
+        model: "hr.reimbursement"
+        save_as: "reimbursement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REC: journal.id"
+          account_id: "REC: account.id"
+          date: 2026-02-01
+          date_due: 2026-03-01
+
+      - step: "Assert template selected and status check lines generated"
+        action: "assert"
+        target: "reimbursement"
+        refresh: true
+        asserts:
+          status_check_template_id:
+            type: "m2o"
+            expected: "REC: template"
+          status_check_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+
+  - name: "Status check template selected by onchange of type_id"
+    steps:
+      - step: "Get payable account type (system data)"
+        action: "ref"
+        xml_id: "account.data_account_type_payable"
+        save_as: "account_type_payable"
+
+      - step: "Create reimbursement account"
+        action: "create"
+        model: "account.account"
+        save_as: "account"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Account 2"
+          code: "SCACC2"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create reimbursement journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Journal 2"
+          code: "SCJ2"
+          type: "general"
+
+      - step: "Create expense type matched by the status check template"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Type 2"
+          code: "SCTYPE2"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Employee 2"
+
+      - step: "Create status check item"
+        action: "create"
+        model: "status.check.item"
+        save_as: "item"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Item 2"
+          code: "SCITEM2"
+          status_check_method: "use_python"
+          python_code: "result = True"
+
+      - step: "Create status check template matching only this expense type"
+        action: "create"
+        model: "status.check.template"
+        save_as: "template"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Template 2"
+          model_id: "REC: model_reimbursement.id"
+          python_code: "result = document.type_id.code == 'SCTYPE2'"
+
+      - step: "Create status check template detail"
+        action: "create"
+        model: "status.check.template_detail"
+        save_as: "template_detail"
+        as_user: "base.user_admin"
+        values:
+          template_id: "REC: template.id"
+          status_check_item_id: "REC: item.id"
+
+      - step: "Fill the form header and select the type"
+        action: "form"
+        model: "hr.reimbursement"
+        save: false
+        as_user: "base.user_admin"
+        ops:
+          - set: {employee_id: "REC: employee"}
+          - set: {date: 2026-02-01}
+          - set: {date_due: 2026-03-01}
+          - set: {type_id: "REC: expense_type"}
+          - assert:
+              status_check_template_id:
+                type: "m2o"
+                expected: "REC: template"
+
+  - name: "Confirm is rejected while the required status check fails"
+    steps:
+      - step: "Get payable account type (system data)"
+        action: "ref"
+        xml_id: "account.data_account_type_payable"
+        save_as: "account_type_payable"
+
+      - step: "Create reimbursement account"
+        action: "create"
+        model: "account.account"
+        save_as: "account"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Account 3"
+          code: "SCACC3"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create reimbursement journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Journal 3"
+          code: "SCJ3"
+          type: "general"
+
+      - step: "Create expense type matched by the status check template"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Type 3"
+          code: "SCTYPE3"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Employee 3"
+
+      - step: "Create status check item"
+        action: "create"
+        model: "status.check.item"
+        save_as: "item"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Item 3"
+          code: "SCITEM3"
+          status_check_method: "use_python"
+          python_code: "result = False"
+
+      - step: "Create status check template matching only this expense type"
+        action: "create"
+        model: "status.check.template"
+        save_as: "template"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Template 3"
+          model_id: "REC: model_reimbursement.id"
+          python_code: "result = document.type_id.code == 'SCTYPE3'"
+
+      - step: "Create status check template detail"
+        action: "create"
+        model: "status.check.template_detail"
+        save_as: "template_detail"
+        as_user: "base.user_admin"
+        values:
+          template_id: "REC: template.id"
+          status_check_item_id: "REC: item.id"
+
+      - step: "Create state change constrain template"
+        action: "create"
+        model: "state.change.constrain.template"
+        save_as: "constrain_template"
+        as_user: "base.user_admin"
+        values:
+          name: "State Constrain Template 3"
+          model_id: "REC: model_reimbursement.id"
+          state_field_id: "REC: state_field.id"
+          status_check_template_id: "REC: template.id"
+          python_code: "result = True"
+
+      - step: "Require the item before the document can reach confirm"
+        action: "create"
+        model: "state.change.constrain.template_detail"
+        save_as: "constrain_detail"
+        as_user: "base.user_admin"
+        values:
+          template_id: "REC: constrain_template.id"
+          state_id: "REC: state_confirm.id"
+          status_check_item_ids:
+            - - 6
+              - 0
+              - - "REC: item.id"
+
+      - step: "Create draft reimbursement"
+        action: "create"
+        model: "hr.reimbursement"
+        save_as: "reimbursement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REC: journal.id"
+          account_id: "REC: account.id"
+          date: 2026-02-01
+          date_due: 2026-03-01
+
+      - step: "Force a fresh read so the status check lines are visible (T-04)"
+        action: "assert"
+        target: "reimbursement"
+        refresh: true
+        asserts:
+          state_change_constrain_template_id:
+            type: "m2o"
+            expected: "REC: constrain_template"
+          status_check_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+
+      - step: "Confirm is blocked by the failing status check item"
+        action: "call"
+        target: "reimbursement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+          message_contains: "Status Check Item 3"
+
+  - name: "Confirm succeeds when the required status check passes"
+    steps:
+      - step: "Get payable account type (system data)"
+        action: "ref"
+        xml_id: "account.data_account_type_payable"
+        save_as: "account_type_payable"
+
+      - step: "Create reimbursement account"
+        action: "create"
+        model: "account.account"
+        save_as: "account"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Account 4"
+          code: "SCACC4"
+          user_type_id: "REC: account_type_payable.id"
+          internal_type: "other"
+          reconcile: true
+
+      - step: "Create reimbursement journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Journal 4"
+          code: "SCJ4"
+          type: "general"
+
+      - step: "Create expense type matched by the status check template"
+        action: "create"
+        model: "hr.expense_type"
+        save_as: "expense_type"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Type 4"
+          code: "SCTYPE4"
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Employee 4"
+
+      - step: "Create status check item"
+        action: "create"
+        model: "status.check.item"
+        save_as: "item"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Item 4"
+          code: "SCITEM4"
+          status_check_method: "use_python"
+          python_code: "result = True"
+
+      - step: "Create status check template matching only this expense type"
+        action: "create"
+        model: "status.check.template"
+        save_as: "template"
+        as_user: "base.user_admin"
+        values:
+          name: "Status Check Template 4"
+          model_id: "REC: model_reimbursement.id"
+          python_code: "result = document.type_id.code == 'SCTYPE4'"
+
+      - step: "Create status check template detail"
+        action: "create"
+        model: "status.check.template_detail"
+        save_as: "template_detail"
+        as_user: "base.user_admin"
+        values:
+          template_id: "REC: template.id"
+          status_check_item_id: "REC: item.id"
+
+      - step: "Create state change constrain template"
+        action: "create"
+        model: "state.change.constrain.template"
+        save_as: "constrain_template"
+        as_user: "base.user_admin"
+        values:
+          name: "State Constrain Template 4"
+          model_id: "REC: model_reimbursement.id"
+          state_field_id: "REC: state_field.id"
+          status_check_template_id: "REC: template.id"
+          python_code: "result = True"
+
+      - step: "Require the item before the document can reach confirm"
+        action: "create"
+        model: "state.change.constrain.template_detail"
+        save_as: "constrain_detail"
+        as_user: "base.user_admin"
+        values:
+          template_id: "REC: constrain_template.id"
+          state_id: "REC: state_confirm.id"
+          status_check_item_ids:
+            - - 6
+              - 0
+              - - "REC: item.id"
+
+      - step: "Create draft reimbursement"
+        action: "create"
+        model: "hr.reimbursement"
+        save_as: "reimbursement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee.id"
+          type_id: "REC: expense_type.id"
+          journal_id: "REC: journal.id"
+          account_id: "REC: account.id"
+          date: 2026-02-01
+          date_due: 2026-03-01
+
+      - step: "Force a fresh read so the status check lines are visible (T-04)"
+        action: "assert"
+        target: "reimbursement"
+        refresh: true
+        asserts:
+          state_change_constrain_template_id:
+            type: "m2o"
+            expected: "REC: constrain_template"
+          status_check_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+
+      - step: "Confirm passes with a passing status check item"
+        action: "call"
+        target: "reimbursement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
